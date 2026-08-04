@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Qbox — 시험지 PDF, 문제만 쏙</title>
+<!-- ⏳ 임시 — 검색엔진 노출 차단. 지금은 ①제품명 미확정(Qbox는 이름 충돌 확인됨)
+     ②다운로드 버튼이 아직 빈 링크 ③목업이 "예시" 상태라, 검색으로 흘러든 사람에게
+     보여줄 상태가 아니다. **링크를 직접 받은 사람은 정상적으로 본다.**
+     ⚠️ 정식 공개 때 이 줄을 지울 것 (노션 백로그 "랜딩 검색 노출 열기"). -->
+<meta name="robots" content="noindex, nofollow">
+<!-- ⚠️ 외부 CDN 금지 — 폰트는 동봉(fonts/). 구글 폰트 CDN을 쓰면 페이지를 열기만 해도
+     방문자 IP가 구글로 전송돼, "회원가입 없음 · 내 자료는 내 컴퓨터에만"을 내세우는 페이지와 톤이 어긋난다.
+     (2026-07-31: 월 구독 확정으로 라이선스 검증 서버가 생겼다 → "우리 서버 없음"은 더 이상 쓰지 않는다.
+      단 시험지·문제는 여전히 전송하지 않으며, 오가는 것은 라이선스 키뿐이다.)
+     재생성: tools/fetch_fonts.py  /  라이선스: SIL OFL 1.1 (fonts/OFL-nanummyeongjo.txt) -->
+<link rel="stylesheet" href="fonts.css">
+<style>
+  :root {
+    --ink: #1a1f2e;
+    --ink-soft: #4b5265;
+    --ink-faint: #8a90a3;
+    --accent: #3d5af1;
+    --accent-deep: #2a41c4;
+    --accent-soft: #eef1fe;
+    --bg: #ffffff;
+    --bg-alt: #f7f8fc;
+    --line: #e6e8f0;
+    --radius: 14px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+    color: var(--ink);
+    background: var(--bg);
+    line-height: 1.65;
+    word-break: keep-all;
+  }
+  .wrap { max-width: 1040px; margin: 0 auto; padding: 0 24px; }
+
+  /* ── Nav ── */
+  nav {
+    position: sticky; top: 0; z-index: 10;
+    background: rgba(255,255,255,.92); backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--line);
+  }
+  .nav-inner { display: flex; align-items: center; justify-content: space-between; height: 64px; }
+  .logo { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; }
+  .logo span { color: var(--accent); }
+  .nav-cta {
+    background: var(--accent); color: #fff; text-decoration: none;
+    padding: 9px 18px; border-radius: 8px; font-size: 14px; font-weight: 600;
+  }
+  .nav-cta:hover { background: var(--accent-deep); }
+
+  /* ── Hero (새벽 책상: 짙은 남색 + 스탠드 불빛) ── */
+  .hero { position: relative; background: #0f1626; color: #edf0f6; padding: 72px 0 0; text-align: center; overflow: hidden; }
+  .hero-glow {
+    position: absolute; top: -170px; left: 50%; transform: translateX(-55%);
+    width: 780px; height: 580px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(233,168,79,.18), transparent 62%);
+    pointer-events: none;
+  }
+  .hero-in { position: relative; }
+  .badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(233,168,79,.10); color: #d9b071; border: 1px solid rgba(233,168,79,.30);
+    font-size: 13px; font-weight: 700; padding: 6px 14px; border-radius: 99px;
+    margin-bottom: 24px;
+  }
+  h1 {
+    font-size: clamp(32px, 5.5vw, 52px); font-weight: 800;
+    letter-spacing: -1.5px; line-height: 1.25; margin-bottom: 20px;
+  }
+  h1 .accent { color: inherit; border-bottom: 4px solid #e9a84f; }
+  .hero-sub {
+    font-size: clamp(16px, 2.2vw, 19px); color: #98a3ba;
+    max-width: 640px; margin: 0 auto 8px;
+  }
+  .cta-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .btn-primary {
+    background: var(--accent); color: #fff; text-decoration: none;
+    padding: 15px 32px; border-radius: 10px; font-size: 17px; font-weight: 700;
+    box-shadow: 0 6px 20px rgba(61,90,241,.25);
+  }
+  .btn-primary:hover { background: var(--accent-deep); }
+  .btn-ghost {
+    color: var(--ink-soft); text-decoration: none; border: 1px solid var(--line);
+    padding: 15px 32px; border-radius: 10px; font-size: 17px; font-weight: 600;
+  }
+  .btn-ghost:hover { background: var(--bg-alt); }
+  .hero .btn-primary { background: #e9a84f; color: #1a1508; box-shadow: 0 6px 22px rgba(233,168,79,.28); }
+  .hero .btn-primary:hover { background: #d99938; }
+  .hero .btn-ghost { color: #edf0f6; border-color: #35415c; }
+  .hero .btn-ghost:hover { background: rgba(255,255,255,.06); }
+  .hero-note { margin-top: 18px; font-size: 13px; color: #6f7b95; }
+  .hero-fade { height: 84px; margin-top: 52px; background: linear-gradient(180deg, rgba(15,22,38,0), var(--bg-alt)); }
+
+  /* ── Hero 데모: 원본 종이 → 앱 카드 ── */
+  .demo { display: flex; align-items: center; justify-content: center; gap: 14px 26px; flex-wrap: wrap; margin-top: 40px; }
+  .demo-paper {
+    width: 272px; background: #fdfcf6; border: 1px solid #cfc7ae; color: #26221a;
+    box-shadow: 0 24px 50px rgba(0,0,0,.55); transform: rotate(-2.2deg);
+    padding: 17px 18px; text-align: left;
+    font-family: "Nanum Myeongjo", AppleMyungjo, Batang, serif; font-size: 11.5px; line-height: 1.68;
+  }
+  .demo-paper .ph {
+    font-family: inherit; font-size: 9.5px; color: #8d8672;
+    border-bottom: 1px solid #d8d2bd; padding-bottom: 5px; margin-bottom: 9px;
+    display: flex; justify-content: space-between;
+  }
+  .demo-fig {
+    height: 58px; border: 1px solid #b9b29a; margin: 8px 0; position: relative;
+    background: linear-gradient(to top right, transparent 49.6%, #6b6350 49.6%, #6b6350 50.4%, transparent 50.4%), #fdfcf6;
+  }
+  .demo-fig::after { content: "v"; position: absolute; top: 2px; right: 28px; font-size: 9px; font-style: italic; }
+  .demo-arrow { display: flex; flex-direction: column; align-items: center; gap: 7px; }
+  .demo-arrow .arr { font-size: 26px; color: #e9a84f; }
+  .demo-arrow .lab { font-size: 12px; background: #e9a84f; color: #1a1508; padding: 4px 13px; border-radius: 99px; font-weight: 800; }
+  .demo-card {
+    width: 330px; background: #fff; color: #1c2028; border-radius: 12px;
+    box-shadow: 0 0 0 1px rgba(233,168,79,.25), 0 24px 60px rgba(0,0,0,.55);
+    padding: 15px 17px; text-align: left; font-size: 12px; line-height: 1.6;
+  }
+  .demo-card .tags { display: flex; gap: 5px; margin-bottom: 9px; }
+  .demo-card .tags i { font-style: normal; font-size: 10.5px; background: #eef2fb; color: #2b4dbb; border-radius: 5px; padding: 2px 8px; font-weight: 700; }
+  .demo-card .cfig { border: 1px dashed #c3cad9; border-radius: 6px; padding: 6px 8px; margin: 8px 0; display: flex; align-items: center; gap: 8px; font-size: 10px; color: #7a8296; }
+  .demo-card .cfig b { display: block; width: 48px; height: 32px; border-radius: 3px; background: linear-gradient(to top right, transparent 49.5%, #94a3c0 49.5%, #94a3c0 50.5%, transparent 50.5%), #f3f5f9; }
+  .demo-card .chs { display: grid; grid-template-columns: 1fr 1fr; gap: 1px 12px; margin: 7px 0 10px; color: #3c414d; }
+  .demo-card .btns { display: flex; gap: 6px; border-top: 1px solid #eef0f4; padding-top: 10px; align-items: center; flex-wrap: wrap; }
+  .demo-card .btns span { font-size: 11px; font-weight: 700; border: 1px solid #dfe3ea; border-radius: 6px; padding: 4px 10px; color: #3c414d; }
+  .demo-card .btns span.hwp {
+    background: #e9a84f; border-color: #e9a84f; color: #1a1508;
+    font-size: 12px; font-weight: 800; padding: 6px 13px;
+    box-shadow: 0 3px 12px rgba(233,168,79,.45);
+    animation: hwpPulse 2.4s 2s ease-in-out infinite;
+  }
+  .demo-card .fn { font-size: 10.5px; color: #b8863b; font-weight: 700; text-align: right; margin-top: 7px; }
+  @keyframes hwpPulse { 0%,100% { box-shadow: 0 3px 12px rgba(233,168,79,.45); } 50% { box-shadow: 0 3px 20px rgba(233,168,79,.85); } }
+  .demo-cap { font-size: 12.5px; color: #6f7b95; margin: 18px 0 34px; }
+  @keyframes riseP { from { opacity: 0; transform: rotate(-2.2deg) translateY(18px); } to { opacity: 1; transform: rotate(-2.2deg); } }
+  @keyframes rise  { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+  .demo-paper { animation: riseP .7s .15s both; }
+  .demo-arrow { animation: rise .5s .65s both; }
+  .demo-card  { animation: rise .7s .9s both; }
+  @media (prefers-reduced-motion: reduce) { .demo-paper, .demo-arrow, .demo-card, .demo-card .btns span.hwp { animation: none; } }
+  @media (max-width: 700px) { .demo-arrow .arr { transform: rotate(90deg); } }
+
+  /* ── 3단계 스트립 ── */
+  .steps { background: var(--bg-alt); padding: 30px 0 46px; }
+  .steps-row { display: flex; gap: 14px; max-width: 860px; margin: 0 auto; }
+  .step { flex: 1; background: var(--bg); border: 1px solid var(--line); border-radius: 12px; padding: 18px 20px; font-size: 14px; color: var(--ink-soft); }
+  .step b { display: block; font-size: 15.5px; color: var(--ink); margin-bottom: 4px; }
+  @media (max-width: 640px) { .steps-row { flex-direction: column; } }
+
+  /* ── 앱 화면 (창 목업) ── */
+  .appwin { max-width: 820px; margin: 0 auto 14px; background: var(--bg); border: 1px solid #d5dae3; border-radius: 10px; box-shadow: 0 24px 60px rgba(20,30,60,.14); overflow: hidden; }
+  .appwin-bar { display: flex; align-items: center; gap: 6px; padding: 9px 13px; background: #f2f4f8; border-bottom: 1px solid #e2e6ee; font-size: 12px; color: #8b93a3; }
+  .appwin-bar i { width: 10px; height: 10px; border-radius: 50%; }
+  .appwin-bar i:nth-child(1){ background:#f26d63; } .appwin-bar i:nth-child(2){ background:#f2b93f; } .appwin-bar i:nth-child(3){ background:#5fc454; }
+  .appwin-body { display: flex; font-size: 11.5px; min-height: 262px; text-align: left; }
+  .appwin-sb { width: 150px; background: #f7f8fb; border-right: 1px solid #edeff4; padding: 11px 9px; color: #4d5462; flex-shrink: 0; }
+  .appwin-sb div { padding: 5px 9px; border-radius: 6px; white-space: nowrap; overflow: hidden; }
+  .appwin-sb .on { background: #e7edfb; color: #1d4fd7; font-weight: 700; }
+  .appwin-main { flex: 1; padding: 11px 13px; min-width: 0; }
+  .appwin-search { border: 1px solid #e2e6ee; border-radius: 7px; padding: 6px 11px; color: #9aa1b0; margin-bottom: 9px; }
+  .appwin-row { display: flex; gap: 9px; padding: 7px 9px; border-bottom: 1px solid #f1f3f7; color: #3d4350; white-space: nowrap; overflow: hidden; }
+  .appwin-row b { color: #9aa1b0; font-weight: 700; width: 20px; flex-shrink: 0; }
+  .appwin-row.on { background: #eef3fe; border-radius: 6px; }
+  .appwin-det { width: 240px; border-left: 1px solid #edeff4; padding: 11px 13px; color: #3d4350; flex-shrink: 0; }
+  .appwin-det h4 { margin: 0 0 7px; font-size: 12.5px; }
+  .appwin-det .c { color: #5c6474; line-height: 1.7; }
+  .appwin-dfig { height: 48px; border: 1px dashed #c9d0dd; border-radius: 5px; margin: 7px 0; background: linear-gradient(to top right, transparent 49.5%, #aab5cb 49.5%, #aab5cb 50.5%, transparent 50.5%), #f6f8fb; }
+  .appwin-cap { text-align: center; font-size: 12.5px; color: var(--ink-faint); margin-bottom: 48px; }
+  @media (max-width: 640px) { .appwin-det { display: none; } }
+
+  /* ── Sections ── */
+  section { padding: 88px 0; }
+  section.alt { background: var(--bg-alt); }
+  .sec-label { text-align: center; color: var(--accent); font-weight: 700; font-size: 14px; letter-spacing: .5px; margin-bottom: 12px; }
+  h2 { text-align: center; font-size: clamp(24px, 3.6vw, 34px); font-weight: 800; letter-spacing: -1px; margin-bottom: 14px; }
+  .sec-sub { text-align: center; color: var(--ink-soft); max-width: 560px; margin: 0 auto 52px; font-size: 16px; }
+
+  .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .grid2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+  @media (max-width: 760px) { .grid3, .grid2 { grid-template-columns: 1fr; } }
+
+  .card {
+    background: var(--bg); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 28px;
+  }
+  .card .emoji { font-size: 28px; margin-bottom: 14px; display: block; }
+  .card h3 { font-size: 17px; font-weight: 700; margin-bottom: 8px; }
+  .card p { font-size: 14.5px; color: var(--ink-soft); }
+
+  /* pain cards */
+  .pain { border-left: 4px solid #f0b429; }
+  .pain q { font-style: normal; font-weight: 600; color: var(--ink); display: block; margin-bottom: 8px; font-size: 15.5px; }
+  .pain q::before { content: "“"; } .pain q::after { content: "”"; }
+
+  /* ── Privacy ── */
+  .privacy-box {
+    max-width: 720px; margin: 0 auto; background: var(--bg);
+    border: 1px solid var(--line); border-radius: var(--radius); padding: 36px;
+  }
+  .privacy-box ul { list-style: none; }
+  .privacy-box li { padding: 10px 0 10px 34px; position: relative; font-size: 15.5px; color: var(--ink-soft); }
+  .privacy-box li::before { content: "✓"; position: absolute; left: 4px; color: var(--accent); font-weight: 800; }
+  .privacy-box li strong { color: var(--ink); }
+  .honest {
+    margin-top: 22px; padding: 16px 18px; background: var(--accent-soft);
+    border-radius: 10px; font-size: 13.5px; color: var(--ink-soft);
+  }
+
+  /* ── 돈이 어떻게 나가나요 / 구독을 멈추면 ── */
+  .money-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .moneytab { width: 100%; min-width: 460px; border-collapse: collapse; font-size: 14.5px; }
+  .moneytab th, .moneytab td { padding: 12px 14px; border-bottom: 1px solid var(--line); text-align: left; }
+  .moneytab thead th { font-size: 13px; color: var(--ink-faint); font-weight: 700; }
+  .moneytab tbody th { font-weight: 600; color: var(--ink-soft); width: 34%; }
+  .moneytab td { color: var(--ink); }
+  .moneytab td.zero { font-weight: 800; color: var(--accent); }
+  .stop-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-top: 8px; }
+  @media (max-width: 760px) { .stop-grid { grid-template-columns: 1fr; } }
+  .stop-col h4 { font-size: 15.5px; margin-bottom: 10px; }
+  .stop-col ul { list-style: none; }
+  .stop-col li { padding: 7px 0 7px 24px; position: relative; font-size: 14.5px; color: var(--ink-soft); }
+  .stop-col.off li::before { content: "✕"; position: absolute; left: 2px; color: #c0576b; font-weight: 800; }
+  .stop-col.on  li::before { content: "✓"; position: absolute; left: 2px; color: var(--accent); font-weight: 800; }
+  .notice-list { max-width: 720px; margin: 22px auto 0; padding: 18px 20px; background: var(--bg-alt); border: 1px solid var(--line); border-radius: 10px; }
+  .notice-list p { font-size: 13px; color: var(--ink-soft); margin: 7px 0; padding-left: 16px; text-indent: -16px; }
+
+  /* ── Pricing ── */
+  .price-card { text-align: center; padding: 40px 28px; }
+  .price-card.featured { border: 2px solid var(--accent); position: relative; }
+  .price-tag {
+    position: absolute; top: -13px; left: 50%; transform: translateX(-50%);
+    background: var(--accent); color: #fff; font-size: 12px; font-weight: 700;
+    padding: 4px 14px; border-radius: 99px; white-space: nowrap;
+  }
+  .price-card .plan { font-size: 15px; font-weight: 700; color: var(--ink-faint); margin-bottom: 10px; }
+  .price-card .price { font-size: 34px; font-weight: 800; letter-spacing: -1px; margin-bottom: 4px; }
+  .price-card .per { font-size: 13.5px; color: var(--ink-faint); margin-bottom: 22px; }
+  .price-card ul { list-style: none; text-align: left; max-width: 240px; margin: 0 auto 26px; }
+  .price-card li { padding: 6px 0 6px 26px; position: relative; font-size: 14.5px; color: var(--ink-soft); }
+  .price-card li::before { content: "✓"; position: absolute; left: 0; color: var(--accent); font-weight: 800; }
+  .pricing-note { text-align: center; margin-top: 24px; font-size: 13px; color: var(--ink-faint); }
+
+  /* ── FAQ ── */
+  .faq { max-width: 720px; margin: 0 auto; }
+  .faq details { border-bottom: 1px solid var(--line); padding: 20px 4px; }
+  .faq summary { font-weight: 700; font-size: 16px; cursor: pointer; list-style: none; position: relative; padding-right: 28px; }
+  .faq summary::after { content: "+"; position: absolute; right: 4px; color: var(--accent); font-size: 20px; }
+  .faq details[open] summary::after { content: "–"; }
+  .faq details p { margin-top: 12px; font-size: 15px; color: var(--ink-soft); }
+
+  /* ── Final CTA ── */
+  .final { text-align: center; background: var(--ink); color: #fff; }
+  .final h2 { color: #fff; }
+  .final .sec-sub { color: #b8bdcc; }
+  /* 어두운 배경 위 보조 버튼 — 기본 .btn-ghost는 밝은 배경용이라 대비가 안 난다 */
+  .final .btn-ghost { color: #edf0f6; border-color: #3a4459; }
+  .final .btn-ghost:hover { background: rgba(255,255,255,.07); }
+
+  footer { padding: 36px 0; text-align: center; font-size: 13px; color: var(--ink-faint); border-top: 1px solid var(--line); }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap nav-inner">
+    <div class="logo">Q<span>box</span></div>
+    <a class="nav-cta" href="#download">다운로드</a>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="hero-glow"></div>
+  <div class="wrap hero-in">
+    <div class="badge">🔒 설치형 프로그램 · 회원가입 없음 · 몇 부를 뽑든 같은 금액</div>
+    <h1>그 문제, <span class="accent">다시 타이핑하지 마세요</span></h1>
+    <p class="hero-sub">새벽까지 붙잡고 있던 그 일 — 이제 이렇게 끝납니다.</p>
+    <div class="demo">
+      <div class="demo-paper">
+        <div class="ph"><span>2025학년도 6월 모의평가</span><span>물리학Ⅰ</span></div>
+        <b>14.</b> 그림과 같이 마찰이 없는 수평면에서 물체 A를 밀었더니 빗면을 따라 올라갔다. 이에 대한 설명으로 옳은 것은? [3점]
+        <div class="demo-fig"></div>
+        <div>① ㄱ &nbsp; ② ㄴ &nbsp; ③ ㄱ, ㄷ &nbsp; ④ ㄴ, ㄷ &nbsp; ⑤ ㄱ, ㄴ, ㄷ</div>
+      </div>
+      <div class="demo-arrow"><span class="arr">→</span><span class="lab">자동 추출</span></div>
+      <div class="demo-card">
+        <div class="tags"><i>물리학Ⅰ</i><i>고3</i><i>객관식</i><i>그림 1</i></div>
+        <div><b>문제 14</b> · 그림과 같이 마찰이 없는 수평면에서 물체 A를 밀었더니 빗면을 따라 올라갔다. 이에 대한 설명으로 옳은 것은? <b>[3점]</b></div>
+        <div class="cfig"><b></b>그림 자동 분리 · 위치 그대로</div>
+        <div class="chs"><span>① ㄱ</span><span>② ㄴ</span><span>③ ㄱ, ㄷ</span><span>④ ㄴ, ㄷ</span></div>
+        <div class="btns"><span>✏️ 편집</span><span>📄 시험지에 담기</span><span class="hwp">📥 한글(HWP)로 저장</span></div>
+        <div class="fn">→ 중간고사_역학.hwpx 저장됨</div>
+      </div>
+    </div>
+    <p class="demo-cap">↑ 화면 구성 예시 · 추출부터 <b>한글(HWP) 저장</b>까지 한 프로그램에서</p>
+    <div class="cta-row">
+      <a class="btn-primary" href="#download">다운로드</a>
+      <a class="btn-ghost" href="#how">어떻게 작동하나요?</a>
+    </div>
+    <p class="hero-note">먼저 써보고 결정하세요 · 처음 한 번만 구글 AI 연결(5분)</p>
+  </div>
+  <div class="hero-fade"></div>
+</header>
+
+<section class="steps" id="how">
+  <div class="wrap">
+    <div class="steps-row">
+      <div class="step"><b>① 올리고</b>쌓아둔 시험지 PDF를 업로드하면</div>
+      <div class="step"><b>② 뽑히고</b>문제·그림·표·수식이 원본 그대로 추출되고</div>
+      <div class="step"><b>③ 담는다</b>골라 담아 한글(HWP) 파일로 저장합니다</div>
+    </div>
+  </div>
+</section>
+
+<section class="alt" id="pain">
+  <div class="wrap">
+    <p class="sec-label">이런 경험 있으시죠</p>
+    <h2>좋은 문제는 이미 갖고 계십니다.<br>다시 꺼내 쓰기가 힘들 뿐.</h2>
+    <p class="sec-sub">수년간 쌓인 시험지 PDF — 그 안의 문제들은 지금 어디에 있나요?</p>
+    <div class="grid3">
+      <div class="card pain">
+        <q>이 문제 어느 시험지에 있더라…</q>
+        <p>수백 개 PDF를 일일이 열어보며 찾다가, 결국 비슷한 문제를 처음부터 다시 만듭니다.</p>
+      </div>
+      <div class="card pain">
+        <q>오려 붙이는 데만 몇 시간이에요</q>
+        <p>캡처 → 붙여넣기 → 크기 맞추기. 시험지 하나 만들 때마다 반복되는 단순 노동.</p>
+      </div>
+      <div class="card pain">
+        <q>내 자료를 어디 올리긴 불안해요</q>
+        <p>애써 만든 문제와 수업 자료. 외부 사이트에 올렸다가 떠돌게 될까 걱정됩니다.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="features">
+  <div class="wrap">
+    <p class="sec-label">Qbox가 하는 일</p>
+    <h2>업로드 → 추출 → 정리 → 새 시험지</h2>
+    <p class="sec-sub">복잡한 설정 없이, 시험지 PDF를 올리는 것부터 시작하세요.</p>
+    <div class="appwin">
+      <div class="appwin-bar"><i></i><i></i><i></i><span>Qbox — 문제 DB</span></div>
+      <div class="appwin-body">
+        <div class="appwin-sb">
+          <div class="on">🗂 전체 문제 128</div>
+          <div>📁 물리학Ⅰ</div>
+          <div>📁 화학Ⅰ</div>
+          <div>📁 2026 중간 대비</div>
+          <div>&nbsp;&nbsp;📁 역학 단원</div>
+          <div>📁 오답 모음</div>
+        </div>
+        <div class="appwin-main">
+          <div class="appwin-search">🔍 문제 검색…</div>
+          <div class="appwin-row"><b>1</b> 동일한 두 금속구가 대전되어 있을 때…</div>
+          <div class="appwin-row"><b>2</b> 그림은 수평면 위의 물체에 작용하는 힘을…</div>
+          <div class="appwin-row on"><b>5</b> 그림과 같이 마찰이 없는 수평면에서 물체 A를…</div>
+          <div class="appwin-row"><b>7</b> 표는 이상 기체 (가), (나)의 상태를 나타낸…</div>
+          <div class="appwin-row"><b>9</b> 다음은 전자기 유도 실험 과정이다…</div>
+          <div class="appwin-row"><b>11</b> 그림 (가)는 용수철에 매단 물체의 운동을…</div>
+        </div>
+        <div class="appwin-det">
+          <h4>문제 5 <span style="color:#9aa1b0;font-weight:400">· 물리학Ⅰ · 고3</span></h4>
+          <div class="c">그림과 같이 마찰이 없는 수평면에서 물체 A를 밀었더니 빗면을 따라 올라갔다…</div>
+          <div class="appwin-dfig"></div>
+          <div class="c">① ㄱ &nbsp;② ㄴ &nbsp;③ ㄱ, ㄷ &nbsp;④ ㄴ, ㄷ</div>
+        </div>
+      </div>
+    </div>
+    <p class="appwin-cap">앱 화면 구성 예시 — 정식 스크린샷으로 교체 예정</p>
+    <div class="grid2">
+      <div class="card">
+        <span class="emoji">✂️</span>
+        <h3>문제 단위 자동 추출</h3>
+        <p>AI가 시험지에서 문제를 하나씩 분리합니다. 그림·도표·표·수식·선지까지 원본 배치 그대로 — 잘리거나 뭉개지지 않게 추출하는 정확도에 가장 공을 들였습니다.</p>
+      </div>
+      <div class="card">
+        <span class="emoji">🗂️</span>
+        <h3>나만의 문제 DB</h3>
+        <p>추출된 문제를 폴더로 정리하고, 검색하고, 드래그로 옮기세요. 해설·정답이 함께 있는 시험지라면 해설까지 문제에 붙여 저장됩니다.</p>
+      </div>
+      <div class="card">
+        <span class="emoji">📝</span>
+        <h3>골라 담아 새 시험지</h3>
+        <p>DB에서 문제를 골라 담으면 새 시험지가 됩니다. 완성되면 한글 파일(.hwpx)로 바로 저장 — 화면에서 보신 미리보기와 같은 모양으로 나옵니다. (Word 파일은 준비 중입니다)</p>
+      </div>
+      <div class="card">
+        <span class="emoji">📚</span>
+        <h3>과목 제한 없음</h3>
+        <p>수학·과학·국어·영어·사회 — 특정 과목 전용이 아닙니다. 표가 많은 과목도, 수식이 많은 과목도 똑같이 처리합니다.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="alt" id="metered">
+  <div class="wrap">
+    <p class="sec-label">요금 방식</p>
+    <h2>뽑을 때마다 값이 붙는 게<br>싫으셨다면</h2>
+    <div class="privacy-box">
+      <p style="font-size:15.5px; color:var(--ink-soft); line-height:1.8;">
+        “한 부에 얼마” 식이면, 시험지를 만들다 말고 머릿속으로 계산하게 됩니다.<br>
+        <em>이거 뽑을까 말까. 이번 달 얼마 나왔더라.</em>
+      </p>
+      <p style="font-size:15.5px; color:var(--ink-soft); line-height:1.8; margin-top:16px;">
+        저희는 그 계산을 없애고 싶었습니다.<br>
+        <b>저희 쪽 금액은 매달 같습니다.</b> 한 부를 올리시든 서른 부를 올리시든 저희에게 내시는 돈은
+        달라지지 않습니다. 저희가 문제 뽑는 일로 돈을 벌지 않으니, 선생님께 아껴 쓰시라고 말씀드릴
+        이유도 없습니다.
+      </p>
+      <div class="honest">
+        그리고 이 금액에는 <b>뽑는 것만</b> 들어 있는 게 아닙니다. 뽑은 문제를 폴더로 정리하고,
+        검색하고, 골라 담아 <b>한글 시험지로 만드는 것까지</b> 전부 포함입니다.
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="privacy">
+  <div class="wrap">
+    <p class="sec-label">프라이버시</p>
+    <h2>내 자료는 내 컴퓨터에만</h2>
+    <p class="sec-sub">Qbox는 웹사이트가 아니라 내 컴퓨터에 설치하는 프로그램입니다.</p>
+    <div class="privacy-box">
+      <ul>
+        <li><strong>회원가입·계정 없음</strong> — 이메일도, 비밀번호도 만들지 않습니다.</li>
+        <li><strong>문제 DB·이미지·시험지 전부 로컬 저장</strong> — 외부 서버에 내 자료를 보관하지 않습니다.</li>
+        <li><strong>AI 연결은 선생님 계정으로</strong> — 선생님 시험지가 저희 회사 계정을 거치지 않습니다.</li>
+      </ul>
+      <div class="honest">
+        솔직한 안내 — 문제를 <b>추출하는 순간에만</b> 페이지 이미지가 Google AI(Gemini)로 전송됩니다.
+        공개된 기출은 무료 키로 충분하고, 민감한 자작 자료는 전송 데이터가 AI 학습에 쓰이지 않는
+        유료 키 옵션을 선택할 수 있습니다. 이 차이는 앱 안에서 그대로 안내합니다.<br><br>
+        그리고 하나 더 — 구독이 유효한지 확인하기 위해 <b>라이선스 키(무작위 문자열) 하나만</b>
+        저희 서버와 주고받습니다. 시험지도, 문제도, 개인정보도 보내지 않습니다.
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="alt" id="cost">
+  <div class="wrap">
+    <p class="sec-label">비용 구조</p>
+    <h2>돈이 어떻게 나가나요</h2>
+    <p class="sec-sub">이 프로그램은 돈이 <b>두 군데</b>로 나갑니다. 가격을 보시기 전에 먼저 말씀드립니다.</p>
+    <div class="privacy-box">
+      <div class="money-scroll">
+        <table class="moneytab">
+          <thead>
+            <tr><th></th><th>저희에게</th><th>구글에게</th></tr>
+          </thead>
+          <tbody>
+            <tr><th>무엇에 대한 값인가</th><td>프로그램 사용료</td><td>시험지를 읽어내는 AI 실비</td></tr>
+            <tr><th>어떻게 내나</th><td>매달 같은 금액</td><td>올리신 만큼, <b>선생님 계정에서 직접</b></td></tr>
+            <tr><th>많이 올리면</th><td><b>그대로입니다</b></td><td>늘어납니다</td></tr>
+            <tr><th>저희가 여기서 남기는 몫</th><td>—</td><td class="zero">0원</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p style="font-size:15.5px; color:var(--ink-soft); line-height:1.8; margin-top:22px;">
+        <b>저희는 문제를 뽑는 일로는 돈을 벌지 않습니다.</b><br>
+        AI 값은 선생님 계정에서 구글로 바로 갑니다. 저희를 거치지 않고, 저희가 거기에 얼마를 붙일
+        자리도 없습니다. 그래서 <b>저희 쪽에는 세는 계량기가 없습니다.</b> 이번 달에 한 부를 올리시든
+        서른 부를 올리시든, 저희에게 더 내실 돈은 없습니다.
+      </p>
+      <div class="honest">
+        <b>왜 이렇게 만들었나요?</b><br>
+        AI 값을 저희가 대신 받으려면 선생님 시험지가 <b>저희 서버를 거쳐야</b> 합니다. 그러면 저희가
+        무엇을 올리셨는지 볼 수 있게 됩니다. 저희는 그렇게 만들지 않기로 했습니다.
+        선생님 시험지는 저희 회사를 한 번도 지나가지 않습니다.
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="pricing">
+  <div class="wrap">
+    <p class="sec-label">가격</p>
+    <h2>돈이 나가는 곳은 두 군데인데,<br>저희가 받는 건 하나뿐입니다</h2>
+    <!-- ⚠️ 이 섹션의 핵심 = **두 층을 갈라 보여주는 것**. 강사가 가장 많이 하는 오해가
+         "구독료 안에 AI 비용이 들어 있나?"이고, 안 갈라놓으면 설치 후에야 알게 돼 이탈한다.
+         ⛔ 단가(100~350원)는 **불안 해소(방어)용**으로만 쓸 것 — "싸죠?"라는 자랑(공격)으로
+            쓰지 말 것(prd/과금/가격.md: "우리 우위는 단가가 아니라 구조다"). -->
+    <p class="sec-sub"><b>프로그램 값은 저희에게, AI 값은 구글에</b> 직접 내십니다. 프린터를 사면 잉크는 따로 사는 것과 같습니다.<br>
+      <b>지금은 저희가 받는 구독료가 없습니다.</b> 구글 AI 사용료만 선생님 계정으로 나가고, 무료 한도 안에서는 그것도 0원입니다.</p>
+
+    <p class="sec-label" style="margin-top:34px;">① 저희에게 내는 것</p>
+    <div class="grid2" style="max-width:720px; margin:0 auto;">
+      <div class="card price-card">
+        <div class="plan">먼저 써보기</div>
+        <div class="price">무료</div>
+        <div class="per">지금이 이 단계입니다</div>
+        <ul>
+          <li>모든 핵심 기능 체험</li>
+          <li>업로드 개수 제한 (상세는 출시 때 안내)</li>
+          <li>기간 제한 없음</li>
+        </ul>
+      </div>
+      <div class="card price-card featured">
+        <div class="price-tag">창립 사용자 가격</div>
+        <div class="plan">월 정액</div>
+        <div class="price">출시 시 공개</div>
+        <div class="per">매달 같은 금액</div>
+        <ul>
+          <li>몇 부를 올리셔도 저희에게 더 내실 돈 없음</li>
+          <li>문제 뽑기 · 고치기 · 시험지 만들기 · 한글 저장 전부</li>
+          <li>나오는 업데이트 모두 포함</li>
+          <li>시험지와 문제는 선생님 컴퓨터에만</li>
+        </ul>
+      </div>
+    </div>
+    <!-- ⚠️ 카드 안에 버튼을 두지 말 것 — 무료판·유료판이 **다른 파일**인 것처럼 읽힌다.
+         실제로는 같은 프로그램 하나이고 구독 여부만 다르다(다운로드는 페이지 상·하단 CTA 하나로). -->
+
+    <p class="sec-label" style="margin-top:38px;">② 구글에 내는 것 <span style="color:var(--ink-faint); font-weight:600;">— 저희를 거치지 않습니다</span></p>
+    <div class="notice-list" style="margin-top:12px;">
+      <p>· 문제를 뽑을 때 <b>구글 AI(Gemini)</b>가 시험지를 읽습니다. 그 사용료는 <b>선생님 구글 계정으로 직접</b> 청구되며, 저희 통장을 거치지 않습니다.</p>
+      <p>· <b>구글이 주는 무료 한도 안에서는 0원</b>입니다. 한도는 구글 계정마다 다르고, 구글이 정확한 수치를 공개하지 않아 저희도 단정해 드릴 수 없습니다.</p>
+      <p>· 한도를 넘겨 <b>전부 돈을 내는 기준으로 계산해도</b> 시험지 한 부에 100~350원 수준입니다(쪽수에 비례). 저희는 항상 이 최악 기준으로만 안내드립니다.</p>
+      <p>· ⭐ <b>그래서 몇 부를 뽑으셔도 저희에게 낼 돈은 그대로입니다.</b> AI 비용을 구독료에 얹지 않았기 때문에, 많이 쓰신다고 저희가 더 받거나 사용량을 막을 이유가 없습니다.</p>
+    </div>
+
+    <p class="pricing-note">※ 프로그램은 <b>하나</b>입니다. 지금 받으시는 것과 정식판이 같은 파일이며, 구독 여부에 따라 쓸 수 있는 기능만 달라집니다.<br>
+      지금은 <b>미리 써보는 단계</b>라 가격이 변동될 수 있습니다 · <a href="mailto:leedb710@gmail.com?subject=[Qbox]%20출시%20알림%20신청&body=정식%20출시%20소식을%20받고%20싶습니다.%0A%0A- 가르치는 과목:%0A- 소속(학원/과외/학교):">정식 출시 알림 받기 →</a></p>
+
+    <!-- ⚖️ 구매 전 고지 (약관규제법 제3조 명시·설명 의무 — 법-라이선스-점검.md §9-5-C).
+         ⛔ 이 블록을 약관 링크 안으로 옮기지 말 것: "구매 버튼과 같은 화면"에 있어야 명시로 인정된다.
+         결제 도입 시 ①결제 최종 확인 화면 ②앱 첫 실행 화면에도 같은 내용을 반복 배치할 것. -->
+    <div class="notice-list">
+      <p>· 구독이 종료되면 새 PDF 추출 · 문제 편집 · 시험지 제작 · 한글(.hwpx) 내보내기 기능을 사용하실 수 없습니다.</p>
+      <p>· 구독이 종료되어도 회원님의 문제 데이터는 삭제되지 않으며, 백업 파일(zip) 내보내기는 언제든 가능합니다. (이 백업 파일은 Qbox에서 다시 불러오는 용도입니다)</p>
+      <p>· 이미 내보내신 한글 파일은 구독과 관계없이 계속 사용하실 수 있습니다.</p>
+      <p>· 재구독하시면 기존 데이터를 그대로 이어서 사용하실 수 있습니다.</p>
+      <p>· 문제 추출에는 회원님이 직접 발급하신 Google Gemini API 키가 필요하며, 사용량에 따라 Google에 별도 요금이 청구될 수 있습니다. <b>이 비용은 구독료에 포함되지 않습니다.</b></p>
+      <p>· 문제를 추출하는 순간에만 페이지 이미지가 Google Gemini로 전송됩니다.</p>
+    </div>
+  </div>
+</section>
+
+<section class="alt" id="stop">
+  <div class="wrap">
+    <p class="sec-label">멈출 때</p>
+    <h2>구독을 멈추면 어떻게 되나요</h2>
+    <p class="sec-sub">구매하시기 전에 정확히 알고 계셔야 할 부분이라 미리 적어둡니다.</p>
+    <div class="privacy-box">
+      <div class="stop-grid">
+        <div class="stop-col off">
+          <h4>멈추는 것 — 프로그램이 잠깁니다</h4>
+          <ul>
+            <li>새 시험지 PDF를 올려서 문제 뽑기</li>
+            <li>문제 고치기</li>
+            <li>시험지 만들기</li>
+            <li>한글 파일로 저장하기</li>
+          </ul>
+        </div>
+        <div class="stop-col on">
+          <h4>그대로인 것</h4>
+          <ul>
+            <li><b>문제는 선생님 컴퓨터에 그대로</b> — 저희가 가져가지도, 들여다보지도 못합니다</li>
+            <li><b>이미 저장하신 한글 파일</b>은 그냥 선생님 파일입니다</li>
+            <li><b>백업 파일로 통째로 빼두기</b> — 멈춘 뒤에도 됩니다</li>
+            <li><b>다시 구독하시면 그날부터 그대로</b> 이어집니다</li>
+          </ul>
+        </div>
+      </div>
+      <div class="honest">
+        <b>솔직히 말씀드릴 것 하나</b><br>
+        그 백업 파일은 저희 프로그램에서 다시 불러오는 용도입니다. 한글이나 엑셀로 바로 열리지는
+        않습니다. 그래서 <b>자주 쓰시는 시험지는 미리 한글 파일로 저장해 두시길</b> 권합니다.
+        그건 저희와 무관하게 선생님 파일로 남습니다.
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="faq">
+  <div class="wrap">
+    <p class="sec-label">자주 묻는 질문</p>
+    <h2>궁금한 점</h2>
+    <div class="faq" style="margin-top:40px;">
+      <details>
+        <summary>왜 월 구독인가요? 한 번 사서 계속 쓰면 안 되나요?</summary>
+        <p>이 프로그램은 한 번 만들고 끝낼 수가 없는 종류입니다. 시험지 모양은 해마다 바뀌고, 구글 AI도 계속 바뀌고, 윈도우·맥도 계속 올라갑니다. 손을 놓는 순간 어느 날 갑자기 안 되기 시작합니다.<br>
+        한 번만 받고 나면 저희가 계속 고칠 이유가 사라집니다. 매달 받는 대신 <b>매달 고쳐 나가겠다는 뜻</b>입니다. 무엇을 고쳤는지는 프로그램 안에서 보실 수 있게 해두겠습니다.</p>
+      </details>
+      <details>
+        <summary>프로그램 값도 내는데 AI 값도 따로 내라는 건가요?</summary>
+        <p>네, 두 군데로 나가는 게 맞습니다. 그리고 왜 그렇게 했는지 말씀드리겠습니다.<br>
+        AI 값을 저희가 대신 받으려면, 선생님 시험지가 <b>저희 서버를 거쳐야</b> 합니다. 그러면 저희가 무엇을 올리셨는지 볼 수 있게 되고, 서버 운영비만큼 값도 올라갑니다. 저희는 그렇게 만들지 않기로 했습니다.<br>
+        지금 구조에서 AI 값은 <b>선생님 계정에서 구글로 바로</b> 갑니다. 저희가 중간에서 남기는 몫은 0원입니다.</p>
+      </details>
+      <details>
+        <summary>많이 올리면 더 비싸지나요?</summary>
+        <p><b>저희에게 내시는 금액은 달라지지 않습니다.</b> 저희 쪽에는 몇 부를 올리셨는지 세는 계량기가 없습니다.<br>
+        구글에 가는 AI 실비는 올리신 만큼 늘어납니다. 그 부분은 선생님 계정에서 직접 확인하실 수 있고, 프로그램 안에서도 지금까지 얼마나 쓰셨는지 보여드립니다.</p>
+      </details>
+      <details>
+        <summary>AI 값이 실제로 얼마나 나오나요?</summary>
+        <p>시험지 분량에 따라 다릅니다. 얇은 시험지는 한 부에 100원 안팎, 24쪽짜리 수학 시험지처럼 두꺼우면 300원대까지 나옵니다.<br>
+        이건 <b>저희가 받는 돈이 아니라 구글에 가는 값</b>이고, 저희는 여기에 아무것도 붙이지 않습니다. 구글에 무료로 쓸 수 있는 범위가 있긴 하지만 조건이 바뀔 수 있어서, 저희는 <b>전부 돈 내고 쓰는 기준</b>으로 안내드립니다. 실제로는 이보다 적게 나올 수 있습니다.</p>
+      </details>
+      <details>
+        <summary>구독을 멈추면 제 문제들은 어떻게 되나요?</summary>
+        <p>선생님 문제는 선생님 컴퓨터에 그대로 남습니다. 저희 서버에 없으니 저희가 가져갈 수도, 볼 수도 없습니다.<br>
+        다만 <b>프로그램은 잠깁니다.</b> 새로 뽑기 · 고치기 · 시험지 만들기 · 한글로 저장하기가 멈춥니다. 백업 파일로 통째로 빼두시는 건 멈춘 뒤에도 됩니다. 다시 구독하시면 그날부터 그대로 이어집니다.<br>
+        백업 파일은 저희 프로그램에서 다시 불러오는 용도라 한글로 바로 열리지는 않습니다. 그래서 <b>자주 쓰시는 시험지는 미리 한글 파일로 저장해 두시길</b> 권합니다.</p>
+      </details>
+      <details>
+        <summary>"구글 AI 연결"이 뭔가요? 어렵지 않나요?</summary>
+        <p>도서관 열람증을 만드는 것과 같습니다. 구글에서 "이 사람이 쓰는 게 맞다"는 연결 코드를 하나 받아서, 프로그램에 한 번 붙여넣으면 끝입니다. 구글 계정만 있으면 되고 <b>5분</b>이면 됩니다.<br>
+        프로그램 안에 "발급 화면 열기" 버튼과 그림 설명이 들어 있고, 한 번 넣으면 다시 하실 일 없습니다. 막히시면 메일 주세요. 화면 보면서 같이 해드립니다.</p>
+      </details>
+      <details>
+        <summary>인터넷이 꼭 필요한가요?</summary>
+        <p>시험지를 <b>업로드해서 추출할 때만</b> 인터넷이 필요합니다(AI 호출). 추출이 끝난 문제 DB를 보고, 정리하고, 시험지를 만드는 건 인터넷 없이도 됩니다.</p>
+      </details>
+      <details>
+        <summary>어떤 PDF든 되나요?</summary>
+        <p>일반적인 시험지 형태의 PDF를 지원합니다. 수능·교육청 기출처럼 공개된 자료, 선생님이 직접 만든 시험지가 대표적입니다. 원본 상태가 좋을수록 추출이 정확해집니다.</p>
+      </details>
+      <details>
+        <summary>한글(HWP) 파일로 내보낼 수 있나요?</summary>
+        <p>네, 한글 파일(.hwpx)로 저장하실 수 있습니다. 화면에서 보신 미리보기와 같은 조판으로 나옵니다. Word(.docx) 내보내기는 아직 개발 중입니다.</p>
+      </details>
+      <details>
+        <summary>저작권 문제는 없나요?</summary>
+        <p>Qbox는 자료를 수집·공유하는 서비스가 아니라, 선생님이 이미 갖고 계신 자료를 <b>본인 컴퓨터 안에서</b> 정리하는 도구입니다. 자료의 이용 권한은 사용자에게 있으며, 수능·교육청 기출 등 공공저작물 활용을 권장합니다.</p>
+      </details>
+      <details>
+        <summary>Mac에서도 되나요?</summary>
+        <p>네, <b>Windows와 Mac 모두 지원합니다.</b> 지금 이곳에 올라와 있는 것은 Windows용이고, Mac(Apple 실리콘)용 설치 파일도 곧 함께 올리겠습니다.</p>
+      </details>
+    </div>
+  </div>
+</section>
+
+<section class="final" id="download">
+  <div class="wrap">
+    <h2>지금 무료로 받아보세요</h2>
+    <!-- ⛔ 여기에 "밖으로 나가지 않는다"류를 쓰지 말 것 — 추출 순간 페이지 이미지가 Gemini로
+         나가므로 거짓이 되고, 아래 프라이버시 섹션과 정면으로 모순된다(2026-08-04 실제 사고).
+         허용 표현의 정본 = docs/프라이버시-데이터처리.md 「써도 되는 정직한 표현」 -->
+    <p class="sec-sub">회원가입 없음 · 카드 등록 없음 · 문제 DB와 시험지는 선생님 컴퓨터에만 저장됩니다</p>
+    <div class="cta-row">
+      <!-- ⚠️ TODO(공개 전 필수): 두 버튼 모두 실제 설치 파일 주소로 교체할 것.
+           Windows = GitHub → Actions → "설치본 빌드" 실행 → 결과물을 Releases에 올림
+           Mac     = 맥에서 `npm run build:server && npm run build` → dist-app/*.dmg를 Releases에
+           → 각 파일 주소(https://github.com/…/releases/download/…)를 아래 href에.
+           지금은 주소가 없어 버튼을 눌러도 아무 일도 일어나지 않는다. -->
+      <a class="btn-primary" href="#download">⬇ Windows용 내려받기</a>
+      <a class="btn-ghost" href="#download">⬇ Mac용 내려받기</a>
+    </div>
+    <p class="sec-sub" style="margin-top:14px; font-size:13px;">Windows 10 이상 · Mac은 Apple 실리콘(M1 이상) · 각 약 400MB</p>
+  </div>
+</section>
+
+<section id="install">
+  <div class="wrap">
+    <p class="sec-label">설치하기</p>
+    <h2>세 단계면 끝납니다</h2>
+    <p class="sec-sub">처음 한 번만 하시면 됩니다. 다음부터는 바로 시험지만 올리시면 돼요.</p>
+    <div class="steps-row">
+      <div class="step"><b>① 내려받아 설치</b>받은 파일을 두 번 누르면 설치됩니다. 관리자 권한은 필요하지 않습니다.</div>
+      <div class="step"><b>② 구글 AI 연결 (5분)</b>설정 화면의 <b>키 받으러 가기</b>를 누르면 구글 사이트가 열립니다. 구글 계정으로 키를 받아 붙여넣으면 끝. <b>처음엔 카드 없이 무료로 시작</b>하실 수 있습니다.</div>
+      <div class="step"><b>③ 시험지 올리기</b>PDF를 끌어다 놓으면 문제·그림·표·수식이 자동으로 뽑힙니다.</div>
+    </div>
+
+    <div class="notice-list">
+      <p>· <b>설치할 때 파란 경고창이 뜹니다.</b> “Windows의 PC 보호” 라는 화면인데, <b>추가 정보 → 실행</b>을 누르시면 설치가 진행됩니다. 아직 인증서를 등록하지 않은 프로그램에 Windows가 띄우는 안내입니다.</p>
+      <p>· 문제를 뽑을 때만 인터넷이 필요합니다(구글 AI 호출). 뽑아둔 문제를 보고 고치고 시험지를 만드는 일은 인터넷 없이도 됩니다.</p>
+      <p>· <b>구글 AI 키는 두 가지가 있고, 차이를 알고 쓰시는 게 좋습니다.</b><br>
+        <b>무료 키</b> — 카드 등록이 필요 없습니다. 대신 <b>보낸 이미지를 구글이 자기 AI 학습에 사용할 수 있습니다.</b> 수능·교육청 기출처럼 이미 공개된 자료라면 무방합니다.<br>
+        <b>유료 키</b> — 구글에 카드를 등록하면 됩니다. <b>학습에 사용되지 않습니다.</b> 학원에서 직접 만드신 자료를 다루신다면 이쪽을 권합니다.</p>
+      <p>· 어느 쪽이든 <b>구글 사용료는 선생님 구글 계정으로 직접 청구</b>되며, 저희를 거치지 않습니다. 무료 한도는 구글 계정마다 다르고 구글이 정확한 수치를 공개하지 않습니다.</p>
+      <p>· <b>처음엔 공개된 기출(수능·교육청)로 시험해 보시길 권합니다</b> — 카드 없이 바로 시작할 수 있고, 학습에 쓰여도 무해합니다.</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    Qbox (가칭) · © 2026 · 문의: leedb710@gmail.com
+  </div>
+</footer>
+
+</body>
+</html>
