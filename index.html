@@ -312,9 +312,12 @@
   <div class="wrap">
     <div class="steps-row">
       <div class="step"><b>① 올리고</b>쌓아둔 시험지 PDF를 업로드하면</div>
-      <div class="step"><b>② 뽑히고</b>문제·그림·표·수식이 원본 그대로 추출되고</div>
+      <div class="step"><b>② 뽑히고</b>문제·그림·표·수식이 원본 배치를 최대한 그대로 추출되고</div>
       <div class="step"><b>③ 담는다</b>골라 담아 한글(HWP) 파일로 저장합니다</div>
     </div>
+    <!-- ⚠️ .sec-sub 는 margin-bottom:52px 를 갖고 있다 — .steps 의 padding-bottom:46px 와 겹쳐
+         아래가 100px 가까이 벌어지므로 margin 을 통째로 다시 준다(top 만 덮으면 bottom 이 남는다). -->
+    <p class="sec-sub" style="margin:14px auto 0; font-size:13px;">스캔 상태가 나쁘면 오타가 날 수 있고, 화면에서 바로 고치실 수 있습니다.</p>
   </div>
 </section>
 
@@ -378,7 +381,7 @@
       <div class="card">
         <span class="emoji">✂️</span>
         <h3>문제 단위 자동 추출</h3>
-        <p>AI가 시험지에서 문제를 하나씩 분리합니다. 그림·도표·표·수식·선지까지 원본 배치 그대로 — 잘리거나 뭉개지지 않게 추출하는 정확도에 가장 공을 들였습니다.</p>
+        <p>AI가 시험지에서 문제를 하나씩 분리합니다. 그림·도표·표·수식·선지까지 원본 배치를 최대한 그대로 — 잘리거나 뭉개지지 않게 추출하는 정확도에 가장 공을 들였습니다.</p>
       </div>
       <div class="card">
         <span class="emoji">🗂️</span>
@@ -393,7 +396,7 @@
       <div class="card">
         <span class="emoji">📚</span>
         <h3>과목 제한 없음</h3>
-        <p>수학·과학·국어·영어·사회 — 특정 과목 전용이 아닙니다. 표가 많은 과목도, 수식이 많은 과목도 똑같이 처리합니다.</p>
+        <p>특정 과목 전용이 아닙니다. 지금은 <b>수학·과학 기출로 다듬고 있고</b>, 국어·영어·사회는 준비 중입니다. 표가 많은 과목도, 수식이 많은 과목도 같은 방식으로 처리합니다.</p>
       </div>
     </div>
   </div>
@@ -434,7 +437,7 @@
         <li><strong>AI 연결은 선생님 계정으로</strong> — 선생님 시험지가 저희 회사 계정을 거치지 않습니다.</li>
       </ul>
       <div class="honest">
-        솔직한 안내 — 문제를 <b>추출하는 순간에만</b> 페이지 이미지가 Google AI(Gemini)로 전송됩니다.
+        솔직한 안내 — 문제를 <b>추출하는 순간에만</b> 페이지 이미지와 그 페이지에서 읽어낸 글자가 Google AI(Gemini)로 전송됩니다.
         공개된 기출은 무료 키로 충분하고, 민감한 자작 자료는 전송 데이터가 AI 학습에 쓰이지 않는
         유료 키 옵션을 선택할 수 있습니다. 이 차이는 앱 안에서 그대로 안내합니다.<br><br>
         그리고 하나 더 — 구독이 유효한지 확인하기 위해 <b>라이선스 키(무작위 문자열) 하나만</b>
@@ -538,7 +541,7 @@
       <p>· 이미 내보내신 한글 파일은 구독과 관계없이 계속 사용하실 수 있습니다.</p>
       <p>· 재구독하시면 기존 데이터를 그대로 이어서 사용하실 수 있습니다.</p>
       <p>· 문제 추출에는 회원님이 직접 발급하신 Google Gemini API 키가 필요하며, 사용량에 따라 Google에 별도 요금이 청구될 수 있습니다. <b>이 비용은 구독료에 포함되지 않습니다.</b></p>
-      <p>· 문제를 추출하는 순간에만 페이지 이미지가 Google Gemini로 전송됩니다.</p>
+      <p>· 문제를 추출하는 순간에만 페이지 이미지와 그 페이지에서 읽어낸 글자가 Google Gemini로 전송됩니다.</p>
     </div>
   </div>
 </section>
@@ -648,15 +651,22 @@
          허용 표현의 정본 = docs/프라이버시-데이터처리.md 「써도 되는 정직한 표현」 -->
     <p class="sec-sub">회원가입 없음 · 카드 등록 없음 · 문제 DB와 시험지는 선생님 컴퓨터에만 저장됩니다</p>
     <div class="cta-row">
-      <!-- ⚠️ TODO(공개 전 필수): 두 버튼 모두 실제 설치 파일 주소로 교체할 것.
-           Windows = GitHub → Actions → "설치본 빌드" 실행 → 결과물을 Releases에 올림
-           Mac     = 맥에서 `npm run build:server && npm run build` → dist-app/*.dmg를 Releases에
-           → 각 파일 주소(https://github.com/…/releases/download/…)를 아래 href에.
-           지금은 주소가 없어 버튼을 눌러도 아무 일도 일어나지 않는다. -->
-      <a class="btn-primary" href="#download">⬇ Windows용 내려받기</a>
-      <a class="btn-ghost" href="#download">⬇ Mac용 내려받기</a>
+      <!-- ⚠️ 버전을 올릴 때마다 아래 주소와 지문(SHA-256)을 **함께** 갱신할 것.
+           주소만 바꾸고 지문을 두면 «맞다고 적힌 지문»이 틀린 값이 되어, 없느니만 못하다.
+           지문은 굽고 나면 dist-app/SHA256SUMS-<버전>.txt 에 자동으로 적힌다(tools/release-hash.js).
+           Mac = 맥에서 `npm run build:server && npm run build` → dist-app/*.dmg 를 같은 릴리즈에. -->
+      <a class="btn-primary" href="https://github.com/gamjanuna/gamjanuna.github.io/releases/download/v0.2.0/Qbox.Setup.0.2.0.exe">⬇ Windows용 내려받기</a>
+      <!-- ⛔ 아직 없는 파일에 링크를 걸지 말 것 — 눌러도 아무 일이 안 일어나는 버튼은
+           «고장난 페이지»로 읽힌다. 파일이 준비되면 위와 같은 형태의 링크로 되살린다. -->
+      <span class="btn-ghost" aria-disabled="true" style="opacity:.5; cursor:default;">Mac용은 준비 중입니다</span>
     </div>
-    <p class="sec-sub" style="margin-top:14px; font-size:13px;">Windows 10 이상 · Mac은 Apple 실리콘(M1 이상) · 각 약 400MB</p>
+    <p class="sec-sub" style="margin-top:14px; font-size:13px;">Windows 10 이상(64비트) · 약 316MB · 버전 0.2.0</p>
+    <!-- 서명(코드 사이닝)이 붙기 전까지, 받은 파일이 우리가 만든 것임을 확인할 **유일한 수단**이 이 지문이다.
+         docs/법-라이선스-점검.md §10-5 「다운로드 버튼 연결 조건 3종」 -->
+    <p class="sec-sub" style="margin-top:18px; font-size:12px; opacity:.75;">
+      받은 파일이 맞는지 확인하고 싶으시면 — SHA-256<br>
+      <code style="font-size:11px; word-break:break-all;">eb348e25149e583b9e41eccf16c9e31158fb63ebb11b43c76d3da44b52832e16</code>
+    </p>
   </div>
 </section>
 
