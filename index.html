@@ -19,7 +19,7 @@
   :root {
     --ink: #1a1f2e;
     --ink-soft: #4b5265;
-    --ink-faint: #8a90a3;
+    --ink-faint: #607192;
     --accent: #3d5af1;
     --accent-deep: #2a41c4;
     --accent-soft: #eef1fe;
@@ -100,7 +100,7 @@
   /* ── Hero 데모: 원본 종이 → 앱 카드 ── */
   .demo { display: flex; align-items: center; justify-content: center; gap: 14px 26px; flex-wrap: wrap; margin-top: 40px; }
   .demo-paper {
-    width: 272px; background: #fdfcf6; border: 1px solid #cfc7ae; color: #26221a;
+    width: 272px; max-width: 100%; background: #fdfcf6; border: 1px solid #cfc7ae; color: #26221a;
     box-shadow: 0 24px 50px rgba(0,0,0,.55); transform: rotate(-2.2deg);
     padding: 17px 18px; text-align: left;
     font-family: "Nanum Myeongjo", AppleMyungjo, Batang, serif; font-size: 11.5px; line-height: 1.68;
@@ -115,11 +115,14 @@
     background: linear-gradient(to top right, transparent 49.6%, #6b6350 49.6%, #6b6350 50.4%, transparent 50.4%), #fdfcf6;
   }
   .demo-fig::after { content: "v"; position: absolute; top: 2px; right: 28px; font-size: 9px; font-style: italic; }
+  .demo-paper, .demo-card { position: relative; }
+  .ftag { position: absolute; top: -13px; left: -10px; font: 800 13px/1 system-ui, sans-serif; letter-spacing: .04em; padding: 6px 11px; border-radius: 7px; background: #c8463c; color: #fff; box-shadow: 0 4px 12px rgba(0,0,0,.35); }
+  .ftag.hwp { left: auto; right: -10px; background: #2f6fd6; }
   .demo-arrow { display: flex; flex-direction: column; align-items: center; gap: 7px; }
   .demo-arrow .arr { font-size: 26px; color: #e9a84f; }
   .demo-arrow .lab { font-size: 12px; background: #e9a84f; color: #1a1508; padding: 4px 13px; border-radius: 99px; font-weight: 800; }
   .demo-card {
-    width: 330px; background: #fff; color: #1c2028; border-radius: 12px;
+    width: 330px; max-width: 100%; background: #fff; color: #1c2028; border-radius: 12px;
     box-shadow: 0 0 0 1px rgba(233,168,79,.25), 0 24px 60px rgba(0,0,0,.55);
     padding: 15px 17px; text-align: left; font-size: 12px; line-height: 1.6;
   }
@@ -138,7 +141,8 @@
   }
   .demo-card .fn { font-size: 10.5px; color: #b8863b; font-weight: 700; text-align: right; margin-top: 7px; }
   @keyframes hwpPulse { 0%,100% { box-shadow: 0 3px 12px rgba(233,168,79,.45); } 50% { box-shadow: 0 3px 20px rgba(233,168,79,.85); } }
-  .demo-cap { font-size: 12.5px; color: #6f7b95; margin: 18px 0 34px; }
+  .demo-cap { font-size: 12.5px; color: #6f7b95; margin: 18px auto 34px; max-width: 560px; }
+  .demo-cap b { color: #98a3ba; }
   @keyframes riseP { from { opacity: 0; transform: rotate(-2.2deg) translateY(18px); } to { opacity: 1; transform: rotate(-2.2deg); } }
   @keyframes rise  { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
   .demo-paper { animation: riseP .7s .15s both; }
@@ -147,8 +151,7 @@
   @media (prefers-reduced-motion: reduce) { .demo-paper, .demo-arrow, .demo-card, .demo-card .btns span.hwp { animation: none; } }
   @media (max-width: 700px) { .demo-arrow .arr { transform: rotate(90deg); } }
 
-  /* ── 3단계 스트립 ── */
-  .steps { background: var(--bg-alt); padding: 30px 0 46px; }
+  /* ── 설치 3단계 ── */
   .steps-row { display: flex; gap: 14px; max-width: 860px; margin: 0 auto; }
   .step { flex: 1; background: var(--bg); border: 1px solid var(--line); border-radius: 12px; padding: 18px 20px; font-size: 14px; color: var(--ink-soft); }
   .step b { display: block; font-size: 15.5px; color: var(--ink); margin-bottom: 4px; }
@@ -176,7 +179,7 @@
   @media (max-width: 640px) { .appwin-det { display: none; } }
 
   /* ── Sections ── */
-  section { padding: 88px 0; }
+  section { padding: 88px 0; scroll-margin-top: 76px; }
   section.alt { background: var(--bg-alt); }
   .sec-label { text-align: center; color: var(--accent); font-weight: 700; font-size: 14px; letter-spacing: .5px; margin-bottom: 12px; }
   h2 { text-align: center; font-size: clamp(24px, 3.6vw, 34px); font-weight: 800; letter-spacing: -1px; margin-bottom: 14px; }
@@ -262,6 +265,17 @@
   /* 어두운 배경 위 보조 버튼 — 기본 .btn-ghost는 밝은 배경용이라 대비가 안 난다 */
   .final .btn-ghost { color: #edf0f6; border-color: #3a4459; }
   .final .btn-ghost:hover { background: rgba(255,255,255,.07); }
+  /* 준비 중(누를 수 없음) — opacity로 흐리면 글자가 안 읽힌다. 배경을 한 단 낮춰 구분한다. */
+  .final .btn-off, .final .btn-off:hover { background: #262d3d; color: #b8bdcc; border-color: #262d3d; cursor: default; }
+
+  /* ── 설치 안내(접힘) ── */
+  .install { max-width: 860px; margin: 0 auto; border: 1px solid var(--line); border-radius: var(--radius); background: var(--bg); }
+  .install summary { cursor: pointer; list-style: none; padding: 18px 48px 18px 22px; font-weight: 700; font-size: 15.5px; position: relative; }
+  .install summary::-webkit-details-marker { display: none; }
+  .install summary::after { content: "+"; position: absolute; right: 22px; top: 14px; color: var(--accent); font-size: 20px; }
+  .install[open] summary::after { content: "–"; }
+  .install summary span { display: block; font-weight: 400; font-size: 13.5px; color: var(--ink-soft); margin-top: 2px; }
+  .install-body { padding: 4px 22px 22px; }
 
   footer { padding: 36px 0; text-align: center; font-size: 13px; color: var(--ink-faint); border-top: 1px solid var(--line); }
 </style>
@@ -278,18 +292,18 @@
 <header class="hero">
   <div class="hero-glow"></div>
   <div class="wrap hero-in">
-    <div class="badge">🔒 설치형 프로그램 · 회원가입 없음 · 몇 부를 뽑든 같은 금액</div>
-    <h1>그 문제, <span class="accent">다시 타이핑하지 마세요</span></h1>
+    <div class="badge">🔒 설치형 프로그램 · 회원가입 없음</div>
+    <h1>기출 PDF에서 골라 담아<br><span class="accent">새 시험지를 한글(HWP)로</span></h1>
     <p class="hero-sub">새벽까지 붙잡고 있던 그 일 — 이제 이렇게 끝납니다.</p>
     <div class="demo">
-      <div class="demo-paper">
+      <div class="demo-paper"><span class="ftag">PDF</span>
         <div class="ph"><span>2026학년도 1학기 중간 대비</span><span>물리학Ⅰ</span></div>
         <b>14.</b> 그림과 같이 마찰이 없는 수평면에서 물체 A를 밀었더니 빗면을 따라 올라갔다. 이에 대한 설명으로 옳은 것은? [3점]
         <div class="demo-fig"></div>
         <div>① ㄱ &nbsp; ② ㄴ &nbsp; ③ ㄱ, ㄷ &nbsp; ④ ㄴ, ㄷ &nbsp; ⑤ ㄱ, ㄴ, ㄷ</div>
       </div>
       <div class="demo-arrow"><span class="arr">→</span><span class="lab">자동 추출</span></div>
-      <div class="demo-card">
+      <div class="demo-card"><span class="ftag hwp">HWP</span>
         <div class="tags"><i>물리학Ⅰ</i><i>고3</i><i>객관식</i><i>그림 1</i></div>
         <div><b>문제 14</b> · 그림과 같이 마찰이 없는 수평면에서 물체 A를 밀었더니 빗면을 따라 올라갔다. 이에 대한 설명으로 옳은 것은? <b>[3점]</b></div>
         <div class="cfig"><b></b>그림 자동 분리 · 위치 그대로</div>
@@ -298,34 +312,21 @@
         <div class="fn">→ 중간고사_역학.hwpx 저장됨</div>
       </div>
     </div>
-    <p class="demo-cap">↑ 화면 구성 예시 · 추출부터 <b>한글(HWP) 저장</b>까지 한 프로그램에서</p>
+    <p class="demo-cap">↑ 화면 구성 예시<br>문제·그림·표·수식을 원본 배치에 최대한 가깝게 추출합니다. 스캔 상태가 나쁘면 오타가 날 수 있고, 화면에서 바로 고칠 수 있습니다.</p>
     <div class="cta-row">
       <a class="btn-primary" href="#download">다운로드</a>
-      <a class="btn-ghost" href="#how">어떻게 작동하나요?</a>
+      <a class="btn-ghost" href="#features">어떻게 작동하나요?</a>
     </div>
     <p class="hero-note">먼저 써보고 결정하세요 · 처음 한 번만 구글 AI 연결(5분)</p>
   </div>
   <div class="hero-fade"></div>
 </header>
 
-<section class="steps" id="how">
-  <div class="wrap">
-    <div class="steps-row">
-      <div class="step"><b>① 올리고</b>쌓아둔 시험지 PDF를 업로드하면</div>
-      <div class="step"><b>② 뽑히고</b>문제·그림·표·수식이 원본 배치를 최대한 그대로 추출되고</div>
-      <div class="step"><b>③ 담는다</b>골라 담아 한글(HWP) 파일로 저장합니다</div>
-    </div>
-    <!-- ⚠️ .sec-sub 는 margin-bottom:52px 를 갖고 있다 — .steps 의 padding-bottom:46px 와 겹쳐
-         아래가 100px 가까이 벌어지므로 margin 을 통째로 다시 준다(top 만 덮으면 bottom 이 남는다). -->
-    <p class="sec-sub" style="margin:14px auto 0; font-size:13px;">스캔 상태가 나쁘면 오타가 날 수 있고, 화면에서 바로 고치실 수 있습니다.</p>
-  </div>
-</section>
-
 <section class="alt" id="pain">
   <div class="wrap">
-    <p class="sec-label">이런 경험 있으시죠</p>
+    <p class="sec-label">매번 겪는 일</p>
     <h2>좋은 문제는 이미 갖고 계십니다.<br>다시 꺼내 쓰기가 힘들 뿐.</h2>
-    <p class="sec-sub">수년간 쌓인 시험지 PDF — 그 안의 문제들은 지금 어디에 있나요?</p>
+    <p class="sec-sub">수년간 쌓인 시험지 PDF 안에 쓸 만한 문제가 그대로 묻혀 있습니다.</p>
     <div class="grid3">
       <div class="card pain">
         <q>이 문제 어느 시험지에 있더라…</q>
@@ -347,7 +348,7 @@
   <div class="wrap">
     <p class="sec-label">Qbox가 하는 일</p>
     <h2>업로드 → 추출 → 정리 → 새 시험지</h2>
-    <p class="sec-sub">복잡한 설정 없이, 시험지 PDF를 올리는 것부터 시작하세요.</p>
+    <p class="sec-sub">모든 작업은 시험지 PDF를 올리는 데서 시작합니다.</p>
     <div class="appwin">
       <div class="appwin-bar"><i></i><i></i><i></i><span>Qbox — 문제 DB</span></div>
       <div class="appwin-body">
@@ -381,51 +382,28 @@
       <div class="card">
         <span class="emoji">✂️</span>
         <h3>문제 단위 자동 추출</h3>
-        <p>AI가 시험지에서 문제를 하나씩 분리합니다. 그림·도표·표·수식·선지까지 원본 배치를 최대한 그대로 — 잘리거나 뭉개지지 않게 추출하는 정확도에 가장 공을 들였습니다.</p>
+        <p>문제를 하나씩 분리하고, 그림·표·수식·선지까지 원본 배치에 최대한 가깝게 추출합니다. 그림 잘림과 수식 뭉개짐을 막는 데 가장 공을 들였습니다.</p>
       </div>
       <div class="card">
         <span class="emoji">🗂️</span>
         <h3>나만의 문제 DB</h3>
-        <p>추출된 문제를 폴더로 정리하고, 검색하고, 드래그로 옮기세요. 해설·정답이 함께 있는 시험지라면 해설까지 문제에 붙여 저장됩니다.</p>
+        <p>폴더로 정리하고 검색하고 드래그로 옮길 수 있습니다. 해설이 있는 시험지는 해설까지 문제에 붙여 저장합니다.</p>
       </div>
       <div class="card">
         <span class="emoji">📝</span>
         <h3>골라 담아 새 시험지</h3>
-        <p>DB에서 문제를 골라 담으면 새 시험지가 됩니다. 완성되면 한글 파일(.hwpx)로 바로 저장 — 화면에서 잡으신 <b>문제 순서와 쪽·단 배치 그대로</b> 나옵니다. (Word 파일은 준비 중입니다)</p>
+        <p>골라 담은 문제가 새 시험지가 되고, 화면에서 잡은 <b>순서·쪽·단 배치대로</b> 한글(.hwpx)로 저장됩니다. Word 저장은 준비 중입니다.</p>
       </div>
       <div class="card">
         <span class="emoji">📚</span>
-        <h3>과목 제한 없음</h3>
-        <p>특정 과목 전용이 아닙니다. 지금은 <b>수학·과학 기출로 다듬고 있고</b>, 국어·영어·사회는 준비 중입니다. 표가 많은 과목도, 수식이 많은 과목도 같은 방식으로 처리합니다.</p>
+        <h3>한 과목 전용이 아닙니다</h3>
+        <p>지금은 <b>수학·과학</b>을 지원하고, 국어·영어·사회는 준비 중입니다. 표·수식이 많은 과목도 같은 방식으로 처리합니다.</p>
       </div>
     </div>
   </div>
 </section>
 
-<section class="alt" id="metered">
-  <div class="wrap">
-    <p class="sec-label">요금 방식</p>
-    <h2>뽑을 때마다 값이 붙는 게<br>싫으셨다면</h2>
-    <div class="privacy-box">
-      <p style="font-size:15.5px; color:var(--ink-soft); line-height:1.8;">
-        “한 부에 얼마” 식이면, 시험지를 만들다 말고 머릿속으로 계산하게 됩니다.<br>
-        <em>이거 뽑을까 말까. 이번 달 얼마 나왔더라.</em>
-      </p>
-      <p style="font-size:15.5px; color:var(--ink-soft); line-height:1.8; margin-top:16px;">
-        저희는 그 계산을 없애고 싶었습니다.<br>
-        <b>저희 쪽 금액은 매달 같습니다.</b> 한 부를 올리시든 서른 부를 올리시든 저희에게 내시는 돈은
-        달라지지 않습니다. 저희가 문제 뽑는 일로 돈을 벌지 않으니, 선생님께 아껴 쓰시라고 말씀드릴
-        이유도 없습니다.
-      </p>
-      <div class="honest">
-        그리고 이 금액에는 <b>뽑는 것만</b> 들어 있는 게 아닙니다. 뽑은 문제를 폴더로 정리하고,
-        검색하고, 골라 담아 <b>한글 시험지로 만드는 것까지</b> 전부 포함입니다.
-      </div>
-    </div>
-  </div>
-</section>
-
-<section id="privacy">
+<section class="alt" id="privacy">
   <div class="wrap">
     <p class="sec-label">프라이버시</p>
     <h2>내 자료는 내 컴퓨터에만</h2>
@@ -440,18 +418,18 @@
         솔직한 안내 — 문제를 <b>추출하는 순간에만</b> 페이지 이미지와 그 페이지에서 읽어낸 글자가 Google AI(Gemini)로 전송됩니다.
         공개된 기출은 무료 키로 충분하고, 민감한 자작 자료는 전송 데이터가 AI 학습에 쓰이지 않는
         유료 키 옵션을 선택할 수 있습니다. 이 차이는 앱 안에서 그대로 안내합니다.<br><br>
-        그리고 하나 더 — 정식 구독이 시작되면 구독이 유효한지 확인하기 위해 <b>라이선스 키(무작위 문자열) 하나만</b>
+        정식 구독이 시작되면 구독이 유효한지 확인하기 위해 <b>라이선스 키(무작위 문자열) 하나만</b>
         저희 서버와 주고받습니다. 시험지도, 문제도, 개인정보도 보내지 않습니다.
       </div>
     </div>
   </div>
 </section>
 
-<section class="alt" id="cost">
+<section id="cost">
   <div class="wrap">
     <p class="sec-label">비용 구조</p>
     <h2>돈이 어떻게 나가나요</h2>
-    <p class="sec-sub">이 프로그램은 돈이 <b>두 군데</b>로 나갑니다. 가격을 보시기 전에 먼저 말씀드립니다.</p>
+    <p class="sec-sub">이 프로그램을 쓰면 돈이 <b>두 군데</b>로 나갑니다.</p>
     <div class="privacy-box">
       <div class="money-scroll">
         <table class="moneytab">
@@ -468,37 +446,34 @@
       </div>
       <p style="font-size:15.5px; color:var(--ink-soft); line-height:1.8; margin-top:22px;">
         <b>저희는 문제를 뽑는 일로는 돈을 벌지 않습니다.</b><br>
-        AI 값은 선생님 계정에서 구글로 바로 갑니다. 저희를 거치지 않고, 저희가 거기에 얼마를 붙일
-        자리도 없습니다. 그래서 <b>저희 쪽에는 세는 계량기가 없습니다.</b> 이번 달에 한 부를 올리시든
-        서른 부를 올리시든, 저희에게 더 내실 돈은 없습니다.
+        그래서 저희 쪽에는 몇 부를 올렸는지 세는 계량기가 없습니다.
       </p>
       <div class="honest">
         <b>왜 이렇게 만들었나요?</b><br>
         AI 값을 저희가 대신 받으려면 선생님 시험지가 <b>저희 서버를 거쳐야</b> 합니다. 그러면 저희가
-        무엇을 올리셨는지 볼 수 있게 됩니다. 저희는 그렇게 만들지 않기로 했습니다.
-        선생님 시험지는 저희 회사를 한 번도 지나가지 않습니다.
+        무엇을 올렸는지 볼 수 있게 됩니다. 저희는 그렇게 만들지 않기로 했습니다.
       </div>
     </div>
   </div>
 </section>
 
-<section id="pricing">
+<section class="alt" id="pricing">
   <div class="wrap">
     <p class="sec-label">가격</p>
-    <h2>돈이 나가는 곳은 두 군데인데,<br>저희가 받는 건 하나뿐입니다</h2>
+    <h2>저희가 받는 것은<br>프로그램 값 하나입니다</h2>
     <!-- ⚠️ 이 섹션의 핵심 = **두 층을 갈라 보여주는 것**. 강사가 가장 많이 하는 오해가
          "구독료 안에 AI 비용이 들어 있나?"이고, 안 갈라놓으면 설치 후에야 알게 돼 이탈한다.
          ⛔ 단가(100~350원)는 **불안 해소(방어)용**으로만 쓸 것 — "싸죠?"라는 자랑(공격)으로
             쓰지 말 것(prd/과금/가격.md: "우리 우위는 단가가 아니라 구조다"). -->
-    <p class="sec-sub"><b>프로그램 값은 저희에게, AI 값은 구글에</b> 직접 내십니다. 프린터를 사면 잉크는 따로 사는 것과 같습니다.<br>
+    <p class="sec-sub">프린터를 사도 잉크는 따로 사는 것처럼, AI 값은 따로 나갑니다.<br>
       <!-- ⛔ 여기(부제 = 가장 눈에 띄는 자리)에서 「0원」을 말하지 말 것 (2026-08-19 legal).
      우리 정본 docs/프라이버시-데이터처리.md가 **문장으로 금지**한다:
      «홍보에 "무료라서 0원"이라고 쓰지 말 것 — 구글이 무료 한도 공개를 중단했고,
       정책이 바뀌는 순간 표시광고 위반이 된다. 항상 전부 유료로 계산한 최악 기준으로만 말한다.»
      ⚠️ 단서(«구글이 정확한 수치를 공개하지 않아 단정할 수 없다»)는 33줄 아래 딴 블록에 있었다.
-        단서와 떨어진 「0원」은 단서가 없는 것과 같다. 아래 notice-list의 「0원」은
-        **단서와 붙어 있어** 그대로 둔다. 재발 가드 = test_pipeline.py §14 -->
-<b>지금은 저희가 받는 구독료가 없습니다.</b> 구글 AI 사용료만 선생님 계정으로 나갑니다 — 전부 돈을 내는 기준으로 계산해도 시험지 한 부에 100~350원 수준입니다(쪽수에 비례).</p>
+        단서와 떨어진 「0원」은 단서가 없는 것과 같다. 2026-09-30에 아래 notice-list의
+        「무료 한도 안에서는 0원」도 걷어냈다 — 되살리지 말 것(최악 기준만 안내). 재발 가드 = test_pipeline.py §14 -->
+<b>지금은 저희가 받는 구독료가 없습니다.</b></p>
 
     <p class="sec-label" style="margin-top:34px;">① 저희에게 내는 것</p>
     <div class="grid2" style="max-width:720px; margin:0 auto;">
@@ -518,7 +493,6 @@
         <div class="price">출시 시 공개</div>
         <div class="per">매달 같은 금액</div>
         <ul>
-          <li>몇 부를 올리셔도 저희에게 더 내실 돈 없음</li>
           <li>문제 뽑기 · 고치기 · 시험지 만들기 · 한글 저장 전부</li>
           <li>나오는 업데이트 모두 포함</li>
           <li>시험지와 문제는 선생님 컴퓨터에만</li>
@@ -528,16 +502,16 @@
     <!-- ⚠️ 카드 안에 버튼을 두지 말 것 — 무료판·유료판이 **다른 파일**인 것처럼 읽힌다.
          실제로는 같은 프로그램 하나이고 구독 여부만 다르다(다운로드는 페이지 상·하단 CTA 하나로). -->
 
-    <p class="sec-label" style="margin-top:38px;">② 구글에 내는 것 <span style="color:var(--ink-faint); font-weight:600;">— 저희를 거치지 않습니다</span></p>
+    <p class="sec-label" style="margin-top:38px;">② 구글에 내는 것</p>
     <div class="notice-list" style="margin-top:12px;">
-      <p>· 문제를 뽑을 때 <b>구글 AI(Gemini)</b>가 시험지를 읽습니다. 그 사용료는 <b>선생님 구글 계정으로 직접</b> 청구되며, 저희 통장을 거치지 않습니다.</p>
-      <p>· <b>구글이 주는 무료 한도 안에서는 0원</b>입니다. 한도는 구글 계정마다 다르고, 구글이 정확한 수치를 공개하지 않아 저희도 단정해 드릴 수 없습니다.</p>
-      <p>· 한도를 넘겨 <b>전부 돈을 내는 기준으로 계산해도</b> 시험지 한 부에 100~350원 수준입니다(쪽수에 비례). 저희는 항상 이 최악 기준으로만 안내드립니다.</p>
-      <p>· ⭐ <b>그래서 몇 부를 뽑으셔도 저희에게 낼 돈은 그대로입니다.</b> AI 비용을 구독료에 얹지 않았기 때문에, 많이 쓰신다고 저희가 더 받거나 사용량을 막을 이유가 없습니다.</p>
+      <p>· 문제를 뽑을 때 <b>구글 AI(Gemini)</b>가 시험지를 읽습니다. 그 사용료는 <b>선생님 구글 계정으로 직접</b> 청구됩니다.</p>
+      <p>· 구글이 주는 무료 한도가 있지만, 한도는 계정마다 다르고 구글이 정확한 수치를 공개하지 않습니다.</p>
+      <p>· 그래서 <b>전부 돈을 내는 기준으로만</b> 안내합니다 — 시험지 한 부에 100~350원 수준입니다(쪽수에 비례).</p>
+      <p>· 실제로 나간 금액은 구글 계정의 사용량 화면(aistudio.google.com/usage)에서 확인할 수 있습니다.</p>
     </div>
 
-    <p class="pricing-note">※ 프로그램은 <b>하나</b>입니다. 지금 받으시는 것과 정식판이 같은 파일이며, 구독 여부에 따라 쓸 수 있는 기능만 달라집니다.<br>
-      지금은 <b>미리 써보는 단계</b>라 가격이 변동될 수 있습니다 · <a href="mailto:leedb710@gmail.com?subject=[Qbox]%20출시%20알림%20신청&body=정식%20출시%20소식을%20받고%20싶습니다.%0A%0A- 가르치는 과목:%0A- 소속(학원/과외/학교):">정식 출시 알림 받기 →</a></p>
+    <p class="pricing-note">※ 프로그램은 <b>하나</b>입니다. 지금 받는 파일이 곧 정식판이고, 구독 여부에 따라 쓸 수 있는 기능만 달라집니다.<br>
+      지금은 <b>미리 써보는 단계</b>라 가격이 바뀔 수 있습니다 · <a href="mailto:leedb710@gmail.com?subject=[Qbox]%20출시%20알림%20신청&body=정식%20출시%20소식을%20받고%20싶습니다.%0A%0A- 가르치는 과목:%0A- 소속(학원/과외/학교):">정식 출시 알림 받기 →</a></p>
 
     <!-- ⚖️ 구매 전 고지 (약관규제법 제3조 명시·설명 의무 — 법-라이선스-점검.md §9-5-C).
          ⛔ 이 블록을 약관 링크 안으로 옮기지 말 것: "구매 버튼과 같은 화면"에 있어야 명시로 인정된다.
@@ -553,11 +527,11 @@
   </div>
 </section>
 
-<section class="alt" id="stop">
+<section id="stop">
   <div class="wrap">
     <p class="sec-label">멈출 때</p>
     <h2>구독을 멈추면 어떻게 되나요</h2>
-    <p class="sec-sub">구매하시기 전에 정확히 알고 계셔야 할 부분이라 미리 적어둡니다.</p>
+    <p class="sec-sub">구매 전에 알아 두어야 할 내용입니다.</p>
     <div class="privacy-box">
       <div class="stop-grid">
         <div class="stop-col off">
@@ -573,57 +547,33 @@
           <h4>그대로인 것</h4>
           <ul>
             <li><b>문제는 선생님 컴퓨터에 그대로</b> — 저희가 가져가지도, 들여다보지도 못합니다</li>
-            <li><b>이미 저장하신 한글 파일</b>은 그냥 선생님 파일입니다</li>
+            <li><b>이미 저장한 한글 파일</b>은 구독과 관계없이 선생님 파일로 남습니다</li>
             <li><b>다시 구독하시면 그날부터 그대로</b> 이어집니다</li>
           </ul>
         </div>
       </div>
       <div class="honest">
-        <b>솔직히 말씀드릴 것 하나</b><br>
-        구독이 멈추면 한글로 저장하기도 함께 멈춥니다. 그래서 <b>자주 쓰시는 시험지는 미리
-        한글 파일로 저장해 두시길</b> 권합니다.
-        그건 저희와 무관하게 선생님 파일로 남습니다.
+        <b>미리 알아 둘 것</b><br>
+        구독이 멈추면 한글로 저장하기도 함께 멈춥니다. <b>자주 쓰는 시험지는 미리
+        한글 파일로 저장해 두기를</b> 권합니다.
       </div>
     </div>
   </div>
 </section>
 
-<section id="faq">
+<section class="alt" id="faq">
   <div class="wrap">
     <p class="sec-label">자주 묻는 질문</p>
     <h2>궁금한 점</h2>
     <div class="faq" style="margin-top:40px;">
       <details>
         <summary>왜 월 구독인가요? 한 번 사서 계속 쓰면 안 되나요?</summary>
-        <p>이 프로그램은 한 번 만들고 끝낼 수가 없는 종류입니다. 시험지 모양은 해마다 바뀌고, 구글 AI도 계속 바뀌고, 윈도우·맥도 계속 올라갑니다. 손을 놓는 순간 어느 날 갑자기 안 되기 시작합니다.<br>
-        한 번만 받고 나면 저희가 계속 고칠 이유가 사라집니다. 매달 받는 대신 <b>매달 고쳐 나가겠다는 뜻</b>입니다. 무엇을 고쳤는지는 프로그램 안에서 보실 수 있게 해두겠습니다.</p>
-      </details>
-      <details>
-        <summary>프로그램 값도 내는데 AI 값도 따로 내라는 건가요?</summary>
-        <p>네, 두 군데로 나가는 게 맞습니다. 그리고 왜 그렇게 했는지 말씀드리겠습니다.<br>
-        AI 값을 저희가 대신 받으려면, 선생님 시험지가 <b>저희 서버를 거쳐야</b> 합니다. 그러면 저희가 무엇을 올리셨는지 볼 수 있게 되고, 서버 운영비만큼 값도 올라갑니다. 저희는 그렇게 만들지 않기로 했습니다.<br>
-        지금 구조에서 AI 값은 <b>선생님 계정에서 구글로 바로</b> 갑니다. 저희가 중간에서 남기는 몫은 0원입니다.</p>
-      </details>
-      <details>
-        <summary>많이 올리면 더 비싸지나요?</summary>
-        <p><b>저희에게 내시는 금액은 달라지지 않습니다.</b> 저희 쪽에는 몇 부를 올리셨는지 세는 계량기가 없습니다.<br>
-        구글에 가는 AI 실비는 올리신 만큼 늘어납니다. 그 금액은 구글 계정의 사용량 화면(aistudio.google.com/usage)에서 확인하실 수 있습니다.</p>
-      </details>
-      <details>
-        <summary>AI 값이 실제로 얼마나 나오나요?</summary>
-        <p>시험지 분량에 따라 다릅니다. 얇은 시험지는 한 부에 100원 안팎, 24쪽짜리 수학 시험지처럼 두꺼우면 300원대까지 나옵니다.<br>
-        이건 <b>저희가 받는 돈이 아니라 구글에 가는 값</b>이고, 저희는 여기에 아무것도 붙이지 않습니다. 구글에 무료로 쓸 수 있는 범위가 있긴 하지만 조건이 바뀔 수 있어서, 저희는 <b>전부 돈 내고 쓰는 기준</b>으로 안내드립니다. 실제로는 이보다 적게 나올 수 있습니다.</p>
-      </details>
-      <details>
-        <summary>구독을 멈추면 제 문제들은 어떻게 되나요?</summary>
-        <p>선생님 문제는 선생님 컴퓨터에 그대로 남습니다. 저희 서버에 없으니 저희가 가져갈 수도, 볼 수도 없습니다.<br>
-        다만 <b>프로그램은 잠깁니다.</b> 새로 뽑기 · 고치기 · 시험지 만들기 · 한글로 저장하기가 멈춥니다. 다시 구독하시면 그날부터 그대로 이어집니다.<br>
-        한글로 저장하기도 함께 멈추니, <b>자주 쓰시는 시험지는 미리 한글 파일로 저장해 두시길</b> 권합니다.</p>
+        <p>시험지 양식, 구글 AI, 윈도우가 계속 바뀌어서 손을 놓으면 어느 날 안 되기 시작합니다. 그래서 한 번 파는 대신 <b>매달 받고 매달 고칩니다</b>. 고친 내용은 프로그램 안에서 볼 수 있게 할 예정입니다.</p>
       </details>
       <details>
         <summary>"구글 AI 연결"이 뭔가요? 어렵지 않나요?</summary>
-        <p>도서관 열람증을 만드는 것과 같습니다. 구글에서 "이 사람이 쓰는 게 맞다"는 연결 코드를 하나 받아서, 프로그램에 한 번 붙여넣으면 끝입니다. 구글 계정만 있으면 되고 <b>5분</b>이면 됩니다.<br>
-        프로그램 안에 "발급 화면 열기" 버튼과 그림 설명이 들어 있고, 한 번 넣으면 다시 하실 일 없습니다. 막히시면 메일 주세요. 화면 보면서 같이 해드립니다.</p>
+        <p>구글에서 연결 코드(키)를 받아 프로그램에 한 번 붙여넣으면 끝입니다. 구글 계정이 필요하고 <b>5분</b> 정도 걸립니다.<br>
+        설정 화면의 <b>키 받으러 가기</b> 버튼이 발급 화면을 엽니다. 막히면 메일 주세요. 화면을 보면서 같이 설정합니다.</p>
       </details>
       <details>
         <summary>인터넷이 꼭 필요한가요?</summary>
@@ -635,7 +585,7 @@
       </details>
       <details>
         <summary>한글(HWP) 파일로 내보낼 수 있나요?</summary>
-        <p>네, 한글 파일(.hwpx)로 저장하실 수 있습니다. 화면에서 잡으신 문제 순서와 쪽·단 배치 그대로 나옵니다. 글꼴 차이로 줄 높이는 조금 다를 수 있습니다. Word(.docx) 내보내기는 아직 개발 중입니다.</p>
+        <p>한글 파일(.hwpx)로 저장되며, 화면에서 잡은 문제 순서와 쪽·단 배치가 그대로 나옵니다. 다만 글꼴 차이로 줄 높이는 조금 다를 수 있습니다. Word(.docx) 내보내기는 아직 개발 중입니다.</p>
       </details>
       <details>
         <summary>저작권 문제는 없나요?</summary>
@@ -643,7 +593,7 @@
       </details>
       <details>
         <summary>Mac에서도 되나요?</summary>
-        <p>지금 내려받으실 수 있는 것은 <b>Windows용</b>입니다. Mac(Apple 실리콘)용은 준비 중이고, 완성되면 같은 자리에 올립니다.</p>
+        <p>지금은 <b>Windows용</b>만 있습니다. Mac(Apple 실리콘)용은 준비 중이고, 완성되면 같은 자리에 올립니다.</p>
       </details>
     </div>
   </div>
@@ -664,13 +614,13 @@
       <a class="btn-primary" href="https://github.com/gamjanuna/gamjanuna.github.io/releases/download/v0.6.1/Qbox.Setup.0.6.1.exe">⬇ Windows용 내려받기</a>
       <!-- ⛔ 아직 없는 파일에 링크를 걸지 말 것 — 눌러도 아무 일이 안 일어나는 버튼은
            «고장난 페이지»로 읽힌다. 파일이 준비되면 위와 같은 형태의 링크로 되살린다. -->
-      <span class="btn-ghost" aria-disabled="true" style="opacity:.5; cursor:default;">Mac용은 준비 중입니다</span>
+      <span class="btn-ghost btn-off" aria-disabled="true">Mac용은 준비 중입니다</span>
     </div>
     <p class="sec-sub" style="margin-top:14px; font-size:13px;">Windows 10 이상(64비트) · 약 319MB · 버전 0.6.1</p>
     <!-- 서명(코드 사이닝)이 붙기 전까지, 받은 파일이 우리가 만든 것임을 확인할 **유일한 수단**이 이 지문이다.
          docs/법-라이선스-점검.md §10-5 「다운로드 버튼 연결 조건 3종」 -->
     <p class="sec-sub" style="margin-top:18px; font-size:12px; opacity:.75;">
-      받은 파일이 맞는지 확인하고 싶으시면 — SHA-256<br>
+      받은 파일 확인용 SHA-256<br>
       <code style="font-size:11px; word-break:break-all;">d3b6b4b05f5c2e1345433ada3db02ddfbd6e5a2c0b7a94223db93d86a9bb8e66</code>
     </p>
   </div>
@@ -680,7 +630,12 @@
   <div class="wrap">
     <p class="sec-label">설치하기</p>
     <h2>세 단계면 끝납니다</h2>
-    <p class="sec-sub">처음 한 번만 하시면 됩니다. 다음부터는 바로 시험지만 올리시면 돼요.</p>
+    <p class="sec-sub">처음 한 번만 필요합니다.</p>
+    <!-- 접어 둔다 — 다운로드 버튼 바로 밑에 경고문이 펼쳐져 있으면 받기도 전에 겁부터 준다.
+         ⛔ 접는 것이지 지우는 것이 아니다: 아래 경고창 안내·무료/유료 키 설명은 그대로 둘 것. -->
+    <details class="install">
+    <summary>설치 순서와 경고창 안내 보기<span>Windows 경고창이 뜰 때 대처법 · 무료 키와 유료 키의 차이</span></summary>
+    <div class="install-body">
     <div class="steps-row">
       <!-- ⚠️ **설치 시간을 반드시 말한다** (2026-09-08 사용자 실측 5~6분). 설치본이 320MB이고
            풀면 1.2GB 안팎이 된다 — 글자를 읽는 AI(EasyOCR·torch)가 780MB를 차지한다(server.spec 실측).
@@ -688,32 +643,33 @@
               그 불안은 문구 한 줄로 없어진다. ⛔ 「용량이 크다」·「압축 해제」는 안 쓴다 — 강사 말이 아니다.
            ⚠️ 같은 말이 **릴리즈 노트에도** 있어야 한다 — 친구는 랜딩을 안 거치고 링크를 바로 받는다. -->
       <div class="step"><b>① 내려받아 설치</b>받은 파일을 두 번 누르면 설치됩니다. 관리자 권한은 필요하지 않습니다. <b>설치는 5분쯤 걸립니다</b> — 글자를 읽는 AI가 함께 들어 있어 파일이 큽니다. 진행 막대가 멈춘 것처럼 보여도 기다려 주세요.</div>
-      <div class="step"><b>② 구글 AI 연결 (5분)</b>설정 화면의 <b>키 받으러 가기</b>를 누르면 구글 사이트가 열립니다. 구글 계정으로 키를 받아 붙여넣으면 끝. <b>처음엔 카드 없이 무료로 시작</b>하실 수 있습니다.</div>
+      <div class="step"><b>② 구글 AI 연결</b>설정 화면에서 <b>키 받으러 가기</b>를 누르면 구글 사이트가 열립니다. 구글 계정으로 키를 받아 붙여넣으면 됩니다. <b>처음에는 카드 없이 무료 키로 시작</b>할 수 있습니다.</div>
       <div class="step"><b>③ 시험지 올리기</b>PDF를 끌어다 놓으면 문제·그림·표·수식이 자동으로 뽑힙니다.</div>
     </div>
 
     <div class="notice-list">
-      <p>· <b>설치할 때 파란 경고창이 뜹니다.</b> “Windows의 PC 보호” 라는 화면인데, <b>추가 정보 → 실행</b>을 누르시면 설치가 진행됩니다. 아직 인증서를 등록하지 않은 프로그램에 Windows가 띄우는 안내입니다.</p>
+      <p>· <b>설치할 때 파란 경고창이 뜹니다.</b> “Windows의 PC 보호” 라는 화면인데, <b>추가 정보 → 실행</b>을 누르면 설치가 진행됩니다. 아직 인증서를 등록하지 않은 프로그램에 Windows가 띄우는 안내입니다.</p>
       <!-- ⚠️ **이 안내를 지우지 말 것** (2026-09-28 실사고): 「스마트 앱 컨트롤」은 위 파란 창과
            **다른 기능**이고 **실행 버튼이 아예 없다.** 그래서 위 안내만 두면 「시킨 대로 했는데
            안 된다」가 된다. 친구 PC에서 v0.6.1이 실제로 이렇게 막혔다(0.6.0은 설치됐었다 —
            파일이 다르면 평판이 안 이어져 **새 버전마다** 막힌다).
            ⛔ 끄면 못 되돌린다는 것을 반드시 같이 적을 것. 코드 서명을 붙이면 이 항목을 뺀다. -->
-      <p>· <b>노란 경고창이 뜨고 실행 버튼이 없다면</b> — “스마트 앱 컨트롤이 안전하지 않을 수 있는 앱을 차단했습니다”라는 화면입니다. 위 파란 창과 다른 기능이라 <b>추가 정보 → 실행이 없습니다.</b> <b>Windows 보안 → 앱 및 브라우저 제어 → 스마트 앱 컨트롤 설정</b>에서 <b>끄기</b>를 선택하셔야 설치할 수 있습니다.<br>
+      <p>· <b>노란 경고창이 뜨고 실행 버튼이 없다면</b> — “스마트 앱 컨트롤이 안전하지 않을 수 있는 앱을 차단했습니다”라는 화면입니다. 위 파란 창과 다른 기능이라 <b>추가 정보 → 실행이 없습니다.</b> <b>Windows 보안 → 앱 및 브라우저 제어 → 스마트 앱 컨트롤 설정</b>에서 <b>끄기</b>를 선택해야 설치할 수 있습니다.<br>
         <b>⚠️ 한 번 끄면 Windows를 다시 설치하기 전에는 켤 수 없습니다.</b> 끄기 전에 이 점을 감안해 주세요. 인증서를 등록하면 이 절차 없이 설치됩니다.</p>
-      <p>· 문제를 뽑을 때만 인터넷이 필요합니다(구글 AI 호출). 뽑아둔 문제를 보고 고치고 시험지를 만드는 일은 인터넷 없이도 됩니다.</p>
-      <p>· <b>구글 AI 키는 두 가지가 있고, 차이를 알고 쓰시는 게 좋습니다.</b><br>
+      <p>· <b>구글 AI 키는 두 종류이며, 보낸 자료를 구글이 학습에 쓰는지가 다릅니다.</b><br>
         <b>무료 키</b> — 카드 등록이 필요 없습니다. 대신 <b>보낸 이미지를 구글이 자기 AI 학습에 사용할 수 있습니다.</b> 수능·교육청 기출처럼 이미 공개된 자료라면 무방합니다.<br>
-        <b>유료 키</b> — 구글에 카드를 등록하면 됩니다. <b>학습에 사용되지 않습니다.</b> 학원에서 직접 만드신 자료를 다루신다면 이쪽을 권합니다.</p>
-      <p>· 어느 쪽이든 <b>구글 사용료는 선생님 구글 계정으로 직접 청구</b>되며, 저희를 거치지 않습니다. 무료 한도는 구글 계정마다 다르고 구글이 정확한 수치를 공개하지 않습니다.</p>
-      <p>· <b>처음엔 공개된 기출(수능·교육청)로 시험해 보시길 권합니다</b> — 카드 없이 바로 시작할 수 있고, 학습에 쓰여도 무해합니다.</p>
+        <b>유료 키</b> — 구글에 카드 등록이 필요합니다. <b>학습에 사용되지 않습니다.</b> 학원에서 직접 만든 자료를 다룬다면 이쪽을 권합니다.</p>
+      <p>· <b>처음에는 공개된 기출(수능·교육청)로 시험해 보기를 권합니다</b> — 카드 없이 바로 시작할 수 있고, 학습에 쓰여도 무해합니다.</p>
     </div>
+    </div>
+    </details>
   </div>
 </section>
 
 <footer>
   <div class="wrap">
     Qbox (가칭) · © 2026 · 문의: leedb710@gmail.com
+    <br>한글, HWP는 (주)한글과컴퓨터의 상표입니다.
   </div>
 </footer>
 
