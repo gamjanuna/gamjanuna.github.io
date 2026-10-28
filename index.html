@@ -78,12 +78,6 @@
     pointer-events: none;
   }
   .hero-in { position: relative; }
-  .badge {
-    display: inline-flex; align-items: center; gap: 6px;
-    background: rgba(233,168,79,.10); color: #d9b071; border: 1px solid rgba(233,168,79,.30);
-    font-size: 13px; font-weight: 700; padding: 6px 14px; border-radius: 99px;
-    margin-bottom: 24px;
-  }
   h1 {
     font-size: clamp(32px, 5.5vw, 52px); font-weight: 700;
     letter-spacing: -1.5px; line-height: 1.25; margin-bottom: 20px;
@@ -105,59 +99,30 @@
   .hero-note { margin-top: 18px; font-size: 13px; color: #6f7b95; }
   .hero-fade { height: 84px; margin-top: 52px; background: linear-gradient(180deg, rgba(15,22,38,0), var(--bg-alt)); }
 
-  /* ── Hero 데모: 원본 종이 → 앱 카드 ── */
-  .demo { display: flex; align-items: center; justify-content: center; gap: 14px 26px; flex-wrap: wrap; margin-top: 40px; }
-  .demo-paper {
-    width: 272px; max-width: 100%; background: #fdfcf6; border: 1px solid #cfc7ae; color: #26221a;
-    box-shadow: 0 24px 50px rgba(0,0,0,.55); transform: rotate(-2.2deg);
-    padding: 17px 18px; text-align: left;
-    font-family: "Noto Serif KR", AppleMyungjo, Batang, serif; font-size: 11.5px; line-height: 1.68;
-  }
-  .demo-paper .ph {
-    font-family: inherit; font-size: 9.5px; color: #8d8672;
-    border-bottom: 1px solid #d8d2bd; padding-bottom: 5px; margin-bottom: 9px;
-    display: flex; justify-content: space-between;
-  }
-  .demo-fig {
-    height: 58px; border: 1px solid #b9b29a; margin: 8px 0; position: relative;
-    background: linear-gradient(to top right, transparent 49.6%, #6b6350 49.6%, #6b6350 50.4%, transparent 50.4%), #fdfcf6;
-  }
-  .demo-fig::after { content: "v"; position: absolute; top: 2px; right: 28px; font-size: 9px; font-style: italic; }
-  .demo-paper, .demo-card { position: relative; }
   .ftag { position: absolute; top: -13px; left: -10px; font: 700 13px/1 "IBM Plex Sans KR", sans-serif; letter-spacing: .04em; padding: 6px 11px; border-radius: 7px; background: #c8463c; color: #fff; box-shadow: 0 4px 12px rgba(0,0,0,.35); }
   .ftag.hwp { left: auto; right: -10px; background: #2f6fd6; }
-  .demo-arrow { display: flex; flex-direction: column; align-items: center; gap: 7px; }
-  .demo-arrow .arr { font-size: 26px; color: #e9a84f; }
-  .demo-arrow .lab { font-size: 12px; background: #e9a84f; color: #1a1508; padding: 4px 13px; border-radius: 99px; font-weight: 700; }
-  .demo-card {
-    width: 330px; max-width: 100%; background: #fff; color: #1c2028; border-radius: 12px;
-    box-shadow: 0 0 0 1px rgba(233,168,79,.25), 0 24px 60px rgba(0,0,0,.55);
-    padding: 15px 17px; text-align: left; font-size: 12px; line-height: 1.6;
+  /* ── Hero: 실제 앱 사진 3장(① 문제 찾기 → ② 편집 → ③ 한글(HWP)) — 시안 v195-hero ── */
+  .hero-sub .one-place { display: inline-block; margin-top: 2px; font-size: clamp(18px, 2vw, 22px); font-weight: 800; color: #f3c98c; letter-spacing: -.2px; }
+  .chips { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 10px; margin: 18px auto 0; }
+  .chips span { border: 1px solid rgba(233,168,79,.45); background: rgba(233,168,79,.1); color: #f3c98c; border-radius: 99px; padding: 6px 14px; font-size: 14px; font-weight: 700; }
+  .hwin { max-width: 1140px; margin: 24px auto 0; border: 1px solid rgba(233,168,79,.35); border-radius: 16px; padding: 0 22px 22px; }
+  .hwin-bar { display: flex; align-items: center; gap: 7px; height: 40px; color: #9aa5bd; font-size: 13px; font-weight: 700; }
+  .hwin-bar i { width: 11px; height: 11px; border-radius: 50%; background: #3a4563; }
+  .hwin-bar span { margin-left: 10px; }
+  .flow3 { display: grid; grid-template-columns: minmax(0,1fr) auto minmax(0,1fr) auto minmax(0,1fr); gap: 14px; align-items: start; margin-top: 6px; }
+  .flow3 figure { margin: 0; min-width: 0; }
+  .flow3 .shot { position: relative; aspect-ratio: 4/3; background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,.35); }
+  .flow3 .shot img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: top center; }
+  .flow3 .shot .ftag { top: 8px; right: 8px; z-index: 1; }
+  .flow3 .arr { color: #e9a84f; font-size: 26px; align-self: center; margin-top: -28px; }
+  .flow3 figcaption { color: #c3cad9; font-size: 13.5px; margin-top: 12px; line-height: 1.5; }
+  .flow3 figcaption small { display: block; font-size: 11.5px; color: #8a95ad; }
+  .hero .fine { max-width: 980px; margin: 18px auto 22px; font-size: 12px; line-height: 1.7; color: #8f9ab3; }
+  @media (max-width: 760px) {
+    .hwin { padding: 0 12px 14px; }
+    .flow3 { grid-template-columns: minmax(0,1fr); max-width: min(420px,100%); margin-left: auto; margin-right: auto; }
+    .flow3 .arr { transform: rotate(90deg); justify-self: center; margin: 0; }
   }
-  .demo-card .tags { display: flex; gap: 5px; margin-bottom: 9px; }
-  .demo-card .tags i { font-style: normal; font-size: 10.5px; background: #eef2fb; color: #2b4dbb; border-radius: 5px; padding: 2px 8px; font-weight: 700; }
-  .demo-card .cfig { border: 1px dashed #c3cad9; border-radius: 6px; padding: 6px 8px; margin: 8px 0; display: flex; align-items: center; gap: 8px; font-size: 10px; color: #7a8296; }
-  .demo-card .cfig b { display: block; width: 48px; height: 32px; border-radius: 3px; background: linear-gradient(to top right, transparent 49.5%, #94a3c0 49.5%, #94a3c0 50.5%, transparent 50.5%), #f3f5f9; }
-  .demo-card .chs { display: grid; grid-template-columns: 1fr 1fr; gap: 1px 12px; margin: 7px 0 10px; color: #3c414d; }
-  .demo-card .btns { display: flex; gap: 6px; border-top: 1px solid #eef0f4; padding-top: 10px; align-items: center; flex-wrap: wrap; }
-  .demo-card .btns span { font-size: 11px; font-weight: 700; border: 1px solid #dfe3ea; border-radius: 6px; padding: 4px 10px; color: #3c414d; }
-  .demo-card .btns span.hwp {
-    background: #e9a84f; border-color: #e9a84f; color: #1a1508;
-    font-size: 12px; font-weight: 700; padding: 6px 13px;
-    box-shadow: 0 3px 12px rgba(233,168,79,.45);
-    animation: hwpPulse 2.4s 2s ease-in-out infinite;
-  }
-  .demo-card .fn { font-size: 10.5px; color: #b8863b; font-weight: 700; text-align: right; margin-top: 7px; }
-  @keyframes hwpPulse { 0%,100% { box-shadow: 0 3px 12px rgba(233,168,79,.45); } 50% { box-shadow: 0 3px 20px rgba(233,168,79,.85); } }
-  .demo-cap { font-size: 12.5px; color: #6f7b95; margin: 18px auto 34px; max-width: 560px; }
-  .demo-cap b { color: #98a3ba; }
-  @keyframes riseP { from { opacity: 0; transform: rotate(-2.2deg) translateY(18px); } to { opacity: 1; transform: rotate(-2.2deg); } }
-  @keyframes rise  { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
-  .demo-paper { animation: riseP .7s .15s both; }
-  .demo-arrow { animation: rise .5s .65s both; }
-  .demo-card  { animation: rise .7s .9s both; }
-  @media (prefers-reduced-motion: reduce) { .demo-paper, .demo-arrow, .demo-card, .demo-card .btns span.hwp { animation: none; } }
-  @media (max-width: 700px) { .demo-arrow .arr { transform: rotate(90deg); } }
 
   /* ── 설치 3단계 ── */
   .steps-row { display: flex; gap: 14px; max-width: 860px; margin: 0 auto; }
@@ -301,31 +266,23 @@
 <header class="hero">
   <div class="hero-glow"></div>
   <div class="wrap hero-in">
-    <div class="badge"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> 내 컴퓨터에 설치하는 프로그램 · 시험지는 선생님 컴퓨터에만 저장</div>
-    <h1>시험지 PDF,<br><span class="accent">문제만 쏙</span></h1>
-    <p class="hero-sub">시험지 한 부 약 2분 추출 → 편집 → 한글(HWP) 시험지<small style="display:block;font-size:12.5px;color:#6f7b95;margin-top:4px;">추출 시간: 수학 시험지 7부 실측 38초~2분 35초 · 유료 키 · 2026년 10월</small></p>
-    <div class="demo">
-      <div class="demo-paper"><span class="ftag">PDF</span>
-        <div class="ph"><span>2026학년도 1학기 중간 대비</span><span>물리학Ⅰ</span></div>
-        <b>14.</b> 그림과 같이 마찰이 없는 수평면에서 물체 A를 밀었더니 빗면을 따라 올라갔다. 이에 대한 설명으로 옳은 것은? [3점]
-        <div class="demo-fig"></div>
-        <div>① ㄱ &nbsp; ② ㄴ &nbsp; ③ ㄱ, ㄷ &nbsp; ④ ㄴ, ㄷ &nbsp; ⑤ ㄱ, ㄴ, ㄷ</div>
-      </div>
-      <div class="demo-arrow"><span class="arr">→</span><span class="lab">자동 추출</span></div>
-      <div class="demo-card"><span class="ftag hwp">HWP</span>
-        <div class="tags"><i>물리학Ⅰ</i><i>고3</i><i>객관식</i><i>그림 1</i></div>
-        <div><b>문제 14</b> · 그림과 같이 마찰이 없는 수평면에서 물체 A를 밀었더니 빗면을 따라 올라갔다. 이에 대한 설명으로 옳은 것은? <b>[3점]</b></div>
-        <div class="cfig"><b></b>그림 자동 분리 · 위치 그대로</div>
-        <div class="chs"><span>① ㄱ</span><span>② ㄴ</span><span>③ ㄱ, ㄷ</span><span>④ ㄴ, ㄷ</span></div>
-        <div class="btns"><span>✏️ 편집</span><span>📄 시험지에 담기</span><span class="hwp">📥 한글(HWP)로 저장</span></div>
-        <div class="fn">→ 중간고사_역학.hwpx 저장됨</div>
+    <h1>추출 · 편집 · 문제 DB 관리<br>한글(HWP) <span class="accent">시험지 저장</span></h1>
+    <p class="hero-sub"><b class="one-place">문제·시험지는 선생님 컴퓨터에서만 직접 관리¹</b></p>
+    <div class="chips"><span>설치형 프로그램</span><span>시험지 한 부 약 2분<sup>*</sup></span><span>구글 AI 사용료 문제당 약 8~15원(2026년 가격)<sup>²</sup></span></div>
+    <div class="hwin"><div class="hwin-bar"><i></i><i></i><i></i><span>큐쏙(Qssok)</span></div>
+      <div class="flow3">
+        <figure><div class="shot"><img src="img/hero-1-find.png" alt="큐쏙 업로드 화면 — 시험지 위에 문제 영역 상자가 자동으로 그려진 모습" width="800" height="600"></div><figcaption>① PDF를 올리면 문제를 자동으로 찾기</figcaption></figure>
+        <span class="arr" aria-hidden="true">→</span>
+        <figure><div class="shot"><img src="img/hero-2-edit.png" alt="큐쏙 편집 화면 — 그림 추가·표 넣기 버튼과 고칠 수 있는 글자·수식 칸" width="800" height="600"></div><figcaption>② 그림·표·수식까지 바로 고치기</figcaption></figure>
+        <span class="arr" aria-hidden="true">→</span>
+        <figure><div class="shot"><span class="ftag hwp">HWP</span><img src="img/hero-3-hwp.png" alt="내보낸 한글(HWP) 시험지 — 2단으로 짜인 문제" width="800" height="599"></div><figcaption>③ 골라 담아 한글(HWP) 시험지로<small>.hwpx를 한컴독스에서 연 화면</small></figcaption></figure>
       </div>
     </div>
-    <p class="demo-cap">↑ 화면 구성 예시<br>문제·그림·표·수식을 원본과 최대한 같게 추출합니다. 스캔 상태가 나쁘면 오타가 날 수 있고, 화면에서 바로 편집할 수 있습니다.</p>
+    <p class="fine">실제 화면(예시 문항은 직접 만든 것) · 스캔 상태에 따라 오타가 날 수 있어 화면에서 고칠 수 있습니다<br>¹ 추출할 때만 페이지 그림이 구글 AI로 암호화 전송(무료 키는 구글이 AI 개선·검토에 쓸 수 있음) &nbsp;² 문제만 추출 기준 · 2027년 1월 약 2배 인상 예정 &nbsp;* 수학 시험지 7부 실측 38초~2분 35초 · 유료 키</p>
     <div class="cta-row">
       <a class="btn-primary" href="#download">7일 무료 체험 시작</a>
     </div>
-    <p class="hero-note">7일 무료 체험 · 카드 등록 없음 · 자동 결제 없음 · 구글 AI 사용료 별도</p>
+    <p class="hero-note">큐쏙(Qssok) 체험은 카드 등록·자동 결제 없음 · 구글 AI 사용료 별도</p>
   </div>
   <div class="hero-fade"></div>
 </header>
@@ -563,7 +520,7 @@
       </details>
       <details>
         <summary>한글(HWP) 파일로 내보낼 수 있나요?</summary>
-        <p>한글 파일(.hwpx)로 저장되며, 화면에서 정한 순서와 쪽·단 배치가 그대로 나옵니다. 글꼴 차이로 줄 높이는 조금 다를 수 있습니다. Word 저장은 준비 중입니다.</p>
+        <p>한글 파일(.hwpx)로 저장되며, 화면에서 정한 순서와 쪽·단 배치가 그대로 나옵니다. 글꼴 차이로 줄 높이는 조금 다를 수 있습니다. 내보낸 파일(.hwpx)을 열어 보려면 한글 또는 한컴독스가 필요합니다. Word 저장은 준비 중입니다.</p>
       </details>
       <details>
         <summary>저작권 문제는 없나요?</summary>
