@@ -55,6 +55,11 @@
   .nav-inner { display: flex; align-items: center; justify-content: space-between; height: 64px; max-width: 1280px; padding: 0 32px; }
   .logo { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; }
   .logo span { color: var(--accent); }
+  .faq a, footer a { color: var(--accent); font-weight: 600; text-underline-offset: 2px; }
+  /* 카톡 문의 — 오른쪽 아래에 늘 떠 있는 버튼(사용자 2026-10-28 ㉠). 카카오 로고는 상표라 쓰지 않고 말풍선 아이콘만 */
+  .kakao-fab { position: fixed; right: 16px; bottom: calc(20px + env(safe-area-inset-bottom)); z-index: 50; display: flex; align-items: center; gap: 6px; background: #fee500; color: #191919; text-decoration: none; font-weight: 700; font-size: 14px; padding: 12px 16px; border-radius: 999px; box-shadow: 0 6px 18px rgba(0,0,0,.25); }
+  .kakao-fab:hover { filter: brightness(.96); }
+  .kakao-fab .ic { width: 18px; height: 18px; }
   .logo { display: flex; align-items: center; gap: 8px; }
   .logo-ic { width: 30px; height: 30px; flex-shrink: 0; }
   .ic { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
@@ -528,7 +533,7 @@
         <summary>"구글 AI 연결"이 뭔가요? 체험에도 필요한가요?</summary>
         <p>체험·정식판 모두 필요한, 처음 한 번 하는 설정입니다(약 5분 · 구글 계정 필요).<br>
         설정 화면의 <b>키 받으러 가기</b>에서 키를 받아 붙여넣습니다. 무료 키는 카드 등록이 필요 없습니다.<br>
-        막히면 메일로 문의할 수 있습니다(필요하면 원격 지원).</p>
+        막히면 <a href="https://open.kakao.com/o/skgw2uUi" target="_blank" rel="noopener">카카오톡 상담</a>이나 메일로 문의할 수 있습니다(필요하면 원격 지원).</p>
       </details>
       <details>
         <summary>무료 키로도 시험지 한 부를 다 추출할 수 있나요?</summary>
@@ -574,10 +579,11 @@
 
 <footer>
   <div class="wrap">
-    큐쏙(Qssok)™ · © 2026 · 문의: contact@danbilab.com
+    큐쏙(Qssok)™ · © 2026 · 문의: contact@danbilab.com · <a href="https://open.kakao.com/o/skgw2uUi" target="_blank" rel="noopener">카카오톡 상담</a>
     <br>한글, HWP는 (주)한글과컴퓨터의 상표입니다.
   </div>
 </footer>
 
+<a class="kakao-fab" href="https://open.kakao.com/o/skgw2uUi" target="_blank" rel="noopener" aria-label="카톡 문의 (새 창)"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>카톡 문의</a>
 </body>
 </html>
