@@ -5,11 +5,26 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>큐쏙(Qssok) — 시험지 PDF, 문제만 쏙</title>
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
-<!-- ⏳ 임시 — 검색엔진 노출 차단. 지금은 ①(해소 2026-10-27: 제품명 큐쏙 확정·상표 출원 중)
-     ②다운로드 버튼이 아직 빈 링크 ③목업이 "예시" 상태라, 검색으로 흘러든 사람에게
-     보여줄 상태가 아니다. **링크를 직접 받은 사람은 정상적으로 본다.**
-     ⚠️ 정식 공개 때 이 줄을 지울 것 (노션 백로그 "랜딩 검색 노출 열기"). -->
-<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="icon-192.png" type="image/png" sizes="192x192">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<!-- 검색 설명문 + 링크 미리보기(카톡·카페·밴드). 2026-10-28 검색 노출 열며 넣음(noindex 뺌) — 시안 design-proposals/v196.
+     ⚠️ 설명문엔 「컴퓨터에서만」을 넣지 않는다 — 본문에선 각주 ¹(추출 때 구글 AI 전송)이 붙는데 검색 결과엔 각주가 없다.
+     og:image·og:url은 전체 주소여야 미리보기가 그림을 가져간다(§14 예외: 우리 도메인 meta만). 그림 = img/og.png 1200×630,
+     히어로 제목·사진을 바꾸면 같이 다시 굽는다. 카톡은 미리보기를 저장해 두므로 바꾼 뒤엔 카카오 공유 디버거에서 캐시 지우기. -->
+<meta name="description" content="시험지 PDF에서 문제를 자동으로 찾아 추출하고, 그림·표·수식까지 고쳐 문제 DB로 관리합니다. 골라 담은 문제는 한글(HWP) 시험지로 저장됩니다.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="큐쏙(Qssok)">
+<meta property="og:title" content="큐쏙(Qssok) — 시험지 PDF, 문제만 쏙">
+<meta property="og:description" content="시험지 PDF에서 문제를 자동으로 찾아 추출하고, 그림·표·수식까지 고쳐 문제 DB로 관리합니다. 골라 담은 문제는 한글(HWP) 시험지로 저장됩니다.">
+<meta property="og:url" content="https://qssok.com/">
+<meta property="og:image" content="https://qssok.com/img/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale" content="ko_KR">
+<!-- 네이버 서치어드바이저 사이트 소유 확인(2026-10-28) — ⛔ 지우면 소유 확인이 풀린다. 비밀값 아님(누구나 페이지 소스에서 보임). -->
+<meta name="naver-site-verification" content="26da67d9c12037a24e5285d7ecdbbceb52c4ef0c" />
+<!-- 구글 검색 결과 맨 위 「사이트 이름」 줄 — 안 적으면 qssok.com으로 뜬다. 이름 표기는 언제나 「큐쏙(Qssok)」(사용자 지정 2026-10-28). -->
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebSite", "name": "큐쏙(Qssok)", "alternateName": ["큐쏙", "Qssok"], "url": "https://qssok.com/"}</script>
 <!-- ⚠️ 외부 CDN 금지 — 폰트는 동봉(fonts/). 구글 폰트 CDN을 쓰면 페이지를 열기만 해도
      방문자 IP가 구글로 전송돼, "내 자료는 내 컴퓨터에만"을 내세우는 페이지와 톤이 어긋난다.
      (2026-07-31: 월 구독 확정으로 라이선스 검증 서버가 생겼다 → "우리 서버 없음"은 더 이상 쓰지 않는다.
