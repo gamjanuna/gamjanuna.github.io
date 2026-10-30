@@ -446,6 +446,12 @@ body,body *:not(code){font-family:"Paperlogy","IBM Plex Sans KR",sans-serif!impo
 .stage img{object-fit:contain!important;object-position:top center!important;background:#f4f6fa!important}
 @media (max-width:760px){.stage{aspect-ratio:auto!important}.stage img{position:static!important;height:auto!important;display:none}.stage img.on{display:block}}
 .final,#pricing .price-card.featured,#pricing .plus{background:linear-gradient(180deg,#0f1626 0%,#16205a 100%)!important}
+/* 휴대폰 방문자 → PC로 주소 보내기(인스타 유입, 10-30). 넓은 화면에선 숨김 */
+.topc{display:none;max-width:420px;margin:0 auto 18px;padding:16px;border:1px solid #3a3f4d;border-radius:12px;text-align:center}
+.topc b{display:block;font-size:15px;margin-bottom:4px}.topc p{color:#b8bdcc;font-size:13.5px;margin:0 0 12px}
+.topc .row{display:flex;gap:8px;justify-content:center}.topc button{flex:1;padding:10px;border-radius:8px;border:1px solid #5a6070;background:transparent;color:#fff;font:inherit;font-size:14px;cursor:pointer}
+.topc-hero{display:none}.topc-hero a{color:inherit;text-decoration:underline}
+@media (max-width:760px){.topc,.topc-hero{display:block}}
 </style></head>
 <body>
 
@@ -477,6 +483,7 @@ body,body *:not(code){font-family:"Paperlogy","IBM Plex Sans KR",sans-serif!impo
       <a class="btn-primary" href="#download">7일 무료 체험 시작</a>
     </div>
     <p class="hero-note">큐쏙(Qssok) 체험은 카드 등록·자동 결제 없음 · 구글 AI 사용료 별도</p>
+    <p class="hero-note topc-hero"><a href="#topc">휴대폰으로 보고 계신가요? PC로 주소 보내기 ↓</a></p>
   </div>
   <div class="hero-fade"></div>
 </header>
@@ -592,6 +599,7 @@ body,body *:not(code){font-family:"Paperlogy","IBM Plex Sans KR",sans-serif!impo
 <section class="final" id="download">
   <div class="wrap">
     <div class="hd reveal dark"><p class="hd-q">먼저 사용해 보세요</p><h2><span class="mark">7일</span> 무료 체험</h2><p class="sub">카드 등록 없음 · 자동 결제 없음 · Windows용 (Mac용 준비 중)</p></div>
+    <div class="topc" id="topc"><b>휴대폰으로 보고 계신가요?</b><p>큐쏙은 PC(Windows)에 설치해 쓰는 프로그램입니다.<br>이 주소를 나에게 보내 두고 PC에서 열어 주세요.</p><div class="row"><button type="button" id="topc-copy">주소 복사</button><button type="button" id="topc-share" hidden>나에게 보내기</button></div></div>
     <!-- ⛔ 여기에 "밖으로 나가지 않는다"류를 쓰지 말 것 — 추출 순간 페이지 이미지가 Gemini로
          나가므로 거짓이 되고, 위 프라이버시 섹션과 정면으로 모순된다(2026-08-04 실제 사고). -->
     
@@ -676,6 +684,12 @@ body,body *:not(code){font-family:"Paperlogy","IBM Plex Sans KR",sans-serif!impo
   function show(i){tabs.forEach(function(b,k){b.setAttribute('aria-selected',k===i?'true':'false')});imgs.forEach(function(m,k){m.classList.toggle('on',k===i)});if(mob)mob.innerHTML=tabs[i].querySelector('.d').innerHTML}
   tabs.forEach(function(b,i){b.addEventListener('mouseenter',function(){show(i)});b.addEventListener('click',function(){show(i)});b.addEventListener('focus',function(){show(i)})});
   show(0);
+})();
+(function(){
+  var u=location.href.split('#')[0]+'#download',c=document.getElementById('topc-copy'),h=document.getElementById('topc-share');
+  if(!c)return;
+  c.addEventListener('click',function(){var done=function(){c.textContent='복사했습니다'};if(navigator.clipboard)navigator.clipboard.writeText(u).then(done,function(){prompt('이 주소를 복사하세요',u)});else prompt('이 주소를 복사하세요',u)});
+  if(navigator.share){h.hidden=false;h.addEventListener('click',function(){navigator.share({title:'큐쏙(Qssok) — PC에서 열기',url:u}).catch(function(){})})}
 })();
 </script>
 </body>
