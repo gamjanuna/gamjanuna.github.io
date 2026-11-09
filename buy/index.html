@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>정식판 — 큐쏙(Qssok)</title>
+<!-- 판매 페이지(2026-11-09 시안 v272를 옮김 — 화면 동작은 buy.js). 앱 요금제 화면(electron/renderer/screens/pricing.html)과 한 벌.
+     ⛔ 빈 칸(.ph)·【】 자리표시가 남아 있으면 공개하지 말 것 — 가격·사업자 정보·결제 링크·약관 주소가 정해진 뒤에. noindex는 공개할 때 뺀다.
+     ⛔ 구글 AI 숫자는 앱 app.js `Q_COST`와 같은 값(웹은 앱 파일을 못 읽어 옮겨 적는다) — 한쪽을 고치면 둘 다(§471이 둘 다 겨눈다).
+     ⛔ 환불 문장은 앱 pricing.html·결제 확인 메일·docs/prd/과금/환불-판매채널.md와 같은 문장 — 하나 고치면 넷.
+     ⛔ 「할인」·취소선 정가·근거 없는 「추천」 금지(법-라이선스 §9-6). 금액 = VAT 별도 + 결제 금액 병기(§9-6-F) — 앱 pricing.html과 같은 숫자.
+     자동 결제 카드 = 대표 결정(2026-11-04)으로 열리기 전에도 「준비 중」으로 둔다 — 구매 단추 없음·날짜는 목표로만·열리기 전 실제 금액·선택한 분만 자동 갱신, 네 표기를 빼지 말 것(§9-6-F).
+     색 = 앱 tokens.css 값을 옮겨 적음.      ⛔⛔ 지금은 「심사용 시험 결제」판(대표 11-09, 포트원 심사 11-17) — 결제창은 포트원 테스트 채널만 열고 우리 결제 서버를 부르지 않는다.
+        맨 위 시험 띠(.test-band)는 접지 않는다(legal 11-09 표시광고). 실제 결제를 열 때 띠·buy.js의 TEST 묶음을 같이 걷는다.
+     ⛔ CSP(아래 meta)가 이 페이지의 바깥 주소 한계다 — 포트원 결제창 코드(cdn.portone.io)와 결제사 창만. 넓히려면 legal·security 먼저(§14).
+     ⛔ 인라인 <script> 금지(CSP가 막는다) — 동작은 buy.js에. -->
+<meta name="robots" content="noindex">
+<meta name="referrer" content="strict-origin">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.portone.io https://*.inicis.com; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://*.portone.io https://*.iamport.co https://*.iamport.kr; frame-src https://*.portone.io https://*.iamport.co https://*.iamport.kr https://*.inicis.com; form-action https://*.portone.io https://*.iamport.co https://*.iamport.kr https://*.inicis.com; base-uri 'none'; object-src 'none'">
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../fonts.css">
+<style>
+  :root {
+    /* 색 = 홈페이지(qssok.com, website/index.html 두 번째 :root)에 맞춤 — design 11-09. 손님은 홈 → 판매로 넘어온다 */
+    --bg: #faf6ef; --surface: #ffffff; --surface-2: #faf6ef;
+    --ink: #1a1f2e; --ink-2: #4a4740; --ink-3: #6e685c;
+    --line: #e8e1d5; --line-strong: #d8cfbf;
+    --brand-300: #b7bfd6; --brand-600: #24358a; --brand-700: #1c2a6e; --brand-soft: #eef1fa;
+    --or: #e9a84f; --or-ink: #1a1508;
+    --foot: #6e685c; --white: #ffffff;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: "Paperlogy", "IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif; color: var(--ink); background: var(--bg); line-height: 1.6; word-break: keep-all; }
+  .nav { background: rgba(255,255,255,.92); border-bottom: 1px solid var(--line); }   /* 머리 = 홈과 같은 모양(64px·로고 그림·큐쏙(Qssok)) — 다운로드 단추는 결제 중 출구라 안 둔다(design 11-09) */
+  .nav-in { max-width: 880px; margin: 0 auto; height: 64px; display: flex; align-items: center; padding: 0 20px; }
+  .logo { display: flex; align-items: center; gap: 8px; color: inherit; text-decoration: none; font-size: 22px; letter-spacing: -0.5px; white-space: nowrap; }
+  .logo-ic { width: 30px; height: 30px; flex-shrink: 0; }
+  .logo-t, .logo-t * { font-weight: 800; }
+  .logo-t span { color: var(--brand-600); }
+  .page { max-width: 880px; margin: 0 auto; padding: 32px 20px 0; }
+  h1 { font-size: 22px; letter-spacing: -0.5px; margin-bottom: 16px; }
+  /* 네 제목 글자가 같은 왼쪽 선 — 앞 표시 자리 16px: 세 제목은 막대, 접는 제목은 삼각형(시안 v256) */
+  .h { position: relative; padding-left: 16px; font-size: 15px; font-weight: 700; color: var(--ink); margin: 32px 0 12px; line-height: 1.5; }
+  .h::before { content: ""; position: absolute; left: 0; top: .2em; width: 4px; height: 1.1em; border-radius: 2px; background: var(--brand-600); }
+  .more-lock { margin-top: 12px; font-size: 13.5px; color: var(--ink-2); }
+  .more { margin-top: 32px; }
+  .more summary { position: relative; display: block; padding-left: 16px; font-size: 15px; font-weight: 700; color: var(--ink); line-height: 1.5; cursor: pointer; list-style: none; }
+  .more summary::-webkit-details-marker { display: none; }
+  .more summary span { margin-left: 6px; font-size: 12.5px; font-weight: 400; color: var(--ink-3); }
+  .more summary svg { position: absolute; left: -2px; top: .2em; width: 15px; height: 15px; fill: var(--brand-600); transition: transform .12s; }
+  .more[open] summary svg { transform: rotate(90deg); }
+  .more .know { margin-top: 12px; }
+
+  /* 요금 카드 세 장 — 오픈 기념 첫 3개월만 강조(대표 11-04). 760px 이하 1열 */
+  .cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+  @media (max-width: 760px) { .cards { grid-template-columns: minmax(0, 1fr); } }
+  .card { background: var(--surface); border: 1px solid var(--line-strong); border-radius: 14px; padding: 18px 16px 16px; display: flex; flex-direction: column; min-width: 0; }
+  .card .name { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; font-size: 15px; font-weight: 700; }
+  .open { font-size: 12.5px; line-height: 1.5; font-weight: 700; color: var(--or-ink); background: var(--or); padding: 1px 8px; border-radius: 999px; white-space: nowrap; }
+  .save { font-size: 12.5px; line-height: 1.5; font-weight: 700; color: var(--brand-700); background: var(--brand-soft); padding: 1px 8px; border-radius: 999px; white-space: nowrap; }
+  .amt { margin-bottom: 16px; }
+  .price { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 6px; font-size: 13.5px; font-weight: 700; margin: 8px 0 0; }
+  .price b { font-size: 26px; font-weight: 700; letter-spacing: -0.5px; white-space: nowrap; }
+  .price small { font-size: 12.5px; font-weight: 400; color: var(--ink-3); }
+  .cond { font-size: 12.5px; color: var(--ink-2); margin-top: 8px; overflow-wrap: break-word; }
+  .cond .nw { white-space: nowrap; }
+  .go { margin-top: auto; display: block; text-align: center; border-radius: 9px; padding: 9px; font-size: 13.5px; font-weight: 700; text-decoration: none;
+        background: var(--surface); color: var(--brand-700); border: 1px solid var(--brand-300); }
+  .go:hover { background: var(--brand-soft); }
+  .card.emph { border-color: var(--brand-600); box-shadow: 0 0 0 1px var(--brand-600); }
+  .card.emph .go { background: var(--brand-600); color: var(--white); border-color: var(--brand-600); }
+  .card.emph .go:hover { background: var(--brand-700); }
+  .soon { margin-top: auto; text-align: center; border-radius: 9px; padding: 9px; font-size: 13.5px; font-weight: 700; color: var(--ink-3); background: var(--surface-2); border: 1px dashed var(--line-strong); }
+  .allin { margin: 18px 0 0; display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+  .allin b { font-size: 12.5px; color: var(--ink-2); margin-right: 4px; }
+  .allin span { white-space: nowrap; font-size: 12.5px; color: var(--ink-2); background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 1px 10px; }
+  .common { font-size: 12.5px; color: var(--ink-3); margin-top: 8px; }
+
+  /* 구매 방법 — 길쭉한 세 줄 */
+  .steps { display: flex; flex-direction: column; gap: 8px; }
+  .step { display: grid; grid-template-columns: 24px 76px minmax(0, 1fr); align-items: center; column-gap: 14px; background: var(--surface); border: 1px solid var(--line-strong); border-radius: 12px; padding: 12px 18px; }
+  .step .n { width: 24px; height: 24px; border-radius: 50%; background: var(--brand-soft); color: var(--brand-700); font-weight: 700; font-size: 12.5px; display: grid; place-items: center; }
+  .step b { font-size: 13.5px; }
+  .step p { font-size: 13.5px; color: var(--ink-2); }
+  .step p em { font-style: normal; font-weight: 700; color: var(--ink); }
+  .step .where { display: inline-block; margin-left: 10px; font-size: 12.5px; color: var(--ink-2); background: var(--surface-2); border: 1px solid var(--line); border-radius: 6px; padding: 0 8px; }
+  .step .forgot { display: block; font-size: 12.5px; color: var(--ink-3); margin-top: 3px; }
+  @media (max-width: 640px) { .step { grid-template-columns: 24px minmax(0, 1fr); } .step p { grid-column: 2; } }
+
+  .know { list-style: none; font-size: 13.5px; color: var(--ink-2); }
+  .know li { padding: 2px 0 2px 13px; position: relative; }
+  .know li::before { content: "·"; position: absolute; left: 3px; color: var(--ink-3); }
+
+  /* 구글 AI 사용료 상자 — 왼쪽 큰 숫자 둘 · 오른쪽 짧은 줄 */
+  .ai { display: grid; grid-template-columns: 230px minmax(0, 1fr); background: var(--surface); border: 1px solid var(--line-strong); border-radius: 14px; overflow: hidden; }
+  @media (max-width: 640px) { .ai { grid-template-columns: 1fr; } }
+  .ai-nums { background: var(--brand-soft); padding: 20px 22px; display: flex; flex-direction: column; gap: 24px; }
+  .ai-lead { font-size: 15px; font-weight: 700; color: var(--ink); padding-bottom: 18px; margin-bottom: -6px; border-bottom: 1px solid var(--line-strong); }
+  .ai-nums span { display: block; font-size: 12.5px; color: var(--ink-2); }
+  .ai-nums b { display: block; font-size: 26px; font-weight: 700; color: var(--brand-700); letter-spacing: -0.5px; line-height: 1.25; white-space: nowrap; }
+  .ai-nums small { display: block; font-size: 12.5px; color: var(--ink-3); }
+  .ai-info { padding: 20px 22px; display: flex; flex-direction: column; min-width: 0; }
+  .ai-cap { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 0 12px; margin-bottom: 4px; font-size: 13.5px; font-weight: 700; color: var(--ink); }
+  .ai-cap small { font-size: 12.5px; font-weight: 400; color: var(--ink-3); }
+  .ai-table { width: 100%; table-layout: fixed; border-collapse: separate; border-spacing: 0; }
+  .ai-table th, .ai-table td { padding: 7px 12px; text-align: right; white-space: nowrap; }
+  .ai-table th:first-child { width: 72px; padding-left: 10px; text-align: left; }
+  .ai-table thead th { padding-top: 4px; font-size: 12.5px; font-weight: 400; color: var(--ink-3); border-bottom: 1px solid var(--line-strong); }
+  .ai-table tbody th { font-size: 13.5px; font-weight: 400; color: var(--ink-2); }
+  .ai-table td { font-size: 15px; font-weight: 700; color: var(--ink); font-variant-numeric: tabular-nums; }
+  .ai-table td small { font-size: 12.5px; font-weight: 400; color: var(--ink-3); }
+  .ai-table .sol > * { background: var(--bg); }
+  .ai-table .sol > :first-child { border-radius: 8px 0 0 8px; }
+  .ai-table .sol > :last-child { border-radius: 0 8px 8px 0; }
+  .ai-notes { list-style: none; margin-top: 12px; font-size: 13.5px; color: var(--ink-2); word-break: keep-all; }
+  .ai-notes li { padding: 3px 0 3px 14px; position: relative; }
+  .ai-notes li::before { content: ""; position: absolute; left: 2px; top: .75em; width: 5px; height: 5px; border-radius: 50%; background: var(--ink-3); }
+  .ai-notes b { color: var(--ink); }
+  .nw { white-space: nowrap; }
+  .ai-foot { margin-top: auto; padding-top: 12px; font-size: 12.5px; color: var(--ink-3); }
+  .ai-foot a { color: var(--brand-700); font-weight: 600; }
+  .h small { margin-left: 8px; font-size: 12.5px; font-weight: 400; color: var(--ink-3); }
+  @media (max-width: 640px) {
+    .ai-info { padding: 20px 16px; }
+    .ai-table th, .ai-table td { padding-left: 2px; padding-right: 4px; }
+    .ai-table th:first-child { width: 62px; padding-left: 6px; }
+    .ai-table td { font-size: 13.5px; }
+  }
+  @media (max-width: 360px) {
+    .ai-table td, .ai-table tbody th { font-size: 12.5px; }
+    .ai-table th, .ai-table td { padding-left: 1px; padding-right: 2px; }
+    .ai-table th:first-child { width: 54px; padding-left: 4px; }
+    .ai-table td small { font-size: 11px; }
+  }
+
+  /* 해지 · 환불 */
+  .refund { margin-top: 32px; }
+  .refund .h { margin: 0 0 12px; }
+  .rf { display: grid; grid-template-columns: 92px minmax(0, 1fr); font-size: 13.5px; color: var(--ink-2); background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 4px 20px; }
+  .rf dt, .rf dd { padding: 9px 0; border-bottom: 1px solid var(--line); }
+  .rf dt { font-weight: 700; color: var(--ink); }
+  .rf dd b { color: var(--ink); }
+  .rf .sub { display: block; font-size: 12.5px; color: var(--ink-3); }
+  .rf dt:nth-last-of-type(1), .rf dd:last-child { border-bottom: 0; padding-bottom: 0; }
+  .links { font-size: 12.5px; margin-top: 18px; }
+  .links a { color: var(--brand-700); font-weight: 600; text-underline-offset: 2px; }
+  /* 사업자 정보 — 단비 11-03: 맨 아래 연하고 작게. legal: 12px 이상 · 대비 4.5:1 이상(#6e685c on #faf6ef ≈ 5.1:1) · 접지 말고 펼쳐 둔다 */
+  footer { margin-top: 28px; padding: 18px 0 40px; border-top: 1px solid var(--line); font-size: 12.5px; color: var(--foot); line-height: 1.8; }
+  /* 문의 줄 — 파랑 채움 금지(주 동작은 구매하기 하나). 칸 값 = .step과 같다 */
+  .ask { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 10px 16px; font-size: 13.5px; color: var(--ink-2); }
+  .ask b { color: var(--ink); }
+  .ask .mail { font-weight: 700; color: var(--ink); white-space: nowrap; }
+  .ask button { border: 1px solid var(--brand-300); background: var(--surface); color: var(--brand-700); border-radius: 9px; padding: 5px 12px; font: inherit; font-weight: 700; cursor: pointer; white-space: nowrap; }
+  .ask button:hover { background: var(--brand-soft); }
+  .ask a { color: var(--brand-700); white-space: nowrap; }
+  .ask .sp { flex: 1; min-width: 0; }
+  @media (max-width: 480px) { .ask .sp { display: none; } }
+
+  /* ── 결제 화면(시안 v267) — 판매 화면을 갈아 끼우고, 오른쪽 금액 칸은 고정. 대화상자·펼침 없음 ── */
+  :root { --bad-soft:#fef2f2; --bad-line:#fca5a5; --bad-fg:#991b1b; --bad-mid:#dc2626; --bad-strong:#b91c1c;
+          --warn-soft:#fef3c7; --warn-line:#fde68a; --warn-fg:#78350f; --ok-strong:#15803d; }
+  html { scrollbar-gutter: stable; }
+  button { font-family: inherit; }
+  .go { width: 100%; cursor: pointer; line-height: 1.6; }
+  .go:disabled { cursor: default; color: var(--ink-3); background: var(--surface-2); border-color: var(--line); }
+  .card.is-soon { background: var(--surface-2); border-color: var(--line); }
+  .soon { border: 1px solid var(--line) !important; background: var(--surface) !important; color: var(--ink-2) !important; }
+  .card.is-soon .save { background: var(--line); color: var(--ink-2); }
+  .closed-page .card { background: var(--surface-2); border-color: var(--line); box-shadow: none; }
+  .cards.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  @media (max-width: 760px) { .cards.two { grid-template-columns: minmax(0, 1fr); } }
+  .dim-price .price b { font-size: 20px; }
+  .top-band { margin-bottom: 12px; }
+
+  .screen { max-width: 880px; margin: 0 auto; padding: 32px 20px 0; }
+  .head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 12px; margin-bottom: 16px; }
+  .head h1 { margin: 0; outline: none; }
+  .back-link { display: inline-flex; align-items: center; gap: 2px; border: 0; background: none; padding: 0; font-size: 13.5px; font-weight: 700; color: var(--brand-700); cursor: pointer; }
+  .back-link svg { width: 13px; height: 13px; }
+  .back-link:disabled { color: var(--ink-3); cursor: default; }
+  .grid { display: grid; grid-template-columns: minmax(0, 1fr) 280px; gap: 12px; align-items: start; }
+  .col { display: grid; gap: 12px; min-width: 0; }
+  .pane { background: var(--surface); border: 1px solid var(--line-strong); border-radius: 14px; padding: 20px; min-width: 0; }
+  .ptitle { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 2px 12px; font-size: 15px; font-weight: 700; margin-bottom: 12px; }
+  .sum { padding: 16px; position: sticky; top: 16px; }
+  @media (max-height: 520px) { .sum { position: static; } }
+  @media (max-width: 760px) { .grid { grid-template-columns: minmax(0, 1fr); } .sum { position: static; } }
+  @media (max-width: 640px) { .pane { padding: 16px; } }
+
+  /* 주문 상품 */
+  .item { display: flex; gap: 12px; align-items: flex-start; }
+  .item img { flex: none; width: 40px; height: 40px; }
+  .item-name { font-size: 15px; font-weight: 700; }
+  .item-price { font-size: 13.5px; margin-top: 2px; }
+  .item-cond { font-size: 12.5px; color: var(--ink-2); margin-top: 2px; }
+
+  /* 입력 */
+  .pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 12px; }
+  @media (max-width: 480px) { .pair { grid-template-columns: minmax(0, 1fr); gap: 10px 0; } }
+  .fd { min-width: 0; }
+  .fd label { display: block; font-size: 13.5px; font-weight: 700; margin-bottom: 4px; }
+  .fd input { display: block; width: 100%; height: 44px; font: inherit; font-size: 16px; padding: 0 12px; color: var(--ink); background: var(--surface); border: 1px solid var(--ink-3); border-radius: 9px; }
+  .fd input.mc { font-variant-numeric: tabular-nums; letter-spacing: .06em; text-transform: uppercase; }
+  .fd input:focus-visible { outline: none; border-color: var(--brand-600); box-shadow: 0 0 0 3px rgba(43,127,255,.20); }
+  .fd input[aria-invalid] { border-color: var(--bad-mid); box-shadow: 0 0 0 .5px var(--bad-mid); }
+  /* 도움말과 오류는 같은 자리 — 칸이 밀리지 않는다 */
+  .slot { min-height: 20px; margin-top: 4px; font-size: 12.5px; color: var(--ink-2); overflow-wrap: anywhere; }
+  .slot a { color: var(--brand-700); }
+  .slot.bad { display: flex; gap: 3px; color: var(--bad-strong); }
+  .slot.bad svg { flex: none; width: 14px; height: 14px; margin-top: 3px; fill: currentColor; }
+  .link-btn { border: 0; background: none; padding: 0; font: inherit; font-size: 12.5px; font-weight: 400; color: var(--brand-700); text-decoration: underline; text-underline-offset: 2px; cursor: pointer; white-space: nowrap; }
+  .noid { margin-bottom: 10px; padding: 10px 12px; font-size: 12.5px; color: var(--ink-2); background: var(--surface-2); border: 1px solid var(--line); border-radius: 9px; }
+  .noid a { color: var(--brand-700); font-weight: 700; }
+  .method { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 9px; font-size: 13.5px; }
+  .method svg { flex: none; width: 20px; height: 20px; color: var(--ink-3); }
+  .method small { display: block; font-size: 12.5px; color: var(--ink-2); }
+
+  /* 고지 */
+  .terms { display: grid; grid-template-columns: 88px minmax(0, 1fr); gap: 7px 8px; font-size: 13.5px; }
+  .terms dt { color: var(--ink-2); }
+  .terms dd { min-width: 0; overflow-wrap: anywhere; }
+  .terms small { display: block; font-size: 12.5px; color: var(--ink-2); }
+  .terms a { color: var(--brand-700); }
+
+  /* 동의 */
+  .all { display: flex; align-items: flex-start; gap: 8px; margin-top: 16px; padding: 12px 14px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 9px; font-size: 15px; font-weight: 700; cursor: pointer; }
+  .all input { flex: none; width: 20px; height: 20px; margin-top: 2px; accent-color: var(--brand-600); }
+  .all small { font-size: 13.5px; font-weight: 400; color: var(--ink-2); }
+  .ags { margin-top: 8px; padding-left: 14px; }
+  .ag { display: flex; align-items: flex-start; gap: 8px; padding: 5px 0; font-size: 13.5px; cursor: pointer; }
+  .ag input { flex: none; width: 18px; height: 18px; margin-top: 2px; accent-color: var(--brand-600); }
+  .ag.miss input { outline: 1.5px solid var(--bad-mid); outline-offset: 1px; }
+  .ag b { display: block; font-weight: 700; }
+  .ag small { display: block; font-size: 12.5px; color: var(--ink-2); }
+  .ag a { font-weight: 400; color: var(--brand-700); white-space: nowrap; }
+
+  /* 오른쪽 결제 금액 */
+  .row { display: flex; justify-content: space-between; gap: 8px; font-size: 13.5px; padding: 3px 0; }
+  .row span { color: var(--ink-2); }
+  .row b { font-weight: 400; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .row.total { align-items: baseline; margin-top: 8px; padding-top: 10px; border-top: 1px solid var(--line-strong); }
+  .row.total span { color: var(--ink); font-weight: 700; }
+  .row.total b { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; }
+  .brief { display: grid; grid-template-columns: 62px minmax(0, 1fr); gap: 2px 8px; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--line); font-size: 12.5px; }
+  .brief dt { color: var(--ink-2); }
+  .brief dd { min-width: 0; overflow-wrap: anywhere; font-weight: 700; }
+  .brief dd.plain { font-weight: 400; }
+  .brief dd.empty { font-weight: 400; color: var(--ink-3); }
+  .brief .mono { font-variant-numeric: tabular-nums; letter-spacing: .04em; }
+  .pay-btn { display: flex; align-items: center; justify-content: center; gap: 6px; height: 52px; width: 100%; margin-top: 12px; border-radius: 9px; font-size: 17px; font-weight: 700; color: #fff; background: var(--brand-600); border: 1px solid var(--brand-600); cursor: pointer; }
+  .pay-btn:hover { background: var(--brand-700); }
+  .pay-btn:disabled { cursor: default; font-size: 15px; background: var(--ink-3); border-color: var(--ink-3); }
+  .pay-note { margin-top: 6px; font-size: 12.5px; color: var(--ink-2); }
+  .spin { width: 16px; height: 16px; flex: none; animation: rot 1s linear infinite; }
+  @keyframes rot { to { transform: rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) { .spin { animation: none; } }
+  :focus-visible { outline: 2px solid var(--brand-600); outline-offset: 2px; }
+
+  /* 띠 — 결제 단추 아래 */
+  .band { padding: 10px 12px; border-radius: 9px; font-size: 12.5px; border: 1px solid; overflow-wrap: anywhere; }
+  .band b { display: block; font-size: 13.5px; }
+  .band.bad { background: var(--bad-soft); border-color: var(--bad-line); color: var(--bad-fg); }
+  .band.warn { background: var(--warn-soft); border-color: var(--warn-line); color: var(--warn-fg); }
+  .band.mute { background: var(--surface-2); border-color: var(--line); color: var(--ink-2); }
+  .band.mute b { color: var(--ink); }
+  .band a { color: inherit; font-weight: 700; }
+  .band-acts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+  .sbtn { min-height: 36px; padding: 5px 12px; border-radius: 9px; font: inherit; font-size: 13.5px; font-weight: 700; background: var(--surface); color: var(--brand-700); border: 1px solid var(--brand-300); cursor: pointer; }
+  .sbtn:hover { background: var(--brand-soft); }
+  #sumBand:not(:empty) { margin-top: 10px; }
+  .sum:has(#sumBand:not(:empty)) .pay-note { display: none; }
+
+  /* 완료 */
+  .done-head { display: flex; align-items: center; gap: 10px; font-size: 17px; font-weight: 700; margin-bottom: 14px; }
+  .done-head svg { flex: none; width: 32px; height: 32px; fill: var(--ok-strong); }
+  .done-card > p { font-size: 13.5px; color: var(--ink-2); }
+  .done-card .terms { margin-top: 2px; }
+  .terms dt:has(+ dd .oid-v) { align-self: center; }
+  .oid-v { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; }
+  .oid-v code { font: inherit; font-weight: 700; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; min-width: 0; }
+  .checking { display: flex; align-items: center; gap: 10px; font-size: 15px; font-weight: 700; }
+  .tail { margin-top: 4px; }
+
+
+  /* ── v269 — 폭 좁은 한 줄 결제 화면 ── */
+  #pay.screen { max-width: 580px; }
+  .sheet { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 32px; }
+  @media (max-width: 640px) { .sheet { padding: 20px 16px; } }
+  .sec + .sec { margin-top: 28px; padding-top: 28px; border-top: 1px solid var(--line); }
+  .sec-t { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 2px 12px; font-size: 17px; font-weight: 700; margin-bottom: 14px; }
+  .item-name { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; font-size: 15px; font-weight: 700; }
+  .buyer { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 12px; }
+  .buyer .wide { grid-column: 1 / -1; }
+  @media (max-width: 480px) { .buyer { grid-template-columns: minmax(0, 1fr); } }
+  .buyer .slot:empty { min-height: 0; margin: 0; }
+  .m-note { margin-top: 8px; font-size: 12.5px; color: var(--ink-2); }
+  .notice { display: grid; grid-template-columns: 76px minmax(0, 1fr); gap: 6px 8px; padding: 14px; background: var(--surface-2); border-radius: 10px; font-size: 12.5px; color: var(--ink-2); }
+  .notice dt { font-weight: 700; color: var(--ink-2); }
+  .notice dd { min-width: 0; overflow-wrap: anywhere; }
+  .notice small { display: block; font-size: 12.5px; }
+  .notice a { color: var(--brand-700); }
+  .all { margin-top: 12px; background: var(--surface); border-color: var(--line-strong); }
+  .ags { padding-left: 2px; }
+  .brief { margin-top: 12px; padding-top: 12px; grid-template-columns: 72px minmax(0, 1fr); }
+  .pay-btn { height: 58px; margin-top: 18px; border-radius: 12px; font-size: 18px; }
+  .pay-note { text-align: center; }
+  #sumBand:not(:empty) { margin-top: 12px; }
+  .sheet .pay-note { display: block; }
+  .sheet:has(#sumBand:not(:empty)) .pay-note { display: none; }
+  #done.screen { max-width: 580px; }
+  #done .terms { grid-template-columns: 76px minmax(0, 1fr); }
+
+
+  /* ── v270 — design 값: 글자 22·16·14·13, 700은 제목·최종 금액·뱃지만 ── */
+  .head{margin-bottom:12px}
+  .back-link{font-size:14px;font-weight:500}
+  .sheet{padding:24px 28px;border-radius:12px}
+  @media (max-width:640px){.sheet{padding:20px 16px}}
+  .sec + .sec,#left + .sec{margin-top:20px;padding-top:20px}
+  .sec-t{font-size:16px;font-weight:600;line-height:24px;margin-bottom:12px}
+  .item-name{font-size:14px;font-weight:600;line-height:22px}
+  .item-price{font-size:14px;line-height:22px;margin-top:0}
+  .item-cond{font-size:13px;line-height:20px;margin-top:0}
+  .fd label{font-size:14px;font-weight:500;line-height:20px;margin-bottom:6px}
+  .fd input{height:44px;background:var(--surface-2);border:1px solid #8592a9;border-radius:6px;padding:0 12px}
+  .fd input::placeholder{color:var(--ink-3);opacity:1}
+  .fd input:focus-visible{background:var(--surface);}
+  .fd input[aria-invalid]{background:var(--surface)}
+  .fd input.mc{letter-spacing:.04em}
+  .slot{min-height:18px;margin-top:4px;font-size:13px;line-height:18px}
+  .buyer{gap:0 12px}
+  .buyer .slot:empty{min-height:18px;margin-top:4px}
+  .buyer .fd:not(.wide){margin-bottom:4px}
+  .link-btn{font-size:13px;line-height:18px}
+  .m-note{font-size:13px;line-height:18px;margin-top:6px}
+  .notice{grid-template-columns:72px minmax(0,1fr);gap:4px 8px;padding:12px 14px;border-radius:8px;font-size:13px;line-height:20px;color:var(--ink)}
+  .notice dt{font-weight:400;color:var(--ink-2)}
+  .notice small{font-size:13px}
+  .all{margin-top:12px;padding:0 0 10px;background:none;border:0;border-bottom:1px solid var(--line);border-radius:0;font-size:14px;font-weight:600;line-height:22px;align-items:flex-start}
+  .all input{width:18px;height:18px;margin-top:2px}
+  .all small{font-size:13px}
+  .ags{padding-left:0;margin-top:6px}
+  .ag{font-size:14px;line-height:22px;padding:4px 0}
+  .ag b{font-weight:400}
+  .ag small{font-size:13px;line-height:20px}
+  .ag input{margin-top:2px}
+  .row{font-size:14px;line-height:22px;padding:2px 0}
+  .row.total{margin-top:6px;padding-top:10px}
+  .row.total span{font-weight:600}
+  .brief{margin-top:10px;padding-top:10px;grid-template-columns:72px minmax(0,1fr);gap:2px 8px;font-size:13px;line-height:20px}
+  .brief dd{font-weight:400}
+  #bM:not(.empty),#bE:not(.empty){font-weight:500}
+  .pay-btn{height:52px;margin-top:14px;border-radius:8px;font-size:16px;font-weight:600}
+  .pay-btn:disabled{font-size:16px}
+  .pay-note{font-size:13px;line-height:18px}
+  .band{font-size:13px;border-radius:8px}.band b{font-size:14px;font-weight:600}.band a{font-weight:400}
+  .sbtn{min-height:32px;padding:3px 10px;border-radius:6px;font-size:13px;font-weight:500}
+  .noid{font-size:13px;border-radius:8px}.noid a{font-weight:500}
+  .tail .links a{font-weight:400}
+  .done-head{font-size:16px;font-weight:600;gap:8px;margin-bottom:12px}
+  .done-head svg{width:20px;height:20px}
+  .done-card > p{font-size:14px;color:var(--ink)}
+  #done .terms{grid-template-columns:84px minmax(0,1fr);gap:6px 8px;font-size:14px;line-height:22px}
+  .oid-v code{font-weight:500}
+  .checking{font-size:14px;font-weight:500}
+  .sheet { border-radius: 14px; }
+  .fd input:disabled { color: var(--ink-2); background: var(--surface-2); border-color: var(--line-strong); }
+  #mSlot { min-height: 38px; }
+  .buyer .fd.wide .slot { min-height: 36px; }
+  #done .terms { grid-template-columns: 76px minmax(0, 1fr); }
+  .terms dt { color: var(--ink-2); }
+  .done-title-ok { display: inline-flex; align-items: center; gap: 8px; }
+  .done-title-ok svg { flex: none; width: 24px; height: 24px; fill: var(--ok-strong); }
+  .all small { font-weight: 400; color: var(--ink-2); }
+
+  /* 대표 11-07: 빈 칸이 회색이면 잠긴 칸 같다 → 흰 바탕. 회색은 잠겼을 때만 */
+  .fd input, .fd input:focus-visible, .fd input[aria-invalid] { background: var(--surface); }
+  .fd input:disabled { background: var(--line); border-color: var(--line-strong); color: var(--ink-2); }
+  /* 선택한 요금제 — 판 안에서 가장 먼저 눈에 들어오게 */
+  .picked { padding: 14px 16px; background: var(--brand-soft); border-radius: 10px; }
+  .picked .item-name { font-size: 16px; font-weight: 600; line-height: 24px; }
+  .picked .item-price { margin-top: 2px; font-size: 14px; line-height: 22px; }
+  .picked .item-price b { font-size: 16px; font-weight: 600; }
+  .picked .item-price small { font-size: 13px; color: var(--ink-2); }
+  .picked .item-cond { margin-top: 2px; }
+
+  /* 오류는 있던 줄 안에 — 비워 둔 자리 없이 칸이 안 밀린다(대표 11-07 「빈 여백」) */
+  .fd label .slot { display: inline-flex; min-height: 0; margin: 0 0 0 8px; font-weight: 400; vertical-align: top; line-height: 20px; }
+  .fd label .slot svg { margin-top: 3px; }
+  .all { margin-bottom: 0; }
+  .all > span { min-width: 0; }
+  .all .slot { display: inline-flex; min-height: 0; margin: 0; font-weight: 400; vertical-align: top; line-height: 22px; }
+  .all .slot:empty { display: none; }
+  .all .slot svg { margin-top: 4px; }
+  .ags { margin-top: 6px; }
+  /* 법으로 눈에 띄어야 하는 세 곳(legal 11-07) — 700 규칙은 그대로, 600으로 */
+  .must { font-weight: 600; color: var(--ink); }
+  .ag small.lock-list { color: var(--ink); }
+
+  .buyer { gap: 12px; }
+  .buyer .fd:not(.wide) { margin-bottom: 0; }
+
+/* design 시험 CSS v270 → 실제 시안에 넣지 않음. trial.js와 짝 */
+
+/* ── 0. 왼쪽 선: 결제·완료 화면은 머리줄도 580 ── */
+body.narrow .nav a { max-width: 580px; }
+.tail .links { margin-top: 20px; font-size: 13px; }
+.tail footer { font-size: 13px; line-height: 20px; color: var(--ink-2); }
+.tail footer span.ln { display: block; }
+
+/* ── 1. 칸 오류 = 언제나 칸 바로 아래. 이름·전화는 슬롯 자체가 줄 간격 ── */
+.buyer { gap: 0 12px; }
+.fd > .slot { margin-top: 3px; margin-bottom: 3px; min-height: 20px; line-height: 20px; font-size: 13px; }
+.slot { line-height: 20px; }
+.buyer .slot:empty { min-height: 20px; margin-top: 3px; }
+.buyer .fd:not(.wide) { margin-bottom: 0; }
+.buyer .fd.wide .slot { min-height: 20px; }
+/* 도움말과 오류를 같은 칸에 겹쳐 → 높이는 언제나 도움말 높이, 어느 폭에서도 안 밀림 */
+.slot.stack { display: grid; }
+.slot.stack > * { grid-area: 1 / 1; min-width: 0; }
+.slot.stack .s-err { display: none; color: var(--bad-strong); }
+.slot.stack.bad { color: var(--bad-strong); display: grid; gap: 0; }
+.slot.stack.bad .s-help { visibility: hidden; }
+.slot.stack.bad .s-err { display: flex; gap: 3px; }
+.slot .s-err svg { flex: none; width: 14px; height: 14px; margin-top: 3px; fill: currentColor; }
+.fd > .slot.bad:not(.stack) { display: flex; gap: 3px; color: var(--bad-strong); }
+.slot-keep { font-size: 13px; line-height: 20px; color: var(--ink-2); }
+#noIdBtn { margin-top: 2px; line-height: 20px; }
+.all .slot { vertical-align: baseline; line-height: 22px; }
+#mSlot { min-height: 0; }
+.privacy-note { margin-top: 2px; font-size: 13px; line-height: 20px; color: var(--ink-2); }
+.privacy-note a { color: var(--brand-700); }
+
+/* ── 5. 안내 표·동의·금액 ── */
+.notice { grid-template-columns: 64px minmax(0,1fr); gap: 8px 12px; padding: 14px 16px; }
+.all { margin-top: 16px; }
+.ags { margin-top: 8px; }
+.ag { padding: 5px 0; }
+.ag small { margin-top: 2px; text-wrap: pretty; }
+#left + .sec { margin-top: 20px; padding-top: 20px; }
+.sum-brief { margin: 0 0 10px; padding: 0 0 10px; border: 0; border-bottom: 1px solid var(--line); }
+.brief.sum-brief { display: grid; grid-template-columns: 84px minmax(0,1fr); gap: 2px 8px; font-size: 14px; line-height: 22px; margin-top: 0; padding-top: 0; }
+.brief.sum-brief dd { text-align: right; }
+.brief.sum-brief dt { color: var(--ink-2); }
+.row.total { margin-top: 6px; padding-top: 10px; }
+.pay-note { margin-top: 8px; }
+.picked { padding: 14px 16px; }
+
+/* ── 2. 복귀 화면 한 틀: 제목 글자 x = 판 안 글자 x. 아이콘은 판 왼쪽 선에서 시작 ── */
+.st-title { display: flex; align-items: flex-start; gap: 7px; }
+.st-title .st-ic { flex: none; width: 22px; height: 22px; margin-top: 7px; }
+.st-title .st-ic svg { display: block; width: 22px; height: 22px; }
+.st-title .spin { width: 22px; height: 22px; color: var(--ink-3); }
+.ic-ok { color: var(--ok-strong); } .ic-warn { color: #b45309; } .ic-bad { color: var(--bad-strong); } .ic-info { color: var(--ink-3); }
+.st-ic svg { fill: currentColor; }
+@media (max-width: 640px) { .st-title { gap: 6px; } .st-title .st-ic { width: 20px; height: 20px; } .st-title .st-ic svg { width: 20px; height: 20px; } }
+
+#doneBody { padding: 24px 28px; }
+@media (max-width: 640px) { #doneBody { padding: 20px 16px; } }
+.d-lead { font-size: 16px; font-weight: 600; line-height: 24px; }
+.d-sub { margin-top: 2px; font-size: 14px; line-height: 22px; color: var(--ink); }
+.d-sec { margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--line); }
+.d-sec-t { font-size: 16px; font-weight: 600; line-height: 24px; margin-bottom: 8px; }
+.d-rows { display: grid; gap: 2px; }
+.d-row { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; font-size: 14px; line-height: 22px; }
+.d-row > span:first-child { flex: none; color: var(--ink-2); }
+.d-row > :last-child { min-width: 0; text-align: right; overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
+.d-row.total { margin-top: 8px; padding-top: 10px; border-top: 1px solid var(--line-strong); }
+.d-row.total > span:first-child { color: var(--ink); font-weight: 600; }
+.d-row.total > :last-child { font-size: 22px; font-weight: 700; letter-spacing: -.5px; line-height: 30px; }
+.d-oid { display: inline-flex; flex-wrap: wrap; justify-content: flex-end; align-items: center; gap: 2px 8px; }
+.d-oid code { font: inherit; font-size: 13px; overflow-wrap: anywhere; }
+.d-oid .sbtn { min-height: 28px; padding: 1px 8px; font-size: 13px; }
+.d-rows + .notice, .notice.d-notice { margin-top: 20px; }
+.d-act { margin-top: 20px; }
+.d-btn { display: block; width: 100%; height: 48px; border-radius: 8px; font: inherit; font-size: 16px; font-weight: 600; color: #fff; background: var(--brand-600); border: 1px solid var(--brand-600); cursor: pointer; }
+.d-btn:hover { background: var(--brand-700); }
+.d-p { font-size: 14px; line-height: 22px; }
+.d-p + .d-rows { margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--line); }
+
+/* ── 3. 창 한 벌 ── */
+dialog.ms { width: min(420px, calc(100vw - 32px)); max-height: calc(100dvh - 32px); margin: auto; padding: 24px; border: 0; border-radius: 14px; background: var(--surface); color: var(--ink); box-shadow: 0 12px 40px rgba(20,33,61,.28); overflow: auto; }
+dialog.ms::backdrop { background: rgba(20,33,61,.45); }
+html:has(dialog.ms[open]) { overflow: hidden; }
+.ms-t { font-size: 16px; font-weight: 600; line-height: 24px; }
+.ms-t .st-ic { display: block; margin-bottom: 8px; }
+.ms-t .st-ic { width: 28px; height: 28px; }
+.ms-t .st-ic svg { display: block; width: 28px; height: 28px; fill: currentColor; }
+.ms-b { margin-top: 8px; font-size: 14px; line-height: 22px; overflow-wrap: anywhere; }
+.ms-b p + p { margin-top: 6px; }
+.ms-acts { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0,1fr); gap: 8px; margin-top: 20px; }
+.ms-btn { min-height: 44px; padding: 4px 10px; border-radius: 8px; font: inherit; font-size: 14px; font-weight: 600; line-height: 20px; cursor: pointer; background: var(--surface); color: var(--ink); border: 1px solid var(--line-strong); }
+.ms-btn:hover { background: var(--surface-2); }
+.ms-btn.pri { background: var(--brand-600); border-color: var(--brand-600); color: #fff; }
+.ms-btn.pri:hover { background: var(--brand-700); }
+.ms-btn:focus-visible { outline: 2px solid var(--brand-600); outline-offset: 2px; }
+@media (max-width: 360px) { .ms-acts { grid-auto-flow: row; } .ms-acts .pri { order: -1; } }
+
+.step .where { margin-left: 0; }
+/* 오류가 떠도 높이 그대로 */
+.buyer .slot:empty { margin-bottom: 3px; }
+.all .slot, .all .slot.bad { display: inline; margin: 0; line-height: inherit; }
+.all .slot svg { display: inline; width: 14px; height: 14px; margin: 0 3px 0 0; vertical-align: -2px; }
+/* 폰: 제목 글자 x = 판 안 글자 x (20+1+20 = 41) */
+@media (max-width: 640px) {
+  #doneBody { padding: 20px; }
+  .st-title { gap: 5px; }
+  .st-title .st-ic, .st-title .st-ic svg, .st-title .spin { width: 16px !important; height: 16px !important; }
+  .st-title .st-ic { margin-top: 9px; }
+}
+
+.slot.stack.bad { display: grid; }
+#left .noid { margin: 6px 0 0; }
+
+  .pay-line { margin-top: 12px; padding: 10px 12px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 8px; font-size: 14px; }
+  .shop-line { margin-bottom: 12px; padding: 10px 14px; background: var(--surface); border: 1px solid var(--line-strong); border-radius: 9px; font-size: 13.5px; }
+
+  /* 맨 아래: 작게·가운데(legal 12px 이상·대비 4.5:1·펼침 유지) */
+  .tail { text-align: center; }
+  .tail .links { font-size: 12px; margin-top: 24px; }
+  .tail .links a { color: var(--foot); }
+  .tail footer { margin-top: 12px; padding: 12px 0 32px; font-size: 12px; line-height: 18px; color: var(--foot); }
+  .d-p + .d-p { margin-top: 4px; }
+
+
+  [hidden] { display: none !important; }
+  #left + .sec { margin-top: 28px; padding-top: 28px; border-top: 1px solid var(--line); }
+  /* 심사용 시험 결제 띠 — 접지 않고 늘 보인다(legal 11-09) */
+  .test-band { background: var(--warn-soft); border-bottom: 1px solid var(--warn-line); color: var(--warn-fg); font-size: 13.5px; line-height: 1.55; }
+  .test-band p { max-width: 880px; margin: 0 auto; padding: 10px 20px; }
+  .method-note { font-size: 14px; color: var(--ink-2); }
+  /* 번호·입력칸만 IBM Plex — 0/O·1/l을 가려 읽는 자리(design 11-09). `.fd input { font: inherit }`보다 뒤·더 세게 */
+  body .fd input, body code { font-family: "IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif; }
+  .test-band b { color: var(--warn-fg); }
+
+  /* ── 홈페이지 말투로 다듬기(design 11-09, 실제 화면 사진 보고) — 값만 바꿔 끼운 판에서 묻힌 것·납작한 것을 바로잡는다 ── */
+  :root { --surface-2: #f3eee4; --sh: 0 1px 2px rgba(15,22,38,.05), 0 10px 28px rgba(28,42,110,.09); --r: 18px; }
+  .card { border-color: var(--line); box-shadow: var(--sh); border-radius: var(--r); }
+  .card.emph { border: 2px solid var(--brand-600); box-shadow: var(--sh); }   /* 대표 11-09: 남색 판은 과하다 → 흰 판 + 남색 테두리(design ㉡) */
+  .card.is-soon { background: var(--surface-2); border: 1px solid var(--line-strong); box-shadow: none; }
+  .card.is-soon .save { background: var(--brand-soft); color: var(--brand-700); }
+  .fd input:focus-visible { box-shadow: 0 0 0 3px rgba(36,53,138,.18); }
+  .ai, .rf, .sheet, #doneBody { border: 1px solid var(--line); border-radius: var(--r); box-shadow: var(--sh); }
+  .step, .ask { border-color: var(--line); border-radius: 14px; }
+  .go, .soon, .pay-btn, .d-btn, .ms-btn, .sbtn, .ask button { border-radius: 999px; }
+  .fd input { border-radius: 10px; border-color: #948b7c; }
+  .back-link, .sbtn, .noid a, .checking { font-weight: 600; }   /* Paperlogy는 500이 Light로 떨어진다 */
+  .price small, .cond, .common, .allin span, .allin b, .ai-nums span, .ai-nums small, .ai-foot, .ai-cap small, .step .where, .rf .sub { font-size: 13px; color: var(--ink-2); }
+  .tail footer, footer { color: var(--ink-2); }
+  .soon { background: transparent !important; border: 1px solid var(--line-strong) !important; color: var(--ink-2) !important; }   /* 「준비 중」이 누르는 단추로 읽히지 않게(design 11-09 2차) */
+  .step .where { font-size: 12.5px; }
+</style>
+</head>
+<body>
+<div class="nav"><div class="nav-in"><a class="logo" href="../" aria-label="큐쏙 홈으로"><svg class="logo-ic" viewBox="4 4 112 112" aria-hidden="true" focusable="false"><defs><linearGradient id="lg-gHand" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd8b3"></stop><stop offset="1" stop-color="#ffbe8f"></stop></linearGradient><g id="lg-hand"> <path d="M -15 6 C -23 12 -26 22 -22 31" fill="none" stroke="#ffc89d" stroke-width="8" stroke-linecap="round"></path> <rect x="-8" y="-30" width="16" height="28" rx="8" fill="url(#lg-gHand)"></rect> <rect x="-17" y="-7" width="34" height="31" rx="13" fill="url(#lg-gHand)"></rect> <path d="M -12.5 13 V 34" fill="none" stroke="#ffc49a" stroke-width="6.4" stroke-linecap="round"></path> <path d="M -4.5 15 V 38" fill="none" stroke="#ffc49a" stroke-width="6.4" stroke-linecap="round"></path> <path d="M 3.5 15 V 38" fill="none" stroke="#ffc49a" stroke-width="6.4" stroke-linecap="round"></path> <path d="M 11.5 13 V 34" fill="none" stroke="#ffc49a" stroke-width="6.4" stroke-linecap="round"></path> </g><filter id="lg-tShadow" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="0" dy="3" stdDeviation="3" flood-color="#1a2a8a" flood-opacity=".35"></feDropShadow></filter><linearGradient id="lg-fB0" gradientUnits="userSpaceOnUse" x1="4" y1="4" x2="116" y2="116"><stop offset="0" stop-color="#24358a"></stop><stop offset="1" stop-color="#1c2a6e"></stop></linearGradient><linearGradient id="lg-fR0" gradientUnits="userSpaceOnUse" x1="27" y1="23" x2="89" y2="85"><stop offset="0" stop-color="#3550c8"></stop><stop offset="1" stop-color="#2a3f8f"></stop></linearGradient><clipPath id="lg-cw"><rect x="4" y="4" width="112" height="112" rx="27"/></clipPath></defs><g clip-path="url(#lg-cw)"><rect x="4" y="4" width="112" height="112" fill="url(#lg-fB0)"/><rect x="18" y="74" width="90" height="50" rx="4" fill="#8f9fd6"/><rect x="15" y="77" width="90" height="50" rx="4" fill="#c3cceb"/><g transform="translate(4 -8) rotate(-7 58 50)"><rect x="30" y="16" width="58" height="72" rx="6" fill="#fff" filter="url(#lg-tShadow)"/><rect x="37" y="23" width="22" height="5" rx="2" fill="#3550c8"/><circle cx="52" cy="52" r="12" fill="none" stroke="url(#lg-fR0)" stroke-width="6.5"/><path d="M 57.4 57.4 L 66.4 66.4" stroke="#fff" stroke-width="10.4" stroke-linecap="round"/><path d="M 57.4 57.4 L 66.4 66.4" stroke="#e0243f" stroke-width="6.5" stroke-linecap="round"/><rect x="70" y="46" width="12" height="3.5" rx="1.75" fill="#c5cde4"/><rect x="70" y="53" width="9" height="3.5" rx="1.75" fill="#dfe3f0"/><use href="#lg-hand" transform="translate(59 4) scale(.95)"/></g><rect x="12" y="82" width="90" height="50" rx="4" fill="#fff"/><rect x="56.5" y="88" width="1" height="40" fill="#c5cde4"/><path d="M0.6 0.9 L1.6 0 L1.6 4.4" transform="translate(17 89) scale(1.1363636363636362)" fill="none" stroke="#14213d" stroke-width="1.232" stroke-linecap="round" stroke-linejoin="round"/><circle cx="22" cy="93.4" r=".8" fill="#14213d"/><rect x="24" y="90.2" width="29.0" height="2.6" rx="1.3" fill="#c5cde4"/><rect x="17" y="97" width="35.0" height="2.6" rx="1.3" fill="#dfe3f0"/><circle cx="19.2" cy="104.4" r="2.1" fill="none" stroke="#5b6b85" stroke-width=".45"/><path d="M0.6 0.9 L1.6 0 L1.6 4.4" transform="translate(18.45 103.3) scale(0.5)" fill="none" stroke="#5b6b85" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round"/><circle cx="24.2" cy="104.4" r="2.1" fill="none" stroke="#5b6b85" stroke-width=".45"/><path d="M0.2 1 C0.4 -0.2,2.8 -0.2,2.8 1.2 C2.8 2.2,0.2 3.2,0.2 4.4 L2.9 4.4" transform="translate(23.45 103.3) scale(0.5)" fill="none" stroke="#5b6b85" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round"/><circle cx="29.2" cy="104.4" r="2.1" fill="none" stroke="#5b6b85" stroke-width=".45"/><path d="M0.3 0.4 C1.5 -0.3,2.9 0.4,2.6 1.4 C2.4 2,1.4 2.1,1.2 2.1 C2.6 2.1,3 3,2.6 3.8 C2.1 4.6,0.6 4.6,0.2 4" transform="translate(28.45 103.3) scale(0.5)" fill="none" stroke="#5b6b85" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round"/><circle cx="34.2" cy="104.4" r="2.1" fill="none" stroke="#5b6b85" stroke-width=".45"/><path d="M2.2 4.4 L2.2 0 L0 3 L3 3" transform="translate(33.45 103.3) scale(0.5)" fill="none" stroke="#5b6b85" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round"/><circle cx="39.2" cy="104.4" r="2.1" fill="none" stroke="#5b6b85" stroke-width=".45"/><path d="M2.8 0 L0.6 0 L0.4 2 C1.5 1.4,2.9 1.8,2.9 3 C2.9 4.3,1 4.7,0.2 4" transform="translate(38.45 103.3) scale(0.5)" fill="none" stroke="#5b6b85" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round"/><path d="M0.2 1 C0.4 -0.2,2.8 -0.2,2.8 1.2 C2.8 2.2,0.2 3.2,0.2 4.4 L2.9 4.4" transform="translate(61.0 89) scale(1.1363636363636362)" fill="none" stroke="#14213d" stroke-width="1.232" stroke-linecap="round" stroke-linejoin="round"/><circle cx="66.0" cy="93.4" r=".8" fill="#14213d"/><rect x="68.0" y="90.2" width="29.0" height="2.6" rx="1.3" fill="#c5cde4"/><rect x="61.0" y="97" width="35.0" height="2.6" rx="1.3" fill="#dfe3f0"/><circle cx="63.2" cy="104.4" r="2.1" fill="none" stroke="#5b6b85" stroke-width=".45"/><path d="M0.6 0.9 L1.6 0 L1.6 4.4" transform="translate(62.45 103.3) scale(0.5)" fill="none" stroke="#5b6b85" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round"/><circle cx="68.2" cy="104.4" r="2.1" fill="none" stroke="#5b6b85" stroke-width=".45"/><path d="M0.2 1 C0.4 -0.2,2.8 -0.2,2.8 1.2 C2.8 2.2,0.2 3.2,0.2 4.4 L2.9 4.4" transform="translate(67.45 103.3) scale(0.5)" fill="none" stroke="#5b6b85" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round"/><circle cx="73.2" cy="104.4" r="2.1" fill="none" stroke="#5b6b85" stroke-width=".45"/><path d="M0.3 0.4 C1.5 -0.3,2.9 0.4,2.6 1.4 C2.4 2,1.4 2.1,1.2 2.1 C2.6 2.1,3 3,2.6 3.8 C2.1 4.6,0.6 4.6,0.2 4" transform="translate(72.45 103.3) scale(0.5)" fill="none" stroke="#5b6b85" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round"/><circle cx="78.2" cy="104.4" r="2.1" fill="none" stroke="#5b6b85" stroke-width=".45"/><path d="M2.2 4.4 L2.2 0 L0 3 L3 3" transform="translate(77.45 103.3) scale(0.5)" fill="none" stroke="#5b6b85" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round"/><circle cx="83.2" cy="104.4" r="2.1" fill="none" stroke="#5b6b85" stroke-width=".45"/><path d="M2.8 0 L0.6 0 L0.4 2 C1.5 1.4,2.9 1.8,2.9 3 C2.9 4.3,1 4.7,0.2 4" transform="translate(82.45 103.3) scale(0.5)" fill="none" stroke="#5b6b85" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round"/><rect x="15" y="85" width="9" height="2.2" rx="1" fill="#8a94a6" transform="rotate(-35 19 86)"/><path d="M 18 46 L 18 32 M 102 52 L 102 38 M 12 60 L 12 52" stroke="#c5cde4" stroke-width="3.5" stroke-linecap="round"/></g></svg><span class="logo-t">큐쏙<span>(Qssok)</span></span></a></div></div>
+<div class="test-band" role="note"><p><b>심사용 시험 결제 화면입니다. 지금은 큐쏙을 구매할 수 없습니다.</b> 여기서 결제하면 카드 승인이 났다가 그날 자정쯤 자동 취소되고, 정식판은 적용되지 않습니다.</p></div>
+
+<main class="page" id="shop">
+  <h1>정식판</h1>
+
+    <div class="cards">
+    <section class="card emph" data-card="open3"><p class="name"><span class="open">오픈 기념</span>첫 3개월</p><div class="amt"><p class="price">월 <b>27,000원</b><small>(VAT 별도, 최종 결제 금액 29,700원)</small></p><p class="cond">결제가 열린 날부터 2027년 1월 31일까지 첫 결제 · <span class="nw">첫 결제 포함 3개월</span></p></div><button class="go" type="button" data-buy="open3">구매하기</button></section>
+    <section class="card" data-card="monthly"><p class="name">매달 결제</p><div class="amt"><p class="price">월 <b>36,000원</b><small>(VAT 별도, 최종 결제 금액 39,600원)</small></p><p class="cond"><span class="nw">첫 3개월 뒤</span> · <span class="nw">한 달씩 직접 결제</span></p></div><button class="go" type="button" data-buy="monthly">구매하기</button></section>
+    <!-- 자동 결제는 열리기 전엔 맨 뒤(대표 11-09) — 열리면 두 번째(오픈 기념 다음)로 옮긴다 -->
+    <section class="card is-soon" data-card="auto"><p class="name">자동 결제<span class="save">월 4,000원 절약</span></p><div class="amt"><p class="price">월 <b>32,000원</b><small>(VAT 별도, 최종 결제 금액 35,200원)</small></p><p class="cond"><span class="nw">첫 3개월 뒤 · 2027년 1월 목표</span></p></div><p class="soon">준비 중</p></section>
+  </div>
+  <div class="ask" style="margin-top:12px"><b>문의</b><span class="mail">contact@danbilab.com</span><button type="button" data-copy="contact@danbilab.com">메일 주소 복사</button><span class="sp"></span><a href="https://open.kakao.com/o/swrvSxUi">카카오톡 문의</a></div>
+  <div class="allin"><b>기능은 모두 같습니다</b><span>PDF 추출</span><span>문제 편집</span><span>문제 DB</span><span>시험지 만들기</span><span>정답·해설</span><span>한글 저장</span><span>백업</span></div>
+  <p class="common">컴퓨터 1대 · 카드 · 간편결제</p>
+
+  <p class="h">구매 방법</p>
+  <div class="steps">
+    <div class="step"><div class="n">1</div><b>요금제 확인</b><p>지금 해당하는 요금제의 <em>구매하기</em>를 누르세요.</p></div>
+    <div class="step"><div class="n">2</div><b>결제</b><p><em>컴퓨터 번호</em>와 <em>결제 이메일</em>을 넣고 결제해 주세요. 체험에 쓴 이메일과 달라도 됩니다.<span class="where">컴퓨터 번호 확인: 큐쏙 앱 설정 › 이용 상태</span></p></div>
+    <div class="step"><div class="n">3</div><b>앱 다시 켜기</b><p>결제가 확인되면 정식판을 바로 적용하고 결제 이메일로 안내합니다. 인터넷에 연결해 큐쏙을 다시 켜면 반영됩니다.</p></div>
+  </div>
+
+  <p class="h">구글 AI 사용료<small>구글에 직접 충전 · 큐쏙 이용료와 따로</small></p>
+  <div class="ai">
+    <div class="ai-nums">
+      <p class="ai-lead">매달 결제가 아닙니다</p>
+      <div><b>최소 8,000원</b><small>수학 약 1,000문제 분량</small></div>
+      <div><span>수학 모의고사 한 부 기준</span><b>약 400원</b><small>46문제 · 해설 제외</small></div>
+    </div>
+    <div class="ai-info">
+      <p class="ai-cap">한 문제당 · 한 번 추출 기준<small>다시 추출하면 더 듭니다</small></p>
+      <table class="ai-table"><thead><tr><th scope="col"></th><th scope="col">영어</th><th scope="col">수학</th><th scope="col">과학</th><th scope="col">국어</th></tr></thead><tbody><tr><th scope="row">문제만</th><td><small>약</small> 8원</td><td><small>약</small> 8원</td><td><small>약</small> 11원</td><td><small>약</small> 15원</td></tr><tr class="sol"><th scope="row">해설까지</th><td><small>약</small> 16원</td><td><small>약</small> 20원</td><td><small>약</small> 22원</td><td><small>약</small> 30원</td></tr></tbody></table>
+      <ul class="ai-notes"><li>추출한 만큼 차감됩니다 · 남은 금액은 구글 계정에 남아 큐쏙 이용 중이면 다음 달에도 이어서 쓰고, 모자라면 추가 충전합니다</li><li>충전 후 <b>1년 안에</b> 쓰지 않은 금액은 사라지고 <span class="nw">환불 불가(구글 정책)</span></li></ul>
+      <p class="ai-foot"><a href="https://qssok.com/guide/ai-key/#charge">구글 충전 안내</a> · 2026년 구글 가격 기준 · 2027년 1월 구글 가격 인상 예정</p>
+    </div>
+  </div>
+
+  <p class="more-lock">결제한 1개월이 끝나면 새 파일 불러오기 · 추출 · 편집 · 글자 복사 · 시험지 만들기와 한글 내보내기 · 백업 불러오기가 잠깁니다. 문제 보기와 백업 저장은 계속 쓰실 수 있고, 저장된 문제와 시험지는 지워지지 않습니다. 문제를 추출하는 순간에만 페이지 이미지가 구글로 전송됩니다</p>
+  <details class="more"><summary><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l8 7-8 7z"/></svg>알아 두실 것 <span>적용·이용 기간, 오픈 기념 금액, 자동 결제 조건</span></summary><ul class="know">
+    <li>결제가 확인되면 1개월을 바로 적용합니다. 큐쏙을 켜지 않아도 기간은 시작됩니다. 적용한 날부터 시작하며, 체험이나 앞서 결제한 달이 남아 있으면 그 기간이 끝난 다음 날부터 시작합니다</li>
+    <li>자동 결제가 열리기 전에는 매달 직접 결제해 주세요. 기간이 끝나기 전에 결제하셔도 남은 기간 뒤에 이어집니다</li>
+    <li>오픈 기념 금액은 결제가 열린 날부터 2027년 1월 31일까지 첫 결제한 컴퓨터 1대에 적용됩니다. 첫 결제 포함 3개월까지입니다(첫 결제일부터 3개월 안에 3번). 전액 환불된 결제는 세지 않고, 중간에 환불한 결제는 1번으로 셉니다. 중간에 쉬어도 기간은 늘어나지 않습니다. 2027년 2월 1일부터 처음 결제하시면 매달 결제 금액입니다</li>
+    <li>자동 결제는 준비 중이며 일정은 달라질 수 있습니다. 열리기 전에는 선택할 수 없고, 그동안은 매달 결제 금액으로 직접 결제합니다. 선택한 분은 해지할 때까지 매달 자동 결제됩니다</li>
+    <li>오픈 기념 금액 대상인데 39,600원으로 결제하셨다면 문의해 주세요. 차액 9,900원을 돌려드립니다. 컴퓨터를 옮기거나 번호를 고쳐 번호가 달라져도 대상 여부는 처음 번호의 첫 결제일과 횟수로 봅니다</li>
+    <li>월 이용료가 바뀌면 한 달 전에 미리 알리고, 이미 결제한 기간에는 적용하지 않습니다</li>
+    <li>필요한 것: Windows 10 이상(64비트) · 인터넷 연결 (지금은 Windows용만 있습니다. Mac용은 준비 중입니다)</li>
+  </ul></details>
+
+  <section class="refund">
+    <p class="h">해지 · 환불</p>
+    <dl class="rf">
+      <dt>전액 환불</dt><dd>정식판 이용 기간이 시작되기 전이거나 결제한 날 요청하면 <b>전액 환불</b>합니다.</dd>
+      <dt>이용 중</dt><dd>사용 여부와 관계없이, 시작일부터 환불 요청일까지 지난 일수를 뺀 금액으로 환불이 가능합니다. 큐쏙은 선생님이 앱을 언제, 어떻게 사용하시는지 알 수 없기 때문에 지난 일수로만 계산합니다.</dd>
+      <dt>계산</dt><dd>환불액 = 결제액 − 결제액 ÷ 이용 일수 × 지난 일수 <span class="sub">결제액 = 실제 결제한 금액(부가세 포함) · 요청일 포함 · 빼는 금액의 1원 미만은 버림 · 예) 29,700원, 30일 중 10일 지남 → 19,800원 환불</span></dd>
+      <dt>청약철회</dt><dd>이용 기간이 시작된 뒤 지난 일수만큼은 청약철회가 제한됩니다(전자상거래법 제17조 제2항 제5호). 결제 전에 7일 무료 체험으로 백업 불러오기를 뺀 모든 기능을 써 보실 수 있습니다.</dd>
+      <dt>요청 방법</dt><dd>이용 기간 중 언제든 요청하실 수 있습니다. 결제 이메일과 컴퓨터 번호를 contact@danbilab.com으로 보내 주세요. 요청 메일을 받은 날부터 3영업일 안에 결제를 취소하고, 그 컴퓨터의 정식판은 해제됩니다. <span class="sub">카드사 환급일은 다를 수 있습니다</span></dd>
+      <dt>그 밖</dt><dd>위약금 없음 · 결제 오류와 중복 결제는 전액 환불 · 환불이 늦어지면 늦어진 날수만큼 전자상거래법 시행령이 정한 지연배상금(연 15%)을 더해 드립니다</dd>
+    </dl>
+  </section>
+
+  <p class="links"><a href="https://danbilab.com/terms/">이용약관</a> · <a href="https://danbilab.com/privacy/">개인정보처리방침</a> · <a href="https://danbilab.com/terms/">환불정책(이용약관 제9조)</a></p>
+  <footer>
+    상호 단비 · 대표 이단비 · 사업자등록번호 622-42-01304 · 통신판매업 신고 준비 중 · 주소 경상북도 구미시 산호대로25길 41, 204동 7층 5호(옥계동, 부영아파트2차) · 전화 070-8064-3798 · contact@danbilab.com · 호스팅 제공자 GitHub<br>
+    소비자 피해 보상과 분쟁 처리는 공정거래위원회 소비자분쟁해결기준을 따릅니다. · 큐쏙(Qssok)™ © 2026
+  </footer>
+</main>
+<section class="screen" id="pay" hidden>
+  <div class="head">
+    <h1 id="payTitle" tabindex="-1">주문/결제</h1>
+    <button class="back-link" type="button" id="toCards"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M15.4 5.4 14 4l-8 8 8 8 1.4-1.4L8.8 12z"/></svg>요금제로 돌아가기</button>
+  </div>
+  <div class="sheet">
+    <fieldset id="left" style="border:0;min-width:0">
+      <section class="sec">
+        <h2 class="sec-t">선택한 요금제</h2>
+        <div class="picked"><p class="item-name" id="itName"></p>
+        <p class="item-price" id="itPrice"></p>
+        <p class="item-cond" id="itCond"></p></div>
+      </section>
+      <section class="sec">
+        <h2 class="sec-t">사용할 컴퓨터</h2>
+        <div class="pair">
+          <div class="fd"><label for="m1">컴퓨터 번호</label><input class="mc" id="m1" autocomplete="off" spellcheck="false" autocapitalize="characters"></div>
+          <div class="fd"><label for="m2">번호 다시 입력</label><input class="mc" id="m2" autocomplete="off" spellcheck="false" autocapitalize="characters"></div>
+        </div>
+        <div class="slot stack" id="mSlot"></div>
+        <p class="slot-keep">번호는 큐쏙 앱 설정 › 이용 상태에도 있습니다.</p>
+        <button class="link-btn" type="button" id="noIdBtn" aria-expanded="false">번호가 없을 때</button>
+        <div class="noid" id="noId" style="margin:8px 0 0" hidden>앱을 처음 쓴다면 7일 무료 체험을 시작해야 번호가 생깁니다. 바로 구매하실 분도 체험을 먼저 시작해 주세요. 체험이 남아 있을 때 결제하면 1개월은 체험이 끝난 다음 날부터 시작합니다. <a href="../#download">큐쏙 내려받기</a></div>
+      </section>
+      <section class="sec">
+        <h2 class="sec-t">구매자 정보</h2>
+        <div class="buyer">
+          <div class="fd"><label for="nm">이름</label><input id="nm" autocomplete="name"><div class="slot" id="nSlot"></div></div>
+          <div class="fd"><label for="ph">휴대폰 번호</label><input id="ph" type="tel" autocomplete="tel" inputmode="numeric" placeholder="01012345678"><div class="slot" id="pSlot"></div></div>
+          <div class="fd wide"><label for="em">이메일</label><input id="em" type="email" autocomplete="email" spellcheck="false" placeholder="name@example.com"><div class="slot stack" id="eSlot"></div></div>
+        </div>
+        <p class="privacy-note">이름과 휴대폰 번호는 결제 처리와 결제·환불 확인에 쓰며, 큐쏙 결제 서버에는 저장하지 않고 결제 대행사(코리아포트원)에 보관됩니다. <a href="https://danbilab.com/privacy/" target="_blank" rel="noopener">개인정보처리방침</a></p>
+      </section>
+      <section class="sec">
+        <h2 class="sec-t">결제 방법</h2>
+        <p class="method-note">카드와 간편결제(카카오페이·네이버페이·토스페이·페이코)는 결제하기를 누른 뒤 열리는 결제창에서 고릅니다.</p>
+      </section>
+      <section class="sec">
+        <h2 class="sec-t">결제 전 확인</h2>
+        <dl class="notice">
+          <dt>적용</dt><dd>결제가 확인되면 이 번호의 컴퓨터 1대에 바로 적용합니다. 큐쏙은 인터넷에 연결해 다시 켜면 반영됩니다.</dd>
+          <dt>이용 기간</dt><dd>결제가 확인된 날부터 1개월입니다. 체험이나 앞서 결제한 기간이 남아 있으면 그 기간이 끝난 다음 날부터 1개월입니다. <span class="must">큐쏙을 켜지 않아도 기간은 시작됩니다.</span> 예) 12월 8일에 시작하면 2027년 1월 7일까지</dd>
+          <dt>자동 결제</dt><dd>자동으로 결제되지 않습니다. 다음 달은 직접 결제해 주세요.</dd>
+          <dt>환불</dt><dd>이용 기간이 시작되기 전이거나 결제한 날 요청하면 전액, 그 뒤에는 지난 일수를 뺀 금액을 환불합니다. <span class="must">지난 일수만큼은 청약철회(구매 취소)가 제한됩니다</span>(전자상거래법 제17조 제2항 제5호). 환불 요청은 contact@danbilab.com으로 보내 주세요.</dd>
+          <dt>미성년자</dt><dd>만 19세 미만이 법정대리인(부모 등) 동의 없이 결제하면, 본인이나 법정대리인이 계약을 취소할 수 있습니다.</dd>
+        </dl>
+        <label class="all"><input type="checkbox" id="agAll"><span>전체 동의 <small id="allHint">아래 3가지를 모두 확인했습니다.</small><span class="slot" id="aSlot"></span></span></label>
+        <div class="ags" id="ags">
+          <label class="ag"><input type="checkbox"><span><b>[필수] 이용약관과 환불정책(제9조)에 동의합니다. <a href="https://danbilab.com/terms/v1.2/" target="_blank" rel="noopener">이용약관 1.2판 보기</a></b></span></label>
+          <label class="ag"><input type="checkbox"><span><b>[필수] <span class="must">이용 기간이 끝나면 아래 기능이 잠기는 것</span>에 동의합니다.</b><small class="lock-list">새 파일 불러오기 · 추출 · 편집 · 글자 복사 · 시험지 만들기와 한글 내보내기 · 백업 불러오기</small><small>문제 보기와 백업 저장은 계속 쓰실 수 있고, 저장된 문제와 시험지는 지워지지 않습니다.</small></span></label>
+          <label class="ag"><input type="checkbox"><span><b>[필수] 구글 AI 키를 직접 받아 넣어야 추출할 수 있다는 것에 동의합니다.</b><small>구글 AI 사용료는 추출한 만큼 본인이 구글에 냅니다. <span class="must">큐쏙 이용료와 별도입니다.</span> 구글에 낸 돈은 큐쏙이 돌려 드리거나 대신 내 드리지 않습니다. 추출할 때 페이지 이미지가 구글로 전송됩니다.</small></span></label>
+        </div>
+      </section>
+    </fieldset>
+    <section class="sec">
+      <h2 class="sec-t">최종 확인</h2>
+      <dl class="brief sum-brief">
+        <dt>상품</dt><dd class="plain" id="bName"></dd>
+        <dt>이용 기간</dt><dd class="plain">1개월 (시작일·종료일은 메일로 안내)</dd>
+        <dt>컴퓨터 번호</dt><dd class="mono" id="bM"></dd>
+        <dt>이메일</dt><dd id="bE"></dd>
+        <dt>결제 방법</dt><dd class="plain" id="bPay">결제창에서 선택</dd>
+      </dl>
+      <div class="row"><span>상품 금액</span><b id="sBase"></b></div>
+      <div class="row"><span>부가세</span><b id="sVat"></b></div>
+      <div class="row total"><span>최종 결제 금액</span><b id="sTotal"></b></div>
+      <button class="pay-btn" type="button" id="payBtn"></button>
+      <p class="pay-note">누르면 결제창이 열립니다. 지금은 심사용 시험 결제라 승인이 그날 자정쯤 취소되고, 정식판 적용과 안내 메일은 없습니다.</p>
+      <div id="sumBand"></div>
+    </section>
+  </div>
+  <div class="tail"></div>
+</section>
+
+<section class="screen" id="done" hidden>
+  <div class="head"><h1 id="doneTitle" tabindex="-1"></h1></div>
+  <div class="sheet" id="doneBody"></div>
+  <div class="tail"></div>
+</section>
+
+<dialog class="ms" id="ms" role="alertdialog" aria-labelledby="msT" aria-describedby="msB"></dialog>
+<script src="buy.js"></script>
+</body>
+</html>
