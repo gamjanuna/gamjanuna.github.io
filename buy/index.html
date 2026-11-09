@@ -549,11 +549,31 @@ html:has(dialog.ms[open]) { overflow: hidden; }
   .tail footer, footer { color: var(--ink-2); }
   .soon { background: transparent !important; border: 1px solid var(--line-strong) !important; color: var(--ink-2) !important; }   /* 「준비 중」이 누르는 단추로 읽히지 않게(design 11-09 2차) */
   .step .where { font-size: 12.5px; }
+
+/* ── 결제 화면 2단(design 11-09, 시안 v282·v283) — 960px 이상 왼쪽 입력·동의 / 오른쪽 따라오는 최종 확인 카드 ── */
+#pay.screen { max-width: 1080px; }
+.pay-grid { display: grid; grid-template-columns: minmax(0,1fr) 340px; gap: 24px; align-items: start; }
+.sum-card { position: sticky; top: 16px; padding: 24px; }
+.sum-card .sum-brief dd { text-wrap: balance; }
+body:has(#pay:not([hidden])) .nav-in, body:has(#pay:not([hidden])) .nav a, body:has(#pay:not([hidden])) .test-band p { max-width: 1080px; }
+#left > .sec:first-child > .sec-t { display: none; }   /* 「선택한 요금제」 제목만 숨김 — 연파랑 상자는 그대로 */
+@media (max-height: 640px) { .sum-card { position: static; } }
+@media (max-width: 959px) { #pay.screen { max-width: 580px; } .pay-grid { grid-template-columns: minmax(0,1fr); gap: 12px; } .sum-card { position: static; }
+  body:has(#pay:not([hidden])) .nav-in, body:has(#pay:not([hidden])) .nav a { max-width: 580px; } }
+.notice-box { background: var(--surface-2); border-radius: 10px; padding: 14px 16px; }
+.notice.nb { background: none; padding: 0; border-radius: 0; }
+.notice-more { margin-top: 10px; }
+.notice-more summary { position: relative; display: block; padding-left: 16px; font-size: 13px; line-height: 20px; font-weight: 600; color: var(--ink-2); cursor: pointer; list-style: none; text-wrap: pretty; border-radius: 4px; }
+.notice-more summary::-webkit-details-marker { display: none; }
+.notice-more summary svg { position: absolute; left: -2px; top: 3px; width: 14px; height: 14px; fill: var(--brand-600); transition: transform .12s; }
+.notice-more[open] summary svg { transform: rotate(90deg); }
+.notice-more summary:focus-visible { outline: 2px solid var(--brand-600); outline-offset: 2px; }
+.notice-more > .notice { margin-top: 8px; }
 </style>
 </head>
 <body>
 <div class="nav"><div class="nav-in"><a class="logo" href="../" aria-label="큐쏙 홈으로"><svg class="logo-ic" viewBox="4 4 112 112" aria-hidden="true" focusable="false"><defs><linearGradient id="lg-gHand" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd8b3"></stop><stop offset="1" stop-color="#ffbe8f"></stop></linearGradient><g id="lg-hand"> <path d="M -15 6 C -23 12 -26 22 -22 31" fill="none" stroke="#ffc89d" stroke-width="8" stroke-linecap="round"></path> <rect x="-8" y="-30" width="16" height="28" rx="8" fill="url(#lg-gHand)"></rect> <rect x="-17" y="-7" width="34" height="31" rx="13" fill="url(#lg-gHand)"></rect> <path d="M -12.5 13 V 34" fill="none" stroke="#ffc49a" stroke-width="6.4" stroke-linecap="round"></path> <path d="M -4.5 15 V 38" fill="none" stroke="#ffc49a" stroke-width="6.4" stroke-linecap="round"></path> <path d="M 3.5 15 V 38" fill="none" stroke="#ffc49a" stroke-width="6.4" stroke-linecap="round"></path> <path d="M 11.5 13 V 34" fill="none" stroke="#ffc49a" stroke-width="6.4" stroke-linecap="round"></path> </g><filter id="lg-tShadow" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="0" dy="3" stdDeviation="3" flood-color="#1a2a8a" flood-opacity=".35"></feDropShadow></filter><linearGradient id="lg-fB0" gradientUnits="userSpaceOnUse" x1="4" y1="4" x2="116" y2="116"><stop offset="0" stop-color="#24358a"></stop><stop offset="1" stop-color="#1c2a6e"></stop></linearGradient><linearGradient id="lg-fR0" gradientUnits="userSpaceOnUse" x1="27" y1="23" x2="89" y2="85"><stop offset="0" stop-color="#3550c8"></stop><stop offset="1" stop-color="#2a3f8f"></stop></linearGradient><clipPath id="lg-cw"><rect x="4" y="4" width="112" height="112" rx="27"/></clipPath></defs><g clip-path="url(#lg-cw)"><rect x="4" y="4" width="112" height="112" fill="url(#lg-fB0)"/><rect x="18" y="74" width="90" height="50" rx="4" fill="#8f9fd6"/><rect x="15" y="77" width="90" height="50" rx="4" fill="#c3cceb"/><g transform="translate(4 -8) rotate(-7 58 50)"><rect x="30" y="16" width="58" height="72" rx="6" fill="#fff" filter="url(#lg-tShadow)"/><rect x="37" y="23" width="22" height="5" rx="2" fill="#3550c8"/><circle cx="52" cy="52" r="12" fill="none" stroke="url(#lg-fR0)" stroke-width="6.5"/><path d="M 57.4 57.4 L 66.4 66.4" stroke="#fff" stroke-width="10.4" stroke-linecap="round"/><path d="M 57.4 57.4 L 66.4 66.4" stroke="#e0243f" stroke-width="6.5" stroke-linecap="round"/><rect x="70" y="46" width="12" height="3.5" rx="1.75" fill="#c5cde4"/><rect x="70" y="53" width="9" height="3.5" rx="1.75" fill="#dfe3f0"/><use href="#lg-hand" transform="translate(59 4) scale(.95)"/></g><rect x="12" y="82" width="90" height="50" rx="4" fill="#fff"/><rect x="56.5" y="88" width="1" height="40" fill="#c5cde4"/><path d="M0.6 0.9 L1.6 0 L1.6 4.4" transform="translate(17 89) scale(1.1363636363636362)" fill="none" stroke="#14213d" stroke-width="1.232" stroke-linecap="round" stroke-linejoin="round"/><circle cx="22" cy="93.4" r=".8" fill="#14213d"/><rect x="24" y="90.2" width="29.0" height="2.6" rx="1.3" fill="#c5cde4"/><rect x="17" y="97" width="35.0" height="2.6" rx="1.3" fill="#dfe3f0"/><circle cx="19.2" cy="104.4" r="2.1" fill="none" stroke="#5b6b85" stroke-width=".45"/><path d="M0.6 0.9 L1.6 0 L1.6 4.4" transform="translate(18.45 103.3) scale(0.5)" fill="none" stroke="#5b6b85" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round"/><circle cx="24.2" cy="104.4" r="2.1" fill="none" stroke="#5b6b85" stroke-width=".45"/><path d="M0.2 1 C0.4 -0.2,2.8 -0.2,2.8 1.2 C2.8 2.2,0.2 3.2,0.2 4.4 L2.9 4.4" transform="translate(23.45 103.3) scale(0.5)" fill="none" stroke="#5b6b85" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round"/><circle cx="29.2" cy="104.4" r="2.1" fill="none" stroke="#5b6b85" stroke-width=".45"/><path d="M0.3 0.4 C1.5 -0.3,2.9 0.4,2.6 1.4 C2.4 2,1.4 2.1,1.2 2.1 C2.6 2.1,3 3,2.6 3.8 C2.1 4.6,0.6 4.6,0.2 4" transform="translate(28.45 103.3) scale(0.5)" fill="none" stroke="#5b6b85" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round"/><circle cx="34.2" cy="104.4" r="2.1" fill="none" stroke="#5b6b85" stroke-width=".45"/><path d="M2.2 4.4 L2.2 0 L0 3 L3 3" transform="translate(33.45 103.3) scale(0.5)" fill="none" stroke="#5b6b85" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round"/><circle cx="39.2" cy="104.4" r="2.1" fill="none" stroke="#5b6b85" stroke-width=".45"/><path d="M2.8 0 L0.6 0 L0.4 2 C1.5 1.4,2.9 1.8,2.9 3 C2.9 4.3,1 4.7,0.2 4" transform="translate(38.45 103.3) scale(0.5)" fill="none" stroke="#5b6b85" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round"/><path d="M0.2 1 C0.4 -0.2,2.8 -0.2,2.8 1.2 C2.8 2.2,0.2 3.2,0.2 4.4 L2.9 4.4" transform="translate(61.0 89) scale(1.1363636363636362)" fill="none" stroke="#14213d" stroke-width="1.232" stroke-linecap="round" stroke-linejoin="round"/><circle cx="66.0" cy="93.4" r=".8" fill="#14213d"/><rect x="68.0" y="90.2" width="29.0" height="2.6" rx="1.3" fill="#c5cde4"/><rect x="61.0" y="97" width="35.0" height="2.6" rx="1.3" fill="#dfe3f0"/><circle cx="63.2" cy="104.4" r="2.1" fill="none" stroke="#5b6b85" stroke-width=".45"/><path d="M0.6 0.9 L1.6 0 L1.6 4.4" transform="translate(62.45 103.3) scale(0.5)" fill="none" stroke="#5b6b85" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round"/><circle cx="68.2" cy="104.4" r="2.1" fill="none" stroke="#5b6b85" stroke-width=".45"/><path d="M0.2 1 C0.4 -0.2,2.8 -0.2,2.8 1.2 C2.8 2.2,0.2 3.2,0.2 4.4 L2.9 4.4" transform="translate(67.45 103.3) scale(0.5)" fill="none" stroke="#5b6b85" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round"/><circle cx="73.2" cy="104.4" r="2.1" fill="none" stroke="#5b6b85" stroke-width=".45"/><path d="M0.3 0.4 C1.5 -0.3,2.9 0.4,2.6 1.4 C2.4 2,1.4 2.1,1.2 2.1 C2.6 2.1,3 3,2.6 3.8 C2.1 4.6,0.6 4.6,0.2 4" transform="translate(72.45 103.3) scale(0.5)" fill="none" stroke="#5b6b85" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round"/><circle cx="78.2" cy="104.4" r="2.1" fill="none" stroke="#5b6b85" stroke-width=".45"/><path d="M2.2 4.4 L2.2 0 L0 3 L3 3" transform="translate(77.45 103.3) scale(0.5)" fill="none" stroke="#5b6b85" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round"/><circle cx="83.2" cy="104.4" r="2.1" fill="none" stroke="#5b6b85" stroke-width=".45"/><path d="M2.8 0 L0.6 0 L0.4 2 C1.5 1.4,2.9 1.8,2.9 3 C2.9 4.3,1 4.7,0.2 4" transform="translate(82.45 103.3) scale(0.5)" fill="none" stroke="#5b6b85" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round"/><rect x="15" y="85" width="9" height="2.2" rx="1" fill="#8a94a6" transform="rotate(-35 19 86)"/><path d="M 18 46 L 18 32 M 102 52 L 102 38 M 12 60 L 12 52" stroke="#c5cde4" stroke-width="3.5" stroke-linecap="round"/></g></svg><span class="logo-t">큐쏙<span>(Qssok)</span></span></a></div></div>
-<div class="test-band" role="note"><p><b>심사용 시험 결제 화면입니다. 지금은 큐쏙을 구매할 수 없습니다.</b> 여기서 결제하면 카드 승인이 났다가 그날 자정쯤 자동 취소되고, 정식판은 적용되지 않습니다.</p></div>
+<div class="test-band" role="note"><p><b>결제하지 마세요. 지금은 큐쏙을 구매할 수 없습니다.</b> 결제는 실제로 진행되지만 정식판은 적용되지 않습니다. 만약 결제하셨다면 당일 자정쯤 자동 취소됩니다.</p></div>
 
 <main class="page" id="shop">
   <h1>정식판</h1>
@@ -624,6 +644,7 @@ html:has(dialog.ms[open]) { overflow: hidden; }
     <h1 id="payTitle" tabindex="-1">주문/결제</h1>
     <button class="back-link" type="button" id="toCards"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M15.4 5.4 14 4l-8 8 8 8 1.4-1.4L8.8 12z"/></svg>요금제로 돌아가기</button>
   </div>
+  <div class="pay-grid">
   <div class="sheet">
     <fieldset id="left" style="border:0;min-width:0">
       <section class="sec">
@@ -658,21 +679,31 @@ html:has(dialog.ms[open]) { overflow: hidden; }
       </section>
       <section class="sec">
         <h2 class="sec-t">결제 전 확인</h2>
-        <dl class="notice">
-          <dt>적용</dt><dd>결제가 확인되면 이 번호의 컴퓨터 1대에 바로 적용합니다. 큐쏙은 인터넷에 연결해 다시 켜면 반영됩니다.</dd>
-          <dt>이용 기간</dt><dd>결제가 확인된 날부터 1개월입니다. 체험이나 앞서 결제한 기간이 남아 있으면 그 기간이 끝난 다음 날부터 1개월입니다. <span class="must">큐쏙을 켜지 않아도 기간은 시작됩니다.</span> 예) 12월 8일에 시작하면 2027년 1월 7일까지</dd>
-          <dt>자동 결제</dt><dd>자동으로 결제되지 않습니다. 다음 달은 직접 결제해 주세요.</dd>
+        <!-- v283: 환불(철회 제한)·이용 기간(켜지 않아도 시작)는 펼친 채 — legal 11-09 「제17조 제6항 명확히」(⛔ 접지 말 것). 적용·자동 결제·기간 예시·미성년자는 「더 보기」로 접음(대표 11-09) -->
+        <div class="notice-box">
+        <dl class="notice nb">
+          <dt>이용 기간</dt><dd>결제가 확인된 날부터 1개월입니다. 체험이나 앞서 결제한 기간이 남아 있으면 그 기간이 끝난 다음 날부터 1개월입니다. <span class="must">큐쏙을 켜지 않아도 기간은 시작됩니다.</span></dd>
           <dt>환불</dt><dd>이용 기간이 시작되기 전이거나 결제한 날 요청하면 전액, 그 뒤에는 지난 일수를 뺀 금액을 환불합니다. <span class="must">지난 일수만큼은 청약철회(구매 취소)가 제한됩니다</span>(전자상거래법 제17조 제2항 제5호). 환불 요청은 contact@danbilab.com으로 보내 주세요.</dd>
-          <dt>미성년자</dt><dd>만 19세 미만이 법정대리인(부모 등) 동의 없이 결제하면, 본인이나 법정대리인이 계약을 취소할 수 있습니다.</dd>
         </dl>
+        <details class="notice-more"><summary><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l8 7-8 7z"/></svg>더 보기</summary>
+          <dl class="notice nb">
+            <dt>적용</dt><dd>결제가 확인되면 이 번호의 컴퓨터 1대에 바로 적용합니다. 큐쏙은 인터넷에 연결해 다시 켜면 반영됩니다.</dd>
+            <dt>자동 결제</dt><dd>자동으로 결제되지 않습니다. 다음 달은 직접 결제해 주세요.</dd>
+            <dt>기간 예시</dt><dd>12월 8일에 시작하면 2027년 1월 7일까지</dd>
+            <dt>미성년자</dt><dd>만 19세 미만이 법정대리인(부모 등) 동의 없이 결제하면, 본인이나 법정대리인이 계약을 취소할 수 있습니다.</dd>
+          </dl>
+        </details>
+        </div>
         <label class="all"><input type="checkbox" id="agAll"><span>전체 동의 <small id="allHint">아래 3가지를 모두 확인했습니다.</small><span class="slot" id="aSlot"></span></span></label>
         <div class="ags" id="ags">
-          <label class="ag"><input type="checkbox"><span><b>[필수] 이용약관과 환불정책(제9조)에 동의합니다. <a href="https://danbilab.com/terms/v1.2/" target="_blank" rel="noopener">이용약관 1.2판 보기</a></b></span></label>
+          <label class="ag"><input type="checkbox"><span><b>[필수] 이용약관과 환불정책(제9조)에 동의합니다. <a href="https://danbilab.com/terms/" target="_blank" rel="noopener">이용약관 보기</a></b></span></label>
           <label class="ag"><input type="checkbox"><span><b>[필수] <span class="must">이용 기간이 끝나면 아래 기능이 잠기는 것</span>에 동의합니다.</b><small class="lock-list">새 파일 불러오기 · 추출 · 편집 · 글자 복사 · 시험지 만들기와 한글 내보내기 · 백업 불러오기</small><small>문제 보기와 백업 저장은 계속 쓰실 수 있고, 저장된 문제와 시험지는 지워지지 않습니다.</small></span></label>
           <label class="ag"><input type="checkbox"><span><b>[필수] 구글 AI 키를 직접 받아 넣어야 추출할 수 있다는 것에 동의합니다.</b><small>구글 AI 사용료는 추출한 만큼 본인이 구글에 냅니다. <span class="must">큐쏙 이용료와 별도입니다.</span> 구글에 낸 돈은 큐쏙이 돌려 드리거나 대신 내 드리지 않습니다. 추출할 때 페이지 이미지가 구글로 전송됩니다.</small></span></label>
         </div>
       </section>
     </fieldset>
+  </div>
+  <aside class="sheet sum-card">
     <section class="sec">
       <h2 class="sec-t">최종 확인</h2>
       <dl class="brief sum-brief">
@@ -686,9 +717,9 @@ html:has(dialog.ms[open]) { overflow: hidden; }
       <div class="row"><span>부가세</span><b id="sVat"></b></div>
       <div class="row total"><span>최종 결제 금액</span><b id="sTotal"></b></div>
       <button class="pay-btn" type="button" id="payBtn"></button>
-      <p class="pay-note">누르면 결제창이 열립니다. 지금은 심사용 시험 결제라 승인이 그날 자정쯤 취소되고, 정식판 적용과 안내 메일은 없습니다.</p>
       <div id="sumBand"></div>
     </section>
+  </aside>
   </div>
   <div class="tail"></div>
 </section>

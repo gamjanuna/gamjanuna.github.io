@@ -59,7 +59,7 @@ function setProduct(id) {
   $('sBase').textContent = p.base; $('sVat').textContent = p.vat; $('sTotal').textContent = p.pay; $('bName').textContent = '[시험] ' + p.name;   // 결제창 주문명과 같게
   unlock();
 }
-function unlock() { const b = $('payBtn'); b.disabled = false; b.textContent = P[product].pay + ' 시험 결제하기'; $('toCards').disabled = false; $('left').disabled = false; }
+function unlock() { const b = $('payBtn'); b.disabled = false; b.textContent = P[product].pay + ' 결제창 열기'; $('toCards').disabled = false; $('left').disabled = false; }
 function brief() { // 단추 바로 위 — 맞게 넣었을 때만 값을 보인다
   const a = norm($('m1').value), b = norm($('m2').value), e = $('em').value.trim();
   const mOk = MACHINE.test(a) && a === b, eOk = EMAIL.test(e);
@@ -70,8 +70,8 @@ function brief() { // 단추 바로 위 — 맞게 넣었을 때만 값을 보�
 function setSlots() {
   const m = $('mSlot'), e = $('eSlot'), a = $('aSlot');
   m.className = 'slot stack'; e.className = 'slot stack'; a.className = 'slot';
-  m.innerHTML = '<span class="s-help">시험 결제라 시험용 컴퓨터 번호를 넣어 두었고, 바꿀 수 없습니다.</span><span class="s-err"></span>';
-  e.innerHTML = '<span class="s-help">시험 결제라 시험용 이름·휴대폰 번호·이메일을 넣어 두었고, 바꿀 수 없습니다.</span><span class="s-err"></span>';
+  m.innerHTML = '<span class="s-help">지금은 구매할 수 없어 예시 컴퓨터 번호를 넣어 두었습니다. 바꿀 수 없습니다.</span><span class="s-err"></span>';
+  e.innerHTML = '<span class="s-help">지금은 구매할 수 없어 예시 이름·휴대폰 번호·이메일을 넣어 두었습니다. 바꿀 수 없습니다.</span><span class="s-err"></span>';
   $('nSlot').className = $('pSlot').className = 'slot'; $('nSlot').textContent = $('pSlot').textContent = '';
   a.textContent = ''; $('allHint').hidden = false;
 }
@@ -164,9 +164,9 @@ function testDone(paymentId, fromRedirect) {   // 정식판 적용 문장은 쓰
 
 // 가운데 창 — 방금 누른 행동의 결과에만
 const M = {
-  fail: ['alert', 'ic-bad', '결제되지 않았습니다', ['결제창이 닫혔거나 승인되지 않았습니다.'], [['닫기'], ['다시 결제하기', 1]]],
-  noSdk: ['alert', 'ic-bad', '결제창을 불러오지 못했습니다', [NOPAID + ' 인터넷 연결을 확인한 뒤 ‘다시 결제하기’를 눌러 주세요.'], [['닫기'], ['다시 결제하기', 1]]],
-  noWindow: ['alert', 'ic-bad', '결제창을 열지 못했습니다', [NOPAID + ' 브라우저에서 이 사이트의 팝업(새 창)을 허용한 뒤 ‘다시 결제하기’를 눌러 주세요.'], [['닫기'], ['다시 결제하기', 1]]],
+  fail: ['alert', 'ic-bad', '결제되지 않았습니다', ['결제창이 닫혔거나 승인되지 않았습니다.'], [['닫기'], ['결제창 다시 열기', 1]]],
+  noSdk: ['alert', 'ic-bad', '결제창을 불러오지 못했습니다', [NOPAID + ' 인터넷 연결을 확인한 뒤 ‘결제창 다시 열기’를 눌러 주세요.'], [['닫기'], ['결제창 다시 열기', 1]]],
+  noWindow: ['alert', 'ic-bad', '결제창을 열지 못했습니다', [NOPAID + ' 브라우저에서 이 사이트의 팝업(새 창)을 허용한 뒤 ‘결제창 다시 열기’를 눌러 주세요.'], [['닫기'], ['결제창 다시 열기', 1]]],
 };
 const dlg = $('ms');
 function closeModal() { if (dlg.open) dlg.close(); }
@@ -178,7 +178,7 @@ function modal(key) {
 dlg.addEventListener('close', () => { if (!$('pay').hidden) $('payBtn').focus({ preventScroll: true }); });
 dlg.addEventListener('click', (e) => {
   const b = e.target.closest('[data-ms]'); if (!b) return; const t = b.dataset.ms; closeModal();
-  if (t === '다시 결제하기' && !$('pay').hidden) $('payBtn').click();
+  if (t === '결제창 다시 열기' && !$('pay').hidden) $('payBtn').click();
 });
 
 // 폰 — 결제사 화면에서 이 주소로 돌아왔을 때(?paymentId=…&code=…). 모양이 맞는 값만, 글자로만 쓴다
