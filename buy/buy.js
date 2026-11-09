@@ -1,17 +1,17 @@
 // 판매 페이지(qssok.com/buy/) — 시안 v272를 옮긴 것. 화면은 다시 읽지 않고 갈아 끼운다.
 // ⛔ 지금은 「심사용 시험 결제」만 연다(대표 11-09, 포트원 전자결제 심사 11-17): 포트원 테스트 채널(KG이니시스 공용 MID)로
 //    결제창만 열고 우리 결제 서버(worker/pay)는 부르지 않는다 → 정식판이 나갈 길이 없다(security 11-09 ㉡).
-//    11-09 저녁: KG 체크리스트 5번(발급 MID로 결제창 노출) 때문에 실연동 채널(MID MOI8530416)로 바꿈(대표 결정, legal 11-09 🟡).
-//    카드사 심사 전이라 승인은 실패하는 게 정상 — 혹시 승인되면 콘솔에서 그날 전액 취소(매일 승인 0건 확인).
-//    ⛔ 카드사 심사를 요청하는 날 이 단추를 잠그거나 테스트 채널로 되돌린다(심사 통과~통신판매 신고번호 사이 실결제 틈, legal ㉠).
-//    실제 결제를 열 때 이 파일의 TEST 묶음을 걷어내고 /pay/order·/pay/confirm을 잇는다.
+//    테스트 승인은 그날 자정쯤 자동 취소된다(포트원 답 11-09). 실제 결제를 열 때 이 파일의 TEST 묶음을 걷어내고 /pay/order·/pay/confirm을 잇는다.
 // ⛔ 시안의 검사용 장치(화면 바로 가기·예시 값·자동 클릭)는 옮기지 않는다 — 남으면 qssok.com 주소로 가짜 「결제 완료」를 띄울 수 있다(security 11-09).
 // ⛔ 주소·결제창에서 돌아온 값은 글자로만 넣는다(esc/textContent).
 'use strict';
 const SDK = 'https://cdn.portone.io/v2/browser-sdk.js';
-const TEST = {   // 포트원 콘솔 › 결제 연동 › 연동 정보 › 실연동 채널 「큐쏙 실결제」(KG MID MOI8530416) — 비밀값 아님(결제창에 넘기는 공개 값)
+const TEST = {   // 포트원 콘솔 › 결제 연동 › 연동 관리 › 테스트 채널 「큐쏙 시험」 — 비밀값 아님(결제창에 넘기는 공개 값)
   storeId: 'store-a36ecae1-4cef-4ba3-877a-c9d970fd0ec7',
-  channelKey: 'channel-key-0071b289-b583-4ee2-b248-307b7cae8b03',   // 테스트 채널(되돌릴 때): channel-key-7d5447bd-16c7-4335-bc5c-a3c579f82c7c
+  channelKey: 'channel-key-7d5447bd-16c7-4335-bc5c-a3c579f82c7c',
+  // ⛔ 실연동 채널(KG MID MOI8530416, channel-key-0071b289-b583-4ee2-b248-307b7cae8b03)로 바꾸지 말 것 — 11-09 5a88012에서 바꿨더니
+  //    카드사 심사 전인데도 실제 승인됐다(29,700원, 대표 카드, 콘솔 취소). 신고번호 전 실결제 = 신고 전 판매 → 테스트 채널로 되돌림(대표 ㉠).
+  //    KG가 검수 때 실 MID 결제창을 요구하면 그 확인 동안만 바꾸고 바로 되돌린다.
   // 시험 결제라 실제 개인정보가 포트원·결제사로 가지 않게 미리 채운다(legal 11-09 — 처리방침에 아직 이름·휴대폰이 없다)
   machine: 'TESTPAY234', name: '시험결제', phone: '01000000000', email: 'test@qssok.com',
 };
@@ -157,7 +157,7 @@ const row = (a, v, c = '') => `<div class="d-row ${c}"><span>${a}</span><span>${
 function frame(icon, cls, title, body) { show('done'); $('doneTitle').innerHTML = `<span class="st-title">${ic(icon, cls)}<span>${esc(title)}</span></span>`; $('doneBody').innerHTML = body; }
 function testDone(paymentId, fromRedirect) {   // 정식판 적용 문장은 쓰지 않는다(legal 11-09)
   frame('info', 'ic-info', '시험 결제가 승인되었습니다',
-    `<p class="d-p">심사용 시험 결제라 정식판은 적용되지 않습니다.</p><p class="d-p">저희가 확인하는 대로 전액 취소합니다. 카드사 문자나 내역에는 승인과 취소가 함께 보일 수 있습니다.</p>`
+    `<p class="d-p">심사용 시험 결제라 정식판은 적용되지 않습니다.</p><p class="d-p">카드 승인은 결제한 날 자정쯤 자동으로 취소됩니다. 카드사 문자나 내역에는 승인과 취소가 함께 보일 수 있습니다.</p>`
     + `<div class="d-rows">${row('시험 결제 번호', `<code>${esc(paymentId)}</code>`)}${fromRedirect ? '' : row('결제 금액', esc(P[product].pay), 'total')}${row('문의', `<a href="mailto:${MAIL}" style="color:var(--brand-700)">${MAIL}</a>`)}</div>`
     + `<div class="d-act"><button class="d-btn" type="button" data-act="요금제로 돌아가기">요금제로 돌아가기</button></div>`);
 }
