@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>큐쏙(Qssok) — 시험지 PDF, 문제만 쏙</title>
+<title>큐쏙(Qssok) — 윈도우 설치형 문제 DB 프로그램</title>
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="icon" href="icon-192.png" type="image/png" sizes="192x192">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -11,11 +11,11 @@
      ⚠️ 설명문엔 「컴퓨터에서만」을 넣지 않는다 — 본문에선 각주 ¹(추출 때 구글 AI 전송)이 붙는데 검색 결과엔 각주가 없다.
      og:image·og:url은 전체 주소여야 미리보기가 그림을 가져간다(§14 예외: 우리 도메인 meta만). 그림 = img/og.png 1200×630,
      히어로 제목·사진을 바꾸면 같이 다시 굽는다. 카톡은 미리보기를 저장해 두므로 바꾼 뒤엔 카카오 공유 디버거에서 캐시 지우기. -->
-<meta name="description" content="시험지 PDF에서 문제를 자동으로 찾아 추출하고, 그림·표·수식까지 고쳐 문제 DB로 관리합니다. 골라 담은 문제는 한글(HWP) 시험지로 저장됩니다.">
+<meta name="description" content="윈도우 설치형 문제 DB 프로그램. PDF에서 문제만 쏙, 골라 담아 한글(HWP) 시험지로 만듭니다. 7일 무료 체험(구글 AI 사용료 별도).">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="큐쏙(Qssok)">
-<meta property="og:title" content="큐쏙(Qssok) — 시험지 PDF, 문제만 쏙">
-<meta property="og:description" content="시험지 PDF에서 문제를 자동으로 찾아 추출하고, 그림·표·수식까지 고쳐 문제 DB로 관리합니다. 골라 담은 문제는 한글(HWP) 시험지로 저장됩니다.">
+<meta property="og:title" content="큐쏙(Qssok) — 윈도우 설치형 문제 DB 프로그램">
+<meta property="og:description" content="윈도우 설치형 문제 DB 프로그램. PDF에서 문제만 쏙, 골라 담아 한글(HWP) 시험지로 만듭니다. 7일 무료 체험(구글 AI 사용료 별도).">
 <meta property="og:url" content="https://qssok.com/">
 <meta property="og:image" content="https://qssok.com/img/og.png">
 <meta property="og:image:width" content="1200">
@@ -72,7 +72,7 @@
   .nav-inner { display: flex; align-items: center; justify-content: space-between; height: 64px; max-width: 1280px; padding: 0 32px; }
   .logo { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; }
   .logo span { color: var(--accent); }
-  .faq a, footer a { color: var(--accent); font-weight: 600; text-underline-offset: 2px; }
+  .faq a, footer a, .mini a, .pc-notes a { color: var(--accent); font-weight: 600; text-underline-offset: 2px; }
   /* 카톡 문의 — 오른쪽 아래에 늘 떠 있는 버튼(사용자 2026-10-28 ㉠). 카카오 로고는 상표라 쓰지 않고 말풍선 아이콘만 */
   .kakao-fab { position: fixed; right: 16px; bottom: calc(20px + env(safe-area-inset-bottom)); z-index: 50; display: flex; align-items: center; gap: 6px; background: #fee500; color: #191919; text-decoration: none; font-weight: 700; font-size: 14px; padding: 12px 16px; border-radius: 999px; box-shadow: 0 6px 18px rgba(0,0,0,.25); }
   .kakao-fab:hover { filter: brightness(.96); }
@@ -131,9 +131,9 @@
   .flow3 .shot { position: relative; aspect-ratio: 4/3; background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,.35); }
   .flow3 .shot img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: top center; }
   .flow3 .shot .ftag { top: 8px; right: 8px; z-index: 1; }
-  .flow3 .arr { color: #e9a84f; font-size: 26px; align-self: center; margin-top: -28px; }
-  .flow3 figcaption { color: #c3cad9; font-size: 13.5px; margin-top: 12px; line-height: 1.5; }
-  .flow3 figcaption small { display: block; font-size: 11.5px; color: #8a95ad; }
+  .flow3 .arr { color: #e9a84f; font-size: 28px; align-self: center; margin-top: -28px; }
+  .flow3 figcaption { color: #c3cad9; font-size: 14px; margin-top: 12px; line-height: 1.5; }
+  .flow3 figcaption small { display: block; font-size: 11px; color: #8a95ad; }
   /* 하나씩 떠오르기: ① → 화살표 → ② → 화살표 → ③ (옛 데모 애니메이션의 짝) */
   @keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
   @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
@@ -155,10 +155,10 @@
   /* ── 설치 3단계 ── */
   .steps-row { display: flex; gap: 14px; max-width: 860px; margin: 0 auto; }
   .step { flex: 1; background: var(--bg); border: 1px solid var(--line); border-radius: 12px; padding: 18px 20px; font-size: 14px; color: var(--ink-soft); }
-  .step > b { display: block; font-size: 15.5px; color: var(--ink); margin-bottom: 4px; }
+  .step > b { display: block; font-size: 15px; color: var(--ink); margin-bottom: 4px; }
   .final .step { display: flex; flex-direction: column; align-items: flex-start; }
   .final .step small { margin-top: auto; padding-top: 10px; }
-  .step small { display: block; margin-top: 8px; font-size: 12.5px; color: var(--ink-faint); }
+  .step small { display: block; margin-top: 8px; font-size: 12px; color: var(--ink-faint); }
   .step i { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%; background: var(--accent); color: #fff; font-style: normal; font-size: 13px; font-weight: 700; margin-bottom: 10px; }
   .step p { color: var(--ink-soft); font-size: 14px; }
   .price-plus { display: grid; grid-template-columns: 1fr 72px 1fr; align-items: center; max-width: 820px; margin: 40px auto 0; }
@@ -166,7 +166,7 @@
   .price-plus .plus { justify-self: center; width: 48px; height: 48px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 16px rgba(36,53,138,.25); }
   .price-plus .plus svg { width: 24px; height: 24px; fill: none; stroke: #fff; stroke-width: 2.6; stroke-linecap: round; }
   @media (max-width: 760px) { .price-plus { grid-template-columns: 1fr; } .price-plus .plus { padding: 8px 0; } }
-  .price-big2 { font-size: 18px; font-weight: 700; color: var(--accent); margin: -10px 0 18px; }
+  .price-big2 { font-size: 19px; font-weight: 700; color: var(--accent); margin: -10px 0 18px; }
   .final .steps-row { max-width: 980px; margin: 0 auto 36px; text-align: left; }
   .final .install { margin-top: 28px; text-align: left; color: var(--ink); }
   @media (max-width: 760px) { .steps-row { flex-direction: column; } }
@@ -176,7 +176,7 @@
   .appwin-bar { display: flex; align-items: center; gap: 6px; padding: 9px 13px; background: #f2f4f8; border-bottom: 1px solid #e2e6ee; font-size: 12px; color: #8b93a3; }
   .appwin-bar i { width: 10px; height: 10px; border-radius: 50%; }
   .appwin-bar i:nth-child(1){ background:#f26d63; } .appwin-bar i:nth-child(2){ background:#f2b93f; } .appwin-bar i:nth-child(3){ background:#5fc454; }
-  .appwin-body { display: flex; font-size: 11.5px; min-height: 262px; text-align: left; }
+  .appwin-body { display: flex; font-size: 11px; min-height: 262px; text-align: left; }
   .appwin-sb { width: 150px; background: #f7f8fb; border-right: 1px solid #edeff4; padding: 11px 9px; color: #4d5462; flex-shrink: 0; }
   .appwin-sb div { padding: 5px 9px; border-radius: 6px; white-space: nowrap; overflow: hidden; }
   .appwin-sb .on { background: #e7edfb; color: #1d4fd7; font-weight: 700; }
@@ -186,10 +186,10 @@
   .appwin-row b { color: #9aa1b0; font-weight: 700; width: 20px; flex-shrink: 0; }
   .appwin-row.on { background: #eef3fe; border-radius: 6px; }
   .appwin-det { width: 240px; border-left: 1px solid #edeff4; padding: 11px 13px; color: #3d4350; flex-shrink: 0; }
-  .appwin-det h4 { margin: 0 0 7px; font-size: 12.5px; }
+  .appwin-det h4 { margin: 0 0 7px; font-size: 12px; }
   .appwin-det .c { color: #5c6474; line-height: 1.7; }
   .appwin-dfig { height: 48px; border: 1px dashed #c9d0dd; border-radius: 5px; margin: 7px 0; background: linear-gradient(to top right, transparent 49.5%, #aab5cb 49.5%, #aab5cb 50.5%, transparent 50.5%), #f6f8fb; }
-  .appwin-cap { text-align: center; font-size: 12.5px; color: var(--ink-faint); margin-bottom: 48px; }
+  .appwin-cap { text-align: center; font-size: 12px; color: var(--ink-faint); margin-bottom: 48px; }
   @media (max-width: 640px) { .appwin-det { display: none; } }
 
   /* ── Sections ── */
@@ -197,7 +197,7 @@
   section.alt { background: var(--bg-alt); }
   .sec-label { text-align: center; color: var(--accent); font-weight: 700; font-size: 14px; letter-spacing: .5px; margin-bottom: 12px; }
   h2 { text-align: center; font-size: clamp(24px, 3.6vw, 34px); font-weight: 700; letter-spacing: -1px; margin-bottom: 14px; }
-  .sec-sub { text-align: center; color: var(--ink-soft); max-width: 560px; margin: 0 auto 52px; font-size: 16px; }
+  .sec-sub { text-align: center; color: var(--ink-soft); max-width: 560px; margin: 0 auto 52px; font-size: 17px; }
 
   .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
   .grid2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
@@ -208,11 +208,11 @@
     padding: 28px;
   }
   .card h3 { font-size: 17px; font-weight: 700; margin-bottom: 8px; }
-  .card p { font-size: 14.5px; color: var(--ink-soft); }
+  .card p { font-size: 15px; color: var(--ink-soft); }
 
   /* pain cards */
   .pain { border-left: 4px solid #f0b429; }
-  .pain q { font-style: normal; font-weight: 600; color: var(--ink); display: block; margin-bottom: 8px; font-size: 15.5px; }
+  .pain q { font-style: normal; font-weight: 600; color: var(--ink); display: block; margin-bottom: 8px; font-size: 15px; }
   .pain q::before { content: "“"; } .pain q::after { content: "”"; }
 
   /* ── Privacy ── */
@@ -221,7 +221,7 @@
     border: 1px solid var(--line); border-radius: var(--radius); padding: 36px;
   }
   .privacy-box ul { list-style: none; }
-  .privacy-box li { padding: 10px 0 10px 34px; position: relative; font-size: 15.5px; color: var(--ink-soft); }
+  .privacy-box li { padding: 10px 0 10px 34px; position: relative; font-size: 15px; color: var(--ink-soft); }
   .privacy-box li::before, .price-card li::before {
     content: ""; position: absolute; width: 14px; height: 14px; background: var(--accent);
     -webkit-mask: var(--i-check) center / contain no-repeat; mask: var(--i-check) center / contain no-repeat;
@@ -230,7 +230,7 @@
   .privacy-box li strong { color: var(--ink); }
   .honest {
     margin-top: 22px; padding: 16px 18px; background: var(--accent-soft);
-    border-radius: 10px; font-size: 13.5px; color: var(--ink-soft);
+    border-radius: 10px; font-size: 14px; color: var(--ink-soft);
   }
 
   /* ── 돈이 어떻게 나가나요 / 구독을 멈추면 ── */
@@ -242,16 +242,16 @@
   .price-card.featured { border: 2px solid var(--accent); position: relative; }
   .price-card .plan { font-size: 15px; font-weight: 700; color: var(--ink-faint); margin-bottom: 10px; }
   .price-card .price { font-size: 34px; font-weight: 700; letter-spacing: -1px; margin-bottom: 4px; }
-  .price-card .per { font-size: 13.5px; color: var(--ink-faint); margin-bottom: 22px; }
+  .price-card .per { font-size: 14px; color: var(--ink-faint); margin-bottom: 22px; }
   .price-card ul { list-style: none; text-align: left; max-width: 240px; margin: 0 auto 26px; }
-  .price-card li { padding: 6px 0 6px 26px; position: relative; font-size: 14.5px; color: var(--ink-soft); }
+  .price-card li { padding: 6px 0 6px 26px; position: relative; font-size: 15px; color: var(--ink-soft); }
   .price-card li::before { left: 0; top: calc(6px + (1.65em - 14px) / 2); }
   .pricing-note { text-align: center; margin-top: 24px; font-size: 13px; color: var(--ink-faint); }
 
   /* ── FAQ ── */
   .faq { max-width: 720px; margin: 0 auto; }
   .faq details { border-bottom: 1px solid var(--line); padding: 20px 4px; }
-  .faq summary { font-weight: 700; font-size: 16px; cursor: pointer; list-style: none; position: relative; padding-right: 28px; }
+  .faq summary { font-weight: 700; font-size: 17px; cursor: pointer; list-style: none; position: relative; padding-right: 28px; }
   .faq summary::after { content: "+"; position: absolute; right: 4px; color: var(--accent); font-size: 20px; }
   .faq details[open] summary::after { content: "–"; }
   .faq details p, .faq details ol { margin-top: 12px; font-size: 15px; color: var(--ink-soft); }
@@ -261,25 +261,192 @@
   .final h2 { color: #fff; }
   .final .sec-sub { color: #b8bdcc; }
   .final { padding: 64px 0; }
-  .dl-meta { text-align: center; color: #9aa1b0; font-size: 12.5px; margin-top: 6px; }
+  .dl-meta { text-align: center; color: #9aa1b0; font-size: 12px; margin-top: 6px; }
   .dl-meta code { font-size: 11px; word-break: break-all; }
   .dl-warn { display: flex; align-items: center; justify-content: center; gap: 8px; width: fit-content; max-width: 100%; margin: 16px auto 4px; padding: 9px 16px; border-radius: 10px; background: rgba(233,168,79,.12); border: 1px solid rgba(233,168,79,.4); color: #f1c98a; font-size: 14px; }
   .dl-warn b { color: #fff; }
-  .price-link { display: inline-block; margin-top: -8px; font-size: 13.5px; color: var(--accent); font-weight: 600; }
   /* 어두운 바탕 위 주 버튼 — 남색은 바탕에 묻힌다. 히어로 버튼과 같은 불빛 색 */
   .final .btn-primary { background: #e9a84f; color: #1a1508; box-shadow: 0 6px 22px rgba(233,168,79,.28); }
   .final .btn-primary:hover { background: #d99938; }
 
   /* ── 설치 안내(접힘) ── */
   .install { max-width: 860px; margin: 0 auto; border: 1px solid var(--line); border-radius: var(--radius); background: var(--bg); }
-  .install summary { cursor: pointer; list-style: none; padding: 18px 48px 18px 22px; font-weight: 700; font-size: 15.5px; position: relative; }
+  .install summary { cursor: pointer; list-style: none; padding: 18px 48px 18px 22px; font-weight: 700; font-size: 15px; position: relative; }
   .install summary::-webkit-details-marker { display: none; }
   .install summary::after { content: "+"; position: absolute; right: 22px; top: 14px; color: var(--accent); font-size: 20px; }
   .install[open] summary::after { content: "–"; }
-  .install summary span { display: block; font-weight: 400; font-size: 13.5px; color: var(--ink-soft); margin-top: 2px; }
+  .install summary span { display: block; font-weight: 400; font-size: 14px; color: var(--ink-soft); margin-top: 2px; }
   .install-body { padding: 4px 22px 22px; }
 
   footer { padding: 36px 0; text-align: center; font-size: 13px; color: var(--ink-faint); border-top: 1px solid var(--line); }
+/* ── 요금 두 카드 (시안 v242 e — design + ux-writing, 대표 11-03) ── */
+.nw{white-space:nowrap}
+.price-plus .plus{align-self:center}
+.price-plus{max-width:880px;grid-template-columns:1fr 56px 1fr;align-items:stretch}
+.price-plus > .card{height:auto}
+@media (max-width:900px){.price-plus{grid-template-columns:minmax(0,1fr);max-width:560px}.price-plus .plus{justify-self:center;padding:8px 0}}
+#pricing .price-card{display:flex;flex-direction:column;word-break:keep-all;padding:32px 28px}
+/* 두 카드 같은 짜임·같은 글자 눈금(대표 11-04, 시안 v255): 카드 제목 22 · 한 줄 14 · 칸 제목 15 · 큰 숫자 32/24 · 설명 13 · 안내 14/13 */
+#pricing .price-card{text-align:left}
+#pricing .price-card .plan{font-size:22px;margin:0 0 4px}
+#pricing .price-card.featured.pcL .plan{color:#fff}
+#pricing .pc3 .plan{color:var(--ink)}
+#pricing .price-card .per{font-size:14px;line-height:1.5;margin:0 0 18px}
+.pc-rows{display:flex;flex-direction:column;gap:10px}
+.pc-row{min-width:0;padding:14px 16px;border-radius:12px;background:var(--gray)}
+.pc-row .t{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;font-size:15px;font-weight:700;color:var(--ink)}
+.pc-open{padding:1px 10px;border-radius:999px;background:#e9a84f;color:#1a1508;font-size:13px;font-weight:700;line-height:1.5;white-space:nowrap}
+.pc-row .big{font-size:32px;font-weight:700;letter-spacing:-.5px;line-height:1.25;margin:4px 0;color:var(--ink);white-space:nowrap}
+.pc-row .vat,.pc-row .cond,.pc-row .sm{display:block;font-size:14px;line-height:1.5;color:var(--ink-soft)}
+.pc-row .cond{margin-top:2px}
+.pc-opt{margin-top:10px}.pc-opt + .pc-opt{margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,.16)}
+.pc-opt .n{display:flex;align-items:center;gap:8px;font-size:15px;font-weight:600;color:rgba(255,255,255,.9)}
+.pc-opt .n em{font-style:normal;font-size:13px;font-weight:700;color:#f6c77e;background:rgba(246,199,126,.14);padding:1px 8px;border-radius:999px;white-space:nowrap}
+.pc-opt .big2{font-size:24px;font-weight:700;letter-spacing:-.5px;line-height:1.25;margin:2px 0;color:#fff;white-space:nowrap}
+.pc-foot{margin-top:auto;padding-top:16px;display:flex;flex-direction:column;gap:4px;font-size:14px;line-height:1.55;color:var(--ink-soft)}
+.pc-foot b{color:var(--ink)}
+.pc-foot .pc-hd{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:15px}
+.pc-foot .pc-hd a{font-size:13px;white-space:nowrap}
+.pc-foot .s{font-size:13px;color:var(--ink-faint)}
+.pc-foot a:not(.btn-primary){color:var(--accent);font-weight:600}
+/* 구글 칸 — 판매 페이지·앱과 같은 내용·표(대표 11-04, 시안 v258) */
+.pc3 .pc-opt + .pc-opt{border-top-color:var(--line)}
+.pc3 .big2{color:var(--ink)}
+#pricing .pc3 .ai-notes{list-style:none;max-width:none;margin:0;padding:0;word-break:keep-all}
+#pricing .pc3 .ai-notes li{padding:2px 0 2px 14px;font-size:14px;line-height:1.6;color:var(--ink-soft)}
+@media (min-width:1000px){#pricing .pc3 .ai-notes li.oneline{white-space:nowrap;letter-spacing:-.2px}}
+#pricing .pc3 .ai-notes li::before{content:"";left:2px;top:.75em;width:5px;height:5px;border-radius:50%;background:var(--ink-faint);-webkit-mask:none;mask:none;filter:none}
+.ai-foot{margin-top:8px}
+.ai-cap{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:0 12px;margin:0 0 4px;font-size:14px;font-weight:700;color:var(--ink)}
+.ai-cap small{font-size:12px;font-weight:400;color:var(--ink-faint)}
+.ai-table{width:100%;table-layout:fixed;border-collapse:separate;border-spacing:0}
+.ai-table th,.ai-table td{padding:6px;text-align:right;white-space:nowrap}
+.ai-table th:first-child{width:66px;text-align:left}
+.ai-table thead th{font-size:12px;font-weight:400;color:var(--ink-faint);border-bottom:1px solid var(--line)}
+.ai-table tbody th{font-size:14px;font-weight:400;color:var(--ink-soft)}
+.ai-table td{font-size:15px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums}
+.ai-table td small{font-size:12px;font-weight:400;color:var(--ink-faint)}
+.ai-table .sol>*{background:#fff}
+.ai-table .sol>:first-child{border-radius:8px 0 0 8px}
+.ai-table .sol>:last-child{border-radius:0 8px 8px 0}
+@media (max-width:480px){.pc3 .pc-row{padding:14px 10px}.ai-table th:first-child{width:56px}.ai-table th,.ai-table td{padding-left:2px;padding-right:4px}.ai-table td{font-size:14px}}
+@media (max-width:360px){.ai-table td,.ai-table tbody th{font-size:12px}.ai-table th,.ai-table td{padding-left:1px;padding-right:2px}.ai-table th:first-child{width:50px}.ai-table td small{font-size:11px}#pricing .price-card{padding:24px 12px}.pc3 .pc-row{padding:12px 6px}}
+/* 왼쪽(어두운 카드) 색만 다르다 */
+#pricing .pcL .pc-state{margin:12px 0 0;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,.12);color:#fff;font-size:14px;font-weight:600;line-height:1.5}
+.pcL .pc-row{background:rgba(255,255,255,.08)}
+.pcL .pc-row.pick{background:rgba(246,199,126,.14);box-shadow:inset 0 0 0 1px rgba(246,199,126,.5)}
+#pricing .pcL .pc-row .t,#pricing .pcL .pc-row .big,#pricing .pcL .pc-foot b{color:#fff}
+#pricing .pcL .pc-row .vat{color:rgba(255,255,255,.85)}
+#pricing .pcL .pc-row .cond,#pricing .pcL .pc-foot,#pricing .pcL .pc-foot p,#pricing .pcL .pc-foot .s{color:rgba(255,255,255,.78)}
+.pcL .pc-foot .s{margin-bottom:14px}
+.pcL .pc-foot .btn-primary{margin-top:auto;align-self:stretch;text-align:center;background:#e9a84f;color:#1a1508;box-shadow:0 6px 22px rgba(233,168,79,.28)}
+.pcL .pc-foot .btn-primary:hover{background:#d99938}
+/* 넓은 화면: 양쪽 칸 높이를 줄끼리 맞춘다 */
+@media (min-width:901px){@supports (grid-template-rows:subgrid){
+  .price-plus{grid-template-rows:repeat(5,auto)}
+  #pricing .price-card{display:grid;grid-template-rows:subgrid;grid-row:1/span 5;row-gap:0}
+  .pcL{grid-column:1}.pc3{grid-column:3}
+  .price-plus .plus{grid-column:2;grid-row:1/span 5}
+  .pc-rows{display:contents}
+  .pc-row{margin-bottom:10px}
+  .pc-foot{padding-top:6px}
+}}
+@media (max-width:480px){
+  #pricing .price-card{padding:28px 20px}
+}
+/* 휴대폰엔 앱을 깔 수 없고 아래쪽에 안내 버튼이 있어 머리줄 다운로드는 뺀다(대표 2026-11-05). 결제가 열리면 「요금 안내」→「구매하기」·/buy/ */
+.nav-right{display:flex;align-items:center;gap:22px}
+.nav-link{font-size:15px;font-weight:600;color:var(--ink-soft);text-decoration:none;white-space:nowrap}
+.nav-link:hover{color:var(--accent)}
+@media (max-width:480px){.nav-right{gap:14px}.nav-link{font-size:14px}.nav-cta{display:none}.nav-key{display:none}.logo{white-space:nowrap;font-size:19px}.nav-inner{padding:0 16px}}
+
+/* v294 */
+.hero-note .to-hwp{color:inherit;text-decoration:underline;text-underline-offset:3px;font-weight:600}
+.stage img.hwp{object-fit:contain!important;object-position:top center!important;background:#fff!important}
+.freekey a{color:var(--accent)}
+.stage.is-hwp{background:#fff}
+.stage .zoom,.stage .hwptag{display:none}
+.stage.is-hwp .zoom{display:inline-flex;position:absolute;right:12px;bottom:12px;z-index:2;padding:8px 14px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.95);box-shadow:var(--sh);font-size:13px;font-weight:600;color:var(--accent);text-decoration:none}
+.stage.is-hwp .hwptag{display:inline-block;position:absolute;left:12px;bottom:12px;z-index:2;padding:5px 10px;border-radius:999px;background:var(--accent);color:#fff;font-size:12px;font-weight:600}
+.freekey{max-width:760px;margin:4px auto 0;text-align:center;font-size:13px;color:var(--ink-soft)}
+.keydef{margin:0 0 8px;font-size:14px;font-weight:600;line-height:1.5}
+.dl-os{margin:12px 0 0;text-align:center;font-size:14px;font-weight:600;color:#fff}
+@media (max-width:760px){.keep{grid-template-columns:1fr}.stage.is-hwp{padding-bottom:58px}}
+
+/* v294 가로 영상 자리(임시: 앱 화면 사진) */
+.wwin{display:none}
+@media (min-width:1000px){
+ .hero-in{grid-template-columns:480px 600px!important;gap:40px!important}
+ .hero-vid{width:600px!important}
+ .hero-vid .vframe{display:none}
+ .wwin{display:block;border-radius:10px;overflow:hidden;background:#fff;box-shadow:0 24px 60px rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.12)}
+ .wbar{height:32px;display:flex;align-items:center;gap:8px;padding:0 0 0 12px;background:#e9edf5;color:#3a4566;font-size:12px;font-weight:600}
+ .wbar .wt{margin-right:8px}
+ .wbar .wc{margin-left:auto;display:flex}
+ .wbar .wc i{font-style:normal;width:40px;text-align:center;color:#5b6684;font-size:13px}
+ .wscr{position:relative;aspect-ratio:16/10;background:#141f55}
+ .wscr img,.wscr video{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#141f55}
+ .wscr .ph{position:absolute;left:12px;top:12px;padding:4px 10px;border-radius:6px;background:rgba(15,22,38,.75);color:#fff;font-size:12px}
+}
+
+.wtabs{display:flex;gap:2px;align-self:flex-end}
+.wtab{height:26px;padding:0 14px;border:0;border-radius:6px 6px 0 0;background:transparent;color:#7d87a3;font:inherit;font-size:12px;font-weight:700;cursor:pointer}
+.wtab.on{background:#fff;color:#1c2a6e}
+.wscr .wh{display:none;object-fit:contain!important;object-position:center!important;background:#fff}
+.wscr.alt .wh{display:block}.wscr.alt .wv{display:none}
+.mtabs{display:flex;justify-content:center;gap:6px;margin:0 auto 12px}
+.mtabs .wtab{display:inline-flex;align-items:center;gap:8px;border-radius:999px;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.18);color:#dfe5ff;height:40px;padding:0 18px;font-size:15px;white-space:nowrap}
+@media (max-width:420px){.mtabs .wtab{padding:0 14px;font-size:14px}}
+.mtabs .wtab img{width:30px;height:22px;object-fit:cover;border-radius:3px;background:#fff}
+.mtabs .wtab.on{background:#fff;color:#1c2a6e}
+@media (min-width:1000px){.mtabs{display:none}}
+
+/* legal 11-13: 창 틀 대신 무늬 없는 둥근 틀 */
+@media (min-width:1000px){.wbar{display:none!important}.wwin{border-radius:14px!important}}
+@media (min-width:1000px){.mtabs{display:flex!important}}
+.wscr .whtag{display:none;position:absolute;left:12px;bottom:12px;padding:5px 10px;border-radius:999px;background:#1c2a6e;color:#fff;font-size:12px;font-weight:600}
+.wscr.alt .whtag{display:block}
+
+.vframe .mh,.vframe .mtag{display:none}
+.hero-vid.alt .vframe{background:#fff}
+.hero-vid.alt .vframe video{visibility:hidden}
+.hero-vid.alt .vframe .mh{display:block;position:absolute;left:0;right:0;top:0;bottom:0;width:100%;height:100%;object-fit:contain;object-position:center 40%;background:#fff;z-index:2}
+.hero-vid .mzoom{display:none}
+.hero-vid.alt .mzoom{display:inline-flex;position:absolute;left:50%;transform:translateX(-50%);bottom:14px;z-index:3;white-space:nowrap;padding:5px 11px;border-radius:999px;border:1px solid #d5dbe8;background:#fff;color:#1c2a6e;font-size:12px;font-weight:700;text-decoration:none}
+.hero-vid.alt .vframe .mtag{display:block;position:absolute;left:50%;transform:translateX(-50%);bottom:52px;z-index:3;padding:4px 9px;border-radius:999px;background:#1c2a6e;color:#fff;font-size:11px;font-weight:600;white-space:nowrap}
+.hero-vid.alt .vframe .vbtn{display:none}
+
+/* v294 정리(design 11-13): 카드 셋 · 줄바꿈 · 글자 크기 단계 */
+.keep{grid-template-columns:repeat(3,1fr)!important;max-width:980px!important;gap:16px}
+.keep a{color:var(--accent);white-space:nowrap}
+@media (max-width:960px){.keep{grid-template-columns:1fr!important;max-width:560px!important}}
+.nw{white-space:nowrap}
+h2,h3,summary,.keep b,.hd .sub,.keydef,.tab .d{text-wrap:balance}
+.hd h2 .mark{white-space:nowrap}
+p,li,.pricing-note,.sub{text-wrap:pretty}
+.hd h2{font-size:clamp(28px,4.2vw,44px)!important}
+
+/* 대표 11-13 「A4 꽉 채우란 거야」: 완성 예시는 칸을 종이 비율로 — 종이 한 장이 여백 없이 꽉 */
+.hero-vid.alt .vframe{aspect-ratio:1184/1654!important;background:#fff}
+.hero-vid.alt .vframe video{display:none}
+.hero-vid.alt .vframe .mh{object-fit:cover!important;object-position:top center!important}
+
+/* FAQ 답 모양(design 11-13) — 첫 줄 바로 답 · 진짜 목록 · 끝 단서 */
+#faq .faq details[open]>summary{padding-bottom:12px}
+#faq .faq .ans{padding:0 20px 22px;font-size:15px;line-height:1.7;color:var(--ink-soft)}
+#faq .faq .ans p{margin:0;padding:0}
+#faq .faq .ans>*+*{margin-top:10px}
+#faq .faq .ans .lead{font-size:15px;font-weight:600;color:var(--navy);line-height:1.6}
+#faq .faq .ans ul{list-style:none;margin:0;padding:0}
+#faq .faq .ans li{position:relative;padding-left:16px}
+#faq .faq .ans li+li{margin-top:6px}
+#faq .faq .ans li::before{content:"";position:absolute;left:3px;top:.72em;width:5px;height:5px;border-radius:50%;background:var(--ink-faint)}
+#faq .faq .ans li b{font-weight:600;color:var(--ink)}
+#faq .faq .ans .note{margin-top:14px;padding-top:10px;border-top:1px solid var(--line);font-size:13px;line-height:1.6;color:var(--ink-faint)}
+#faq .faq .ans .faq-go{margin-top:16px}
+#faq .faq a.go-line{font-size:14px;font-weight:600;padding:9px 16px;min-height:40px}
+@media (max-width:480px){#faq .faq .ans{padding:0 16px 18px}#faq .faq a.go-line{min-height:44px}}
+.pc-state2{text-wrap:balance}
 </style>
 <style>
 .hero-q{font-size:clamp(15px,1.6vw,18px);color:#aab3c7;margin:0 0 10px;font-weight:600}
@@ -341,20 +508,20 @@ h1 .accent.on{background-size:100% 4px}
 .quotes{display:flex;flex-wrap:wrap;justify-content:center;gap:12px;max-width:1100px;margin:0 auto}
 .quote{display:inline-flex;align-items:center;gap:10px;background:#fff;border:1px solid var(--line);border-radius:var(--r) var(--r) var(--r) 4px;box-shadow:var(--sh);padding:14px 18px;font-size:16.5px;font-weight:600;color:var(--ink);text-decoration:none;white-space:nowrap}
 .quote svg{width:22px;height:22px;flex:none;fill:var(--or)}
-.quote em{font-style:normal;font-size:13.5px;color:var(--accent);margin-left:4px}
+.quote em{font-style:normal;font-size:14px;color:var(--accent);margin-left:4px}
 /* 하는 일 */
 #features{background:var(--gray)}
 .subj{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:18px}
 .chip{border-radius:999px;padding:6px 14px;line-height:1.2}
-.chip.on{background:var(--navy);color:#fff;font-size:14.5px;font-weight:700}
-.chip.soon{border:1px dashed #b7bfd6;color:var(--ink-faint);font-size:13.5px;font-weight:500;background:transparent}
+.chip.on{background:var(--navy);color:#fff;font-size:15px;font-weight:700}
+.chip.soon{border:1px dashed #b7bfd6;color:var(--ink-faint);font-size:14px;font-weight:500;background:transparent}
 .tabs{display:grid;grid-template-columns:360px 1fr;gap:36px;align-items:stretch}
 .tablist{display:flex;flex-direction:column;gap:12px;height:470px}
 .tab{all:unset;cursor:pointer;display:block;position:relative;padding:20px 22px;border-radius:var(--r);border:1px solid transparent;transition:background .2s,border-color .2s,box-shadow .2s}
 .tab:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .tab .n{display:inline-block;font-size:12px;font-weight:700;letter-spacing:.5px;color:var(--ink-faint);margin-bottom:6px}
-.tab b{display:block;font-size:21px;font-weight:700;letter-spacing:-.4px;color:var(--ink-faint);transition:color .2s}
-.tab .d{display:none;font-size:15.5px;line-height:1.65;color:var(--ink-soft)}
+.tab b{display:block;font-size:22px;font-weight:700;letter-spacing:-.4px;color:var(--ink-faint);transition:color .2s}
+.tab .d{display:none;font-size:15px;line-height:1.65;color:var(--ink-soft)}
 .tab .d small{display:block;margin-top:6px;font-size:13px;color:var(--ink-faint)}
 .tab[aria-selected="true"]{background:#fff;border-color:var(--line);box-shadow:var(--sh)}
 .tab[aria-selected="true"] .n{color:var(--or-ink)}
@@ -369,7 +536,7 @@ h1 .accent.on{background-size:100% 4px}
 .stage img.on{opacity:1}
 /* 저장 */
 #privacy{background:var(--t1)}
-.keep{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;max-width:980px;margin:0 auto 16px}
+.keep{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;max-width:760px;margin:0 auto 16px}
 .keep > div{background:#fff;border:0;box-shadow:var(--sh);border-radius:var(--r);padding:28px 26px}
 .keep svg{width:44px;height:44px;padding:9px;border-radius:14px;background:#fff;box-shadow:var(--sh);stroke:var(--accent);fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;margin-bottom:14px}
 .keep b{display:block;font-size:19px;margin-bottom:6px}
@@ -384,7 +551,6 @@ h1 .accent.on{background-size:100% 4px}
 #pricing .price-card.featured .plan,#pricing .price-card.featured .per{color:#b9c1e2}
 #pricing .price-card.featured li{color:#e3e7f6}
 #pricing .price-card.featured li::before{filter:brightness(2.4)}
-#pricing .price-card.featured .price-link{color:var(--or)}
 #pricing .price-card:not(.featured){border-top:5px solid var(--or)}
 #pricing .plus{background:var(--navy)}
 /* 체험 */
@@ -394,11 +560,24 @@ h1 .accent.on{background-size:100% 4px}
 .step .big{display:block;font-size:28px;font-weight:700;color:var(--or-ink);letter-spacing:-.5px;margin:2px 0 10px}
 .mini{list-style:none;margin:auto 0 0;padding:0;font-size:13px;color:var(--ink-faint);line-height:1.65}
 .mini li::before{content:"· "}
+/* 키 안내 쪽 가는 단추 — 강사가 처음 막히는 3단계 카드에만(design·ux-writing 11-09). 테두리 알약 = 주 단추(주황 채움) 한 단 아래 */
+.go-line{align-self:stretch;margin-top:14px;padding:10px 14px;border:1.5px solid var(--navy);border-radius:999px;color:var(--navy);background:#fff;font-size:15px;font-weight:700;line-height:1.35;text-align:center;text-decoration:none}
+.go-line::after{content:" ›"}
+.go-line:hover{background:var(--tint)}
+.go-line:focus-visible{outline:2px solid var(--or);outline-offset:2px}
+.faq a.go-line{display:inline-block;margin-top:0;font-weight:700;color:var(--navy)}  /* .faq a(굵기·색)가 덮지 않게 */
 /* FAQ */
 #faq{background:var(--t1)}
 #faq .faq{max-width:760px}
 #faq .faq details{border:1px solid var(--line);border-radius:12px;padding:0;margin-bottom:10px;background:#fff;transition:background .2s}
-#faq .faq summary{padding:18px 48px 18px 20px;font-size:16.5px}
+#faq .faq summary{padding:18px 48px 18px 20px;font-size:19px;font-weight:800;color:var(--ink)}
+@media (max-width:480px){#faq .faq summary{font-size:17px}}
+/* FAQ 「질문 더 보기」(2026-11-12 대표 — 휴대폰에서 너무 길다): 감싸는 상자는 카드 꾸밈 없이 단추 한 줄, 열면 단추는 사라진다 */
+#faq .faq details.more{border:0;background:none;padding:0;margin:14px 0 0}
+#faq .faq details.more>summary{display:block;width:max-content;margin:0 auto;padding:12px 24px;border:1px solid var(--line);border-radius:999px;background:#fff;font-size:15px;color:var(--navy)}
+#faq .faq details.more>summary::after{content:none}
+#faq .faq details.more[open]>summary{display:none}
+#faq .faq details.more details:not([open])>summary::after{content:"+"}
 #faq .faq summary::after{right:18px;top:14px}
 #faq .faq details[open]{box-shadow:var(--sh);border-color:#dfe3ee}
 #faq .faq details p{margin:0;padding:0 20px 20px;line-height:1.75}
@@ -414,7 +593,7 @@ html.js .reveal.on{opacity:1;transform:none}
  .tablist{flex-direction:row;overflow-x:auto;scroll-snap-type:x mandatory;gap:8px;padding-bottom:4px}
  .tab{scroll-snap-align:start;flex:0 0 auto;padding:10px 16px}.tab .n,.tab .d,.tab::before{display:none!important}.tab b{font-size:15px}
  .mob-d{display:block!important;font-size:15px;line-height:1.65;color:var(--ink-soft)}
- .quote{font-size:16px;width:100%;white-space:normal}
+ .quote{font-size:17px;width:100%;white-space:normal}
 }
 .mob-d{display:none}
 .mob-d small{display:block;margin-top:4px;font-size:13px;color:var(--ink-faint)}
@@ -427,7 +606,7 @@ body,body *:not(code){font-family:"Paperlogy","IBM Plex Sans KR",sans-serif!impo
 /* 아래 남색 = 히어로와 같은 진한 남색 */
 @media (min-width:761px){.tablist,.stage{height:490px!important}}
 .quotes{max-width:760px!important}
-@media (max-width:760px){.tablist{display:grid!important;grid-template-columns:repeat(3,1fr);overflow:visible!important;padding-bottom:0!important;gap:6px!important}.tab{padding:10px 4px!important;text-align:center}.tab b{font-size:14.5px!important;white-space:nowrap}.tab .lg{display:none}}
+@media (max-width:760px){.tablist{display:grid!important;grid-template-columns:repeat(3,1fr);overflow:visible!important;padding-bottom:0!important;gap:6px!important}.tab{padding:10px 4px!important;text-align:center}.tab b{font-size:15px!important;white-space:nowrap}.tab .lg{display:none}}
 /* 구매 전 안내 — 겉 상자 안에 상자를 또 두지 않고, 제목과 같은 왼쪽 줄에 점·내어쓰기를 맞춘다(사용자 10-29) */
 #pricing .install{max-width:860px!important}  /* 가장 긴 줄(806px)+좌우 여백에 맞춤 */
 #pricing .install .install-body{padding:0 22px 20px!important}
@@ -438,7 +617,7 @@ body,body *:not(code){font-family:"Paperlogy","IBM Plex Sans KR",sans-serif!impo
 #pricing .install .notice-list p b{color:var(--ink);font-weight:600}
 .ainote .dl{display:block;position:relative;padding-left:14px}
 .ainote .dl::before{content:"·";position:absolute;left:2px;color:var(--ink-faint)}
-#pricing .install .notice-list .sub{display:block;position:relative;padding-left:14px;margin-top:3px;font-size:13.5px}
+#pricing .install .notice-list .sub{display:block;position:relative;padding-left:14px;margin-top:3px;font-size:14px}
 #pricing .install .notice-list .sub::before{content:"–";position:absolute;left:0;color:var(--ink-faint)}
 /* 체험 4단계 — 설명 한 줄이 끊기지 않게 칸을 가장 긴 줄(이메일 줄)에 맞춘다(사용자 10-29) */
 @media (min-width:761px){.final .wrap{max-width:1080px!important}.final .steps-row{max-width:1024px!important}.final .step{padding:22px 20px!important}}
@@ -448,49 +627,125 @@ body,body *:not(code){font-family:"Paperlogy","IBM Plex Sans KR",sans-serif!impo
 .final,#pricing .price-card.featured,#pricing .plus{background:linear-gradient(180deg,#0f1626 0%,#16205a 100%)!important}
 /* 휴대폰 방문자 → PC로 주소 보내기(인스타 유입, 10-30). 넓은 화면에선 숨김 */
 .topc{display:none;max-width:420px;margin:0 auto 18px;padding:16px;border:1px solid #3a3f4d;border-radius:12px;text-align:center}
-.topc b{display:block;font-size:15px;margin-bottom:4px}.topc p{color:#b8bdcc;font-size:13.5px;margin:0 0 12px}
+.topc b{display:block;font-size:15px;margin-bottom:4px}.topc p{color:#b8bdcc;font-size:14px;margin:0 0 12px}
 .topc .row{display:flex;gap:8px;justify-content:center}.topc button{flex:1;padding:10px;border-radius:8px;border:1px solid #5a6070;background:transparent;color:#fff;font:inherit;font-size:14px;cursor:pointer}
 .topc-hero{display:none}.topc-hero a{color:inherit;text-decoration:underline}
 @media (max-width:760px){.topc,.topc-hero{display:block}}
-</style></head>
+</style><style>/* 2026-11-12 2차 손질(시안 v286 — 강사 역 의견 + marketing·design·legal·md): 첫 화면 영상 · 지문 접기 · 한 달 비용 예시 띠 */
+@media (min-width:1000px){.hero-in{display:grid;grid-template-columns:minmax(0,560px) 300px;gap:64px;justify-content:center;align-items:center;text-align:left}.hero-in .chips,.hero-in .cta-row{justify-content:flex-start}.hero{padding-bottom:72px}}
+.hero-vid{margin:28px auto 0;width:min(300px,68vw)}
+@media (min-width:1000px){.hero-vid{margin:0;width:300px}}
+.vframe{position:relative;border-radius:24px;border:6px solid #1c2433;box-shadow:0 24px 60px rgba(0,0,0,.45);overflow:hidden;background:#0f1626;aspect-ratio:9/16}
+.vframe video{display:block;width:100%;height:100%;object-fit:cover}
+.vbtn{position:absolute;right:10px;bottom:10px;width:36px;height:36px;border-radius:50%;border:0;background:rgba(15,22,38,.7);cursor:pointer;display:flex;align-items:center;justify-content:center}
+.vbtn svg{width:16px;height:16px;fill:#fff}
+.hero-vid figcaption{margin-top:10px;font-size:12px;color:#8f9ab3;text-align:center}
+#sample{padding:64px 0}
+.paper{position:relative;max-width:860px;margin:0 auto}
+.paper img{display:block;width:100%;border:1px solid #dfe3ea;box-shadow:0 24px 60px rgba(15,22,38,.18);background:#fff}
+.paper .ftag{top:-13px;left:-10px;right:auto}
+.paper figcaption{margin-top:12px;font-size:13px;color:var(--ink-faint);text-align:center}
+.dl-more{margin-top:6px;text-align:center}.dl-more summary{font-size:12px;color:#7f8aa3;cursor:pointer}.dl-more .dl-meta{margin-top:6px}
+.pc-state2{font-size:12px;color:rgba(255,255,255,.85);margin:6px 0 10px}
+/* 11-12 한 달 비용 띠 — 마케팅 창 문구 한 벌(대표 결정: 구글 2027년 1월 예정 가격 기준 통일) · legal: 합계 바로 아래 같은 크기로 결제 준비 중·VAT·오픈 기념 조건·환불 불가 */
+.total-band{max-width:880px;margin:22px auto 0;background:#fff;border:1px solid var(--line);border-radius:18px}
+.mk{text-align:center;max-width:880px;padding:28px 28px 18px!important}
+.mk-big{margin:0 0 8px;font-size:36px;font-weight:700;letter-spacing:-.8px;line-height:1.3;color:var(--accent)}
+.mk-big small{display:block;font-size:19px;font-weight:600;letter-spacing:0;color:var(--ink)}
+.mk-sub{margin:0 0 14px;font-size:17px;color:var(--ink-soft)}
+.mk-sub b{color:var(--accent);font-weight:700}
+.mk-sum{margin:0 auto 8px;max-width:640px;padding:10px 16px;background:var(--accent-soft);border-radius:14px;font-size:15px;color:var(--ink);font-variant-numeric:tabular-nums;line-height:1.6}
+.mk-sum b{font-size:19px}
+.mk-sum small{font-size:14px;color:var(--ink-soft)}
+.mk-left{margin:0 0 8px;font-size:15px;color:var(--ink);text-wrap:balance}
+.mk-left b{font-size:17px;color:var(--accent)}
+.mk-must{margin:0 0 14px;font-size:14px;letter-spacing:-.2px;color:var(--ink)}
+@media (min-width:1000px){.mk-must{white-space:nowrap!important}.mk-sum{font-size:14px}}
+.mk-s{margin:0;padding-top:12px;border-top:1px solid var(--line);font-size:12px;line-height:1.65;color:var(--ink-soft);text-wrap:balance}
+.mk-s2{padding-top:2px;border-top:0}
+.mk-left small{font-size:13px;color:var(--ink-soft)}
+@media (max-width:760px){.mk-big{font-size:28px}.mk-big small{font-size:17px}.mk-sub{font-size:15px}.mk-sum,.mk-must{font-size:14px}.mk-sum b{font-size:17px}}
+.hero-copy .cta-row{margin-top:22px}
+.final .step ul.mini{margin-top:12px!important}.final .step .go-line{margin-top:auto}
+/* design 11-12 첫 화면 네 곳: 설치형 칩 · 단서 괄호 · 안내 두 줄 간격 · 영상 설명 한 줄 */
+.hero .hero-q{display:inline-flex;align-items:center;gap:7px;margin:0 0 16px;padding:6px 15px 6px 12px;border:1.5px solid rgba(255,255,255,.3);border-radius:999px;background:rgba(255,255,255,.07);color:#e3e8f4;font-size:clamp(14px,1.4vw,15.5px);font-weight:700;line-height:1.2}
+.chips span small{display:inline-block;margin-left:4px;font-size:12px;font-weight:500;color:#d9bb8e}
+.chips span{line-height:1.45;border-radius:20px}
+.hero-note{line-height:1.55;text-wrap:balance;color:#8f9ab3}
+.hero-note+.hero-note{margin-top:4px}
+.hero-note.topc-hero{margin-top:14px}
+.hero-vid figcaption{font-size:11px;letter-spacing:-.01em;white-space:nowrap;width:max-content;max-width:calc(100vw - 32px);margin:10px 0 0 50%;transform:translateX(-50%)}
+@media (max-width:399px){.hero-vid figcaption{white-space:normal;text-wrap:balance}}
+/* design 11-12: 구글 카드 목록을 표 밑에 붙이고 남는 높이는 가격 기준 줄 위로(카드 바닥선은 왼쪽 단추와 맞춤) */
+.pc3 .pc-foot{margin-top:0;flex-grow:1}
+.pc3 .ai-foot{margin-top:auto;padding-top:8px}
+</style>
+<script>document.addEventListener('DOMContentLoaded',function(){var v=document.getElementById('demo'),b=document.getElementById('vbtn');if(!v||!b)return;
+var PAUSE='<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>',PLAY='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>';
+function sync(){b.innerHTML=v.paused?PLAY:PAUSE;b.setAttribute('aria-label',v.paused?'영상 재생':'영상 멈춤')}
+if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches){v.removeAttribute('autoplay');v.pause()}
+b.addEventListener('click',function(){v.paused?v.play():v.pause()});v.addEventListener('play',sync);v.addEventListener('pause',sync);sync()})</script>
+<style>
+/* 11-12 요금 구역 정리(시안 v293 — design·marketing·legal·md·pm, 강사 역 피드백): 띠 뺌 · 「=」 시작 비용 한 줄 · 이용료 VAT 1회 + 부가세 포함 금액 · 구글 2026 가격 + 2027년 1월 인상 예정 */
+.pc-two{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-top:8px}
+.pc-two .pc-opt{margin:0!important;padding:0!important;border:0!important}
+.pc-two .big2{font-size:22px}
+.pc-two .pc-opt .n{display:flex;align-items:center;gap:5px;white-space:nowrap}.pc-two .pc-opt .n em{font-size:11px;padding:0 6px;margin:0;font-weight:600}
+.pcL .pc-row:not(.pick)>.t,.pc-two .pc-opt .n{color:rgba(255,255,255,.62)!important;font-size:13px!important;font-weight:600}
+.pcL .pc-row .vat,.pcL .pc-row .cond{color:rgba(255,255,255,.62)}
+.pcL .big2{color:#fff}
+.pc-small{margin:10px 0 0;font-size:12px;line-height:1.55;color:rgba(255,255,255,.7);text-align:center}
+.pcL .pc-foot .pc-state2{margin:0 0 10px}
+.pc-hd2{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap}
+.pc-hd2 .t small{font-size:12px;font-weight:400;color:var(--ink-faint)}
+.pc3 .pc-hd2 .big2{margin:0}
+.pc3 .pc-opt-t{border-top:0!important;padding-top:6px!important;margin-top:4px!important}
+.ai-table .sol>*,.ai-table .sol > *{background:none!important}
+.price-sum{grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:4px 12px;margin:20px 0 0;font-size:15px;color:var(--ink-soft);word-break:keep-all}
+.price-sum b{font-size:24px;font-weight:700;letter-spacing:-.5px;color:var(--accent)}
+.not-monthly{display:inline-block;padding:3px 10px;border-radius:999px;background:var(--accent);color:#fff;font-size:13px;font-weight:700}
+.price-sum small{flex-basis:100%;text-align:center;font-size:13px;color:var(--ink-soft)}
+.price-sum .eq{width:36px;height:36px;border-radius:50%;background:var(--accent);display:inline-flex;align-items:center;justify-content:center}
+.price-sum .eq svg{width:18px;height:18px;fill:none;stroke:#fff;stroke-width:2.6;stroke-linecap:round}
+</style>
+</head>
 <body>
 
 <nav>
   <div class="wrap nav-inner">
     <a class="logo" href="#" aria-label="큐쏙 맨 위로"><svg class="logo-ic" viewBox="4 4 112 112" aria-hidden="true" focusable="false"><defs><linearGradient id="lg-gHand" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd8b3"></stop><stop offset="1" stop-color="#ffbe8f"></stop></linearGradient><g id="lg-hand"> <path d="M -15 6 C -23 12 -26 22 -22 31" fill="none" stroke="#ffc89d" stroke-width="8" stroke-linecap="round"></path> <rect x="-8" y="-30" width="16" height="28" rx="8" fill="url(#lg-gHand)"></rect> <rect x="-17" y="-7" width="34" height="31" rx="13" fill="url(#lg-gHand)"></rect> <path d="M -12.5 13 V 34" fill="none" stroke="#ffc49a" stroke-width="6.4" stroke-linecap="round"></path> <path d="M -4.5 15 V 38" fill="none" stroke="#ffc49a" stroke-width="6.4" stroke-linecap="round"></path> <path d="M 3.5 15 V 38" fill="none" stroke="#ffc49a" stroke-width="6.4" stroke-linecap="round"></path> <path d="M 11.5 13 V 34" fill="none" stroke="#ffc49a" stroke-width="6.4" stroke-linecap="round"></path> </g><filter id="lg-tShadow" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="0" dy="3" stdDeviation="3" flood-color="#1a2a8a" flood-opacity=".35"></feDropShadow></filter><linearGradient id="lg-fB0" gradientUnits="userSpaceOnUse" x1="4" y1="4" x2="116" y2="116"><stop offset="0" stop-color="#24358a"></stop><stop offset="1" stop-color="#1c2a6e"></stop></linearGradient><linearGradient id="lg-fR0" gradientUnits="userSpaceOnUse" x1="27" y1="23" x2="89" y2="85"><stop offset="0" stop-color="#3550c8"></stop><stop offset="1" stop-color="#2a3f8f"></stop></linearGradient><clipPath id="lg-cw"><rect x="4" y="4" width="112" height="112" rx="27"/></clipPath></defs><g clip-path="url(#lg-cw)"><rect x="4" y="4" width="112" height="112" fill="url(#lg-fB0)"/><rect x="18" y="74" width="90" height="50" rx="4" fill="#8f9fd6"/><rect x="15" y="77" width="90" height="50" rx="4" fill="#c3cceb"/><g transform="translate(4 -8) rotate(-7 58 50)"><rect x="30" y="16" width="58" height="72" rx="6" fill="#fff" filter="url(#lg-tShadow)"/><rect x="37" y="23" width="22" height="5" rx="2" fill="#3550c8"/><circle cx="52" cy="52" r="12" fill="none" stroke="url(#lg-fR0)" stroke-width="6.5"/><path d="M 57.4 57.4 L 66.4 66.4" stroke="#fff" stroke-width="10.4" stroke-linecap="round"/><path d="M 57.4 57.4 L 66.4 66.4" stroke="#e0243f" stroke-width="6.5" stroke-linecap="round"/><rect x="70" y="46" width="12" height="3.5" rx="1.75" fill="#c5cde4"/><rect x="70" y="53" width="9" height="3.5" rx="1.75" fill="#dfe3f0"/><use href="#lg-hand" transform="translate(59 4) scale(.95)"/></g><rect x="12" y="82" width="90" height="50" rx="4" fill="#fff"/><rect x="56.5" y="88" width="1" height="40" fill="#c5cde4"/><path d="M0.6 0.9 L1.6 0 L1.6 4.4" transform="translate(17 89) scale(1.1363636363636362)" fill="none" stroke="#14213d" stroke-width="1.232" stroke-linecap="round" stroke-linejoin="round"/><circle cx="22" cy="93.4" r=".8" fill="#14213d"/><rect x="24" y="90.2" width="29.0" height="2.6" rx="1.3" fill="#c5cde4"/><rect x="17" y="97" width="35.0" height="2.6" rx="1.3" fill="#dfe3f0"/><circle cx="19.2" cy="104.4" r="2.1" fill="none" stroke="#5b6b85" stroke-width=".45"/><path d="M0.6 0.9 L1.6 0 L1.6 4.4" transform="translate(18.45 103.3) scale(0.5)" fill="none" stroke="#5b6b85" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round"/><circle cx="24.2" cy="104.4" r="2.1" fill="none" stroke="#5b6b85" stroke-width=".45"/><path d="M0.2 1 C0.4 -0.2,2.8 -0.2,2.8 1.2 C2.8 2.2,0.2 3.2,0.2 4.4 L2.9 4.4" transform="translate(23.45 103.3) scale(0.5)" fill="none" stroke="#5b6b85" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round"/><circle cx="29.2" cy="104.4" r="2.1" fill="none" stroke="#5b6b85" stroke-width=".45"/><path d="M0.3 0.4 C1.5 -0.3,2.9 0.4,2.6 1.4 C2.4 2,1.4 2.1,1.2 2.1 C2.6 2.1,3 3,2.6 3.8 C2.1 4.6,0.6 4.6,0.2 4" transform="translate(28.45 103.3) scale(0.5)" fill="none" stroke="#5b6b85" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round"/><circle cx="34.2" cy="104.4" r="2.1" fill="none" stroke="#5b6b85" stroke-width=".45"/><path d="M2.2 4.4 L2.2 0 L0 3 L3 3" transform="translate(33.45 103.3) scale(0.5)" fill="none" stroke="#5b6b85" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round"/><circle cx="39.2" cy="104.4" r="2.1" fill="none" stroke="#5b6b85" stroke-width=".45"/><path d="M2.8 0 L0.6 0 L0.4 2 C1.5 1.4,2.9 1.8,2.9 3 C2.9 4.3,1 4.7,0.2 4" transform="translate(38.45 103.3) scale(0.5)" fill="none" stroke="#5b6b85" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round"/><path d="M0.2 1 C0.4 -0.2,2.8 -0.2,2.8 1.2 C2.8 2.2,0.2 3.2,0.2 4.4 L2.9 4.4" transform="translate(61.0 89) scale(1.1363636363636362)" fill="none" stroke="#14213d" stroke-width="1.232" stroke-linecap="round" stroke-linejoin="round"/><circle cx="66.0" cy="93.4" r=".8" fill="#14213d"/><rect x="68.0" y="90.2" width="29.0" height="2.6" rx="1.3" fill="#c5cde4"/><rect x="61.0" y="97" width="35.0" height="2.6" rx="1.3" fill="#dfe3f0"/><circle cx="63.2" cy="104.4" r="2.1" fill="none" stroke="#5b6b85" stroke-width=".45"/><path d="M0.6 0.9 L1.6 0 L1.6 4.4" transform="translate(62.45 103.3) scale(0.5)" fill="none" stroke="#5b6b85" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round"/><circle cx="68.2" cy="104.4" r="2.1" fill="none" stroke="#5b6b85" stroke-width=".45"/><path d="M0.2 1 C0.4 -0.2,2.8 -0.2,2.8 1.2 C2.8 2.2,0.2 3.2,0.2 4.4 L2.9 4.4" transform="translate(67.45 103.3) scale(0.5)" fill="none" stroke="#5b6b85" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round"/><circle cx="73.2" cy="104.4" r="2.1" fill="none" stroke="#5b6b85" stroke-width=".45"/><path d="M0.3 0.4 C1.5 -0.3,2.9 0.4,2.6 1.4 C2.4 2,1.4 2.1,1.2 2.1 C2.6 2.1,3 3,2.6 3.8 C2.1 4.6,0.6 4.6,0.2 4" transform="translate(72.45 103.3) scale(0.5)" fill="none" stroke="#5b6b85" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round"/><circle cx="78.2" cy="104.4" r="2.1" fill="none" stroke="#5b6b85" stroke-width=".45"/><path d="M2.2 4.4 L2.2 0 L0 3 L3 3" transform="translate(77.45 103.3) scale(0.5)" fill="none" stroke="#5b6b85" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round"/><circle cx="83.2" cy="104.4" r="2.1" fill="none" stroke="#5b6b85" stroke-width=".45"/><path d="M2.8 0 L0.6 0 L0.4 2 C1.5 1.4,2.9 1.8,2.9 3 C2.9 4.3,1 4.7,0.2 4" transform="translate(82.45 103.3) scale(0.5)" fill="none" stroke="#5b6b85" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round"/><rect x="15" y="85" width="9" height="2.2" rx="1" fill="#8a94a6" transform="rotate(-35 19 86)"/><path d="M 18 46 L 18 32 M 102 52 L 102 38 M 12 60 L 12 52" stroke="#c5cde4" stroke-width="3.5" stroke-linecap="round"/></g></svg><span class="logo-t">큐쏙<span>(Qssok)</span></span></a>
-    <a class="nav-cta" href="#download">다운로드</a>
+    <div class="nav-right"><a class="nav-link" href="https://blog.naver.com/qssok" target="_blank" rel="noopener">블로그</a><a class="nav-link" href="#pricing">요금 안내</a><a class="nav-link nav-key" href="guide/ai-key/">키 등록 안내</a><a class="nav-cta" href="#download">다운로드</a></div>
   </div>
 </nav>
 
 <header class="hero">
   <div class="hero-glow"></div>
   <div class="wrap hero-in">
-    <p class="hero-q">모아 둔 시험지 PDF, 직접 타이핑하고 계세요?</p>
-    <h1>추출 · 편집 · 문제 DB 관리<br>한글(HWP) <span class="accent">시험지 저장</span></h1>
+    <div class="hero-copy">
+    <p class="hero-q"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg>윈도우 설치형 문제 DB 프로그램</p>
+    <h1>PDF에서 문제만 쏙,<br>골라 담아 <span class="accent">한글 시험지</span>로</h1>
     <p class="hero-sub"><b class="one-place">문제·시험지는 선생님 컴퓨터에 저장</b></p>
-    <div class="chips"><span>설치형 프로그램</span><span>수학 시험지 1부 약 2분 · 유료 키</span></div>
-    <div class="hwin"><div class="hwin-bar"><i></i><i></i><i></i><span>큐쏙(Qssok)</span></div>
-      <div class="flow3">
-        <figure><div class="shot"><img src="img/hero-1-find.png" alt="큐쏙 업로드 화면 — 시험지 위에 문제 영역 상자가 자동으로 그려진 모습" width="800" height="600"></div><figcaption>① PDF를 올리면 문제 영역을 자동으로 탐색</figcaption></figure>
-        <span class="arr" aria-hidden="true">→</span>
-        <figure><div class="shot"><img src="img/hero-2-edit.png" alt="큐쏙 편집 화면 — 그림 추가·표 넣기 버튼과 고칠 수 있는 글자·수식 칸" width="800" height="600"></div><figcaption>② 그림·표·수식까지 바로 수정</figcaption></figure>
-        <span class="arr" aria-hidden="true">→</span>
-        <figure><div class="shot"><span class="ftag hwp">HWP</span><img src="img/hero-3-hwp.png" alt="내보낸 한글(HWP) 시험지 — 2단으로 짜인 문제" width="800" height="599"></div><figcaption>③ 골라 담아 한글(HWP) 시험지로 생성<small>.hwpx를 한컴독스에서 연 화면</small></figcaption></figure>
-      </div>
-    </div>
-    <p class="fine">실제 화면(예시 문항·폴더 이름은 직접 만든 것) · 스캔 상태에 따라 오타가 날 수 있어 화면에서 고칠 수 있습니다</p>
+    <div class="chips"><span>수학 시험지 1부 추출 약 2분 <small>(구글 AI 충전 후 실측 · 확인·수정 시간 별도)</small></span></div>
     <div class="cta-row">
       <a class="btn-primary" href="#download">7일 무료 체험 시작</a>
     </div>
     <p class="hero-note">큐쏙(Qssok) 체험은 카드 등록·자동 결제 없음 · 구글 AI 사용료 별도</p>
-    <p class="hero-note topc-hero"><a href="#topc">휴대폰으로 보고 계신가요? PC로 주소 보내기 ↓</a></p>
+    <p class="hero-note">시험지는 AI가 일할 때만(문제 추출, 그림 낙서 지우기) 구글 Gemini로 전송됩니다</p>
+    </div>
+    <figure class="hero-vid">
+      <div class="mtabs"><button type="button" class="wtab on" data-v="0">영상</button><button type="button" class="wtab" data-v="1"><img src="img/hwp-thumb.png" alt="">완성 예시(한글 파일)</button></div>
+      <div class="wwin"><div class="wbar"><span class="wt">큐쏙(Qssok)</span><span class="wtabs"><button type="button" class="wtab on" data-v="0">영상</button><button type="button" class="wtab" data-v="1">완성 예시(한글 파일)</button></span><span class="wc" aria-hidden="true"><i>—</i><i>□</i><i>×</i></span></div><div class="wscr"><video class="wv" src="media/qssok-wide.mp4" poster="media/qssok-wide-poster.jpg" autoplay muted loop playsinline preload="metadata" aria-label="큐쏙 사용 과정 33초 영상(소리 없음)"></video><img class="wh" src="img/hwp-result.png" alt="직접 만든 예시 문항을 한글에서 연 화면"><span class="whtag">직접 만든 예시 · 한글에서 연 화면</span></div></div>
+      <div class="vframe"><img class="mh" src="img/hwp-result-m.png" alt="직접 만든 예시 문항을 한글에서 연 화면"><span class="whtag mtag">직접 만든 예시 · 한글에서 연 화면</span><a class="mzoom" href="img/hwp-full.png" target="_blank" rel="noopener">크게 보기</a><video id="demo" src="media/qssok-shorts.mp4" poster="media/qssok-shorts-poster.jpg" width="1080" height="1920" autoplay muted loop playsinline preload="metadata" aria-label="큐쏙 사용 과정 34초 영상(소리 없음)"></video>
+      <button type="button" class="vbtn" id="vbtn" aria-label="영상 멈춤"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg></button></div>
+      <figcaption>앱 화면은 실제 녹화 · 일부 장면은 설명을 위해 편집 · 예시 문항은 직접 만든 것</figcaption>
+    </figure>
   </div>
   <div class="hero-fade"></div>
 </header>
 
 <section id="pain">
   <div class="wrap">
-    <div class="hd reveal"><p class="hd-q">문제가 없어서 힘드세요?</p><h2>아니요, 문제가 있어도 <span class="mark">다시 쓰기</span>가 힘들죠</h2></div>
+    <div class="hd reveal"><p class="hd-q">문제는 이미 많은데</p><h2><span class="mark">다시 쓰기</span>가 힘들죠</h2></div>
     <div class="quotes">
       <span class="quote reveal"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 6C6.5 6.6 4.5 9 4.5 12.3V18h6v-6H7.6c.2-1.8 1.3-3 3-3.4zm10 0c-3 .6-5 3-5 6.3V18h6v-6h-2.9c.2-1.8 1.3-3 3-3.4z"/></svg>이 문제, 어느 시험지에 있더라…</span><span class="quote reveal"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 6C6.5 6.6 4.5 9 4.5 12.3V18h6v-6H7.6c.2-1.8 1.3-3 3-3.4zm10 0c-3 .6-5 3-5 6.3V18h6v-6h-2.9c.2-1.8 1.3-3 3-3.4z"/></svg>수식 하나하나 다시 타이핑하고…</span>
       <span class="quote reveal"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 6C6.5 6.6 4.5 9 4.5 12.3V18h6v-6H7.6c.2-1.8 1.3-3 3-3.4zm10 0c-3 .6-5 3-5 6.3V18h6v-6h-2.9c.2-1.8 1.3-3 3-3.4z"/></svg>캡처하고, 붙이고, 크기 맞추고…</span>
@@ -501,34 +756,34 @@ body,body *:not(code){font-family:"Paperlogy","IBM Plex Sans KR",sans-serif!impo
 
 <section id="features">
   <div class="wrap">
-    <div class="hd reveal"><p class="hd-q">큐쏙(Qssok)에서는</p><h2><span class="mark">골라 담기만</span> 하면 시험지 완성</h2><div class="subj"><span class="chip on">✓ 수학 지원</span><span class="chip soon">다른 과목 · 베타</span></div></div>
+    <div class="hd reveal"><p class="hd-q">큐쏙에서는</p><h2>내가 쌓은 <span class="mark">문제 DB</span>로 나만의 시험지</h2><div class="subj"><span class="chip on">✓ 수학 지원</span><span class="chip soon">다른 과목 · 준비 중</span></div></div>
     <div class="tabs reveal">
-      <div class="tablist" role="tablist" aria-label="큐쏙이 하는 일"><button class="tab" role="tab" aria-controls="stage" aria-selected="true"><span class="n">01</span><b>원본 대조<span class="lg"> 편집</span></b><div class="d">원본 PDF와 나란히 놓고 글자·수식을 바로 고칩니다.<small>스캔 상태에 따라 오타가 날 수 있습니다.</small></div></button><button class="tab" role="tab" aria-controls="stage" aria-selected="false"><span class="n">02</span><b>문제 DB<span class="lg"> 관리</span></b><div class="d">학년·과목 폴더에 쌓고, 시험지 이름으로 찾습니다. 해설 PDF를 올리면 문제마다 해설도 함께 들어갑니다.</div></button><button class="tab" role="tab" aria-controls="stage" aria-selected="false"><span class="n">03</span><b>한글(HWP)<span class="lg"> 시험지 생성</span></b><div class="d">골라 담은 순서와 미리보기 배치 그대로 <span class="nw">한글(HWP) 파일</span>을 생성합니다<small>생성한 파일은 한글 또는 한컴독스로 확인할 수 있습니다<br>글꼴 차이로 줄 높이가 조금 다를 수 있습니다<br>(Word 저장은 준비 중)</small></div></button></div>
-      <div><div class="stage" id="stage" role="tabpanel"><div class="bar"><i></i><i></i><i></i></div><picture><source media="(max-width:760px)" srcset="img/feat-edit-m.png"><img src="img/feat-edit.png" alt="큐쏙 원본 대조 화면 — 왼쪽은 추출 결과, 오른쪽은 원본" loading="lazy" class="on"></picture><img src="img/feat-db.png" alt="큐쏙 문제 DB 화면 — 학년·과목 폴더와 시험지별 문제 카드" loading="lazy"><img src="img/feat-builder.png" alt="큐쏙 시험지 빌더 — 위쪽 조판 버튼과 2단 시험지 미리보기" loading="lazy"></div><p class="mob-d" id="mobd"></p></div>
+      <div class="tablist" role="tablist" aria-label="큐쏙이 하는 일"><button class="tab" role="tab" aria-controls="stage" aria-selected="true"><span class="n">01</span><b>원본 대조<span class="lg"> 편집</span></b><div class="d">원본 PDF와 나란히 놓고 글자·수식을 바로 고칩니다.</div></button><button class="tab" role="tab" aria-controls="stage" aria-selected="false"><span class="n">02</span><b>문제 DB<span class="lg"> 관리</span></b><div class="d">학년·과목 폴더에 쌓고, 시험지 이름으로 찾습니다. 해설 PDF를 올리면 문제마다 해설도 함께 들어갑니다.</div></button><button class="tab" role="tab" aria-controls="stage" aria-selected="false"><span class="n">03</span><b>한글(HWP)<span class="lg"> 시험지 생성</span></b><div class="d">골라 담은 순서대로, 미리보기에서 정한 단·페이지 나눔대로 <span class="nw">한글(HWP) 파일</span>을 만듭니다<small>만든 파일은 한글 또는 한컴독스로 확인할 수 있습니다<br>글꼴 차이로 줄 간격·글자 위치가 조금 다를 수 있습니다</small></div></button></div>
+      <div><div class="stage" id="stage" role="tabpanel"><div class="bar"><i></i><i></i><i></i></div><picture><source media="(max-width:760px)" srcset="img/feat-edit-m.png"><img src="img/feat-edit.png" alt="큐쏙 원본 대조 화면 — 왼쪽은 추출 결과, 오른쪽은 원본" loading="lazy" class="on"></picture><img src="img/feat-db.png" alt="큐쏙 문제 DB 화면 — 학년·과목 폴더와 시험지별 문제 카드" loading="lazy"><picture><source media="(max-width:760px)" srcset="img/hwp-result-m.png"><img class="hwp" src="img/hwp-result.png" alt="직접 만든 예시 문항을 큐쏙에서 .hwpx로 내보내 한글에서 연 화면 — 2단, 수식·그래프·선지" loading="lazy"></picture><span class="hwptag">직접 만든 예시 · 한글에서 연 화면</span><a class="zoom" href="img/hwp-full.png" target="_blank" rel="noopener">크게 보기</a></div><p class="mob-d" id="mobd"></p></div>
     </div>
   </div>
 </section>
 
 <section id="privacy">
   <div class="wrap">
-    <div class="hd reveal"><p class="hd-q">문제·시험지는 어디에 저장되나요?</p><h2><span class="mark">선생님 컴퓨터</span>에만 저장됩니다</h2></div>
+    <div class="hd reveal"><p class="hd-q">윈도우 설치형</p><h2>큐쏙은 정리한 문제와 시험지를<br>오직 <span class="mark">선생님 컴퓨터</span>에만 저장합니다</h2><p class="sub">시험지는 AI가 일할 때만(문제 추출, 그림 낙서 지우기) 구글 Gemini로 전송됩니다</p></div>
     <div class="keep">
-      <div class="reveal"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg><b>큐쏙 서버 보관 없이</b><p>문제·시험지는 선생님 컴퓨터 안에만<br>체험판도 마찬가지</p></div>
-      <div class="reveal"><svg viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5"/><path d="M4 17v3h16v-3"/></svg><b>통째로 백업</b><p>문제 DB 전체를 파일 하나로<br><span class="nw">새 컴퓨터로</span> 옮길 때도 그 파일이면 끝</p></div>
-      <div class="reveal"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 7.5-2"/></svg><b>문제는 그대로</b><p>구독이 끝나면 추출·편집·내보내기는<br>사용할 수 없고, <span class="nw">문제 보기·백업</span>은 계속 사용할 수 있습니다</p></div>
+      <div class="reveal"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg><b>저희 서버엔 안 올라갑니다</b><p>문제·시험지는 선생님 컴퓨터 안에만<br>체험판도 마찬가지</p></div>
+      <div class="reveal"><svg viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5"/><path d="M4 17v3h16v-3"/></svg><b>통째로 백업</b><p>문제 DB 전체를 파일 하나로<br>구독이 끝나도 백업 저장은 계속됩니다</p></div>
+      <div class="reveal"><svg viewBox="0 0 24 24"><circle cx="8" cy="15" r="4"/><path d="M11 12l9-9M17 6l3 3M15 8l2 2"/></svg><b>구글 AI로 가는 것</b><p>AI가 일할 때만 구글 Gemini로<br>어디에도 공개되지 않습니다<br>무료 키는 구글이 AI 개선·검토에 쓸 수 있어, 직접 만든 자료라면 유료 키를 권합니다&nbsp;<a href="#faq">자세히&nbsp;›</a></p></div>
     </div>
-    <!-- ⛔ 이 고지를 지우지 말 것 — 없으면 제목(컴퓨터에 저장)이 거짓 광고가 된다(legal 2026-08-19).
-         무료 키 학습·검토 고지는 정본(프라이버시-데이터처리.md)이 «정직하게 짚을 유일한 것»으로 정한 항목. -->
-    <div class="ainote reveal"><b>구글 AI 전송 안내</b><p><span class="dl">추출하는 순간에만 페이지 이미지·글자를 구글 AI(Gemini)로 전송합니다</span><span class="dl">무료 키는 구글이 AI 개선·검토에 쓸 수 있어, 직접 만든 자료엔 유료 키를 권합니다</span></p></div>
+    <!-- ⛔ 셋째 카드의 무료 키 학습·검토 줄은 지우지 말 것 — 「오직 컴퓨터에만 저장」 제목 바로 아래라 펼친 자리에 있어야 한다(legal 11-12·11-13).
+         같은 글자 크기·색 · 접기/hover/줄 자르기 금지 · 「어디에도 공개되지 않습니다」는 이 줄이 바로 다음에 붙을 때만. -->
   </div>
 </section>
+
 
 <section id="pricing">
   <div class="wrap">
     <div class="hd reveal"><p class="hd-q">얼마인가요?</p><h2>월 정액 + <span class="mark">구글 AI 사용료</span></h2></div>
     <!-- ⚠️ 이 섹션의 핵심 = **두 층을 갈라 보여주는 것**. 강사가 가장 많이 하는 오해가
          "구독료 안에 AI 비용이 들어 있나?"이고, 안 갈라놓으면 설치 후에야 알게 돼 이탈한다.
-         ⛔ 단가(한 문제 평균 약 10원 — 2026-10-14 쪽 단위에서 바꿈)는 **불안 해소(방어)용**으로만 쓸 것 — "싸죠?"라는 자랑(공격)으로
+         ⛔ 단가(숫자는 앱 Q_COST 한 벌 — 2026-11-03)는 **불안 해소(방어)용**으로만 쓸 것 — "싸죠?"라는 자랑(공격)으로
             쓰지 말 것(prd/과금/가격.md: "우리 우위는 단가가 아니라 구조다"). -->
     <!-- ⛔ 가격 구역(가장 눈에 띄는 자리)에서 「0원」을 단서 없이 말하지 말 것 (2026-08-19 legal).
      우리 정본 docs/프라이버시-데이터처리.md가 **문장으로 금지**한다:
@@ -538,38 +793,44 @@ body,body *:not(code){font-family:"Paperlogy","IBM Plex Sans KR",sans-serif!impo
         단서와 떨어진 「0원」은 단서가 없는 것과 같다. 2026-09-30에 아래 notice-list의
         「무료 한도 안에서는 0원」도 걷어냈다 — 되살리지 말 것(최악 기준만 안내). 재발 가드 = test_pipeline.py §14 -->
     <div class="price-plus">
-      <div class="card price-card featured">
+      <div class="card price-card featured pcL">
         <div class="plan">월 정액</div>
-        <div class="price">출시 시 공개</div>
-        <div class="per">매달 같은 금액 · 추출량과 무관</div>
-        <ul>
-          <li>PDF에서 문제 추출</li>
-          <li>문제 편집 · 폴더 정리 · 검색</li>
-          <li>시험지 만들기</li>
-          <li>한글(HWP) 파일 내보내기</li>
-          <li>백업</li>
-          <li>나오는 업데이트 모두 포함</li>
-        </ul>
-        <a class="price-link" href="mailto:contact@danbilab.com?subject=[큐쏙(Qssok)]%20출시%20알림%20신청&body=정식%20출시%20소식을%20받고%20싶습니다.%0A%0A- 가르치는 과목:%0A- 소속(학원/과외/학교):">출시 알림 받기 →</a>
+        <div class="per"><span class="nw">요금제는 하나</span> · <span class="nw">추출량과 무관</span> · <span class="nw">이용료는 모두 VAT 별도</span></div>
+        <div class="pc-rows">
+          <div class="pc-row pick"><b class="t"><span class="pc-open">오픈 기념</span>첫 3개월</b><p class="big">월 27,000원</p><p class="vat">부가세 포함 29,700원</p><p class="cond">2027년 1월 31일까지 첫 결제하면 <span class="nw">그날부터 3개월</span></p></div>
+          <div class="pc-row"><b class="t">첫 3개월 뒤</b>
+            <div class="pc-two"><div class="pc-opt"><span class="n">자동 결제 <em>월 4,000원 절약</em></span><p class="big2">월 32,000원</p><p class="vat">부가세 포함 35,200원</p><p class="cond">※ 준비 중</p></div>
+            <div class="pc-opt"><span class="n">매달 결제</span><p class="big2">월 36,000원</p><p class="vat">부가세 포함 39,600원</p></div></div>
+          </div>
+        </div>
+        <div class="pc-foot">
+          <p class="pc-state2">지금은 7일 무료 체험만 시작할 수 있습니다 · 정식판 결제는 준비 중입니다</p>
+          <a class="btn-primary" href="#download">7일 무료 체험 시작</a>
+          <p class="pc-small">큐쏙 체험은 카드 등록 없음 · 결제가 열리기 전에 체험이 끝났다면 체험 연장을 문의해 주세요</p>
+        </div>
       </div>
       <div class="plus" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12h14M12 5v14"/></svg></div>
-      <div class="card price-card">
+      <div class="card price-card pc3">
         <div class="plan">구글 AI 사용료</div>
-        <div class="price">문제당 약 8~15원</div>
-        <div class="per">과목마다 다름 · 2026년 구글 가격<br>(2027년 1월 구글 가격 인상 · 약 2배)</div>
-        <div class="price-big2">최소 8,000원 충전 → 약 550~1,000문제</div>
-        <ul>
-          <li>해설은 1개당 약 40원</li>
-          <li>구글 계정에 선불 충전</li>
-          <li>환불 불가 · 1년 뒤 소멸(구글 정책)</li>
-        </ul>
+        <div class="per"><span class="nw">구글에 직접 충전</span> · <span class="nw">큐쏙 이용료와 따로</span></div>
+        <div class="pc-rows">
+          <div class="pc-row"><b class="t"><span class="not-monthly">매달 결제가 아닙니다</span></b><p class="big">최소 8,000원</p><small class="sm">수학 약 1,000문제 분량(2026년 가격) · <span class="nw">2027년 1월 구글 가격 인상 예정</span></small></div>
+          <div class="pc-row"><div class="pc-hd2"><b class="t">수학 모의고사 한 부 기준 <small>46문제 · 해설 제외</small></b><p class="big2">약 400원</p></div>
+            <div class="pc-opt pc-opt-t"><p class="ai-cap">한 문제당 · 한 번 추출 기준 (수학)</p><table class="ai-table"><tbody><tr><th scope="row">문제만</th><td><small>약</small> 8원</td></tr><tr class="sol"><th scope="row">해설까지</th><td><small>약</small> 20원</td></tr></tbody></table></div>
+          </div>
+        </div>
+        <div class="pc-foot">
+          <ul class="ai-notes"><li>추출한 만큼 차감되고, 남은 금액은 다음 달에도 이어서 씁니다(큐쏙 이용 중일 때)</li><li class="oneline">충전 후 <b>1년 안에</b> 쓰지 않은 금액은 사라지고 <span class="nw">환불 불가(구글 정책)</span></li></ul>
+          <p class="s ai-foot"><a href="guide/ai-key/#charge">구글 충전 안내</a></p>
+        </div>
       </div>
+      <p class="price-sum"><span class="eq" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 9h14M5 15h14"/></svg></span><span class="nw">시작 비용 <b>37,700원</b></span><small><span class="nw">큐쏙 29,700원(오픈 기념)</span> <span class="nw">+ 구글 최소 충전 약 8,000원</span></small></p>
     </div>
-    <!-- ⚠️ 카드 안에 다운로드 버튼을 두지 말 것 — 무료판·유료판이 **다른 파일**인 것처럼 읽힌다.
+    <!-- ⚠️ 카드 안에 파일 내려받기 버튼을 두지 말 것(#download 구역으로 옮기는 체험 버튼은 괜찮다, 대표 11-04) — 무료판·유료판이 **다른 파일**인 것처럼 읽힌다.
          실제로는 같은 프로그램 하나이고 구독 여부만 다르다. 결제가 열리면 월 정액 카드의 링크를 구독 길로 바꾼다. -->
     <!-- ⛔ 숫자와 단서는 붙여 둔다 — 떨어진 단서는 없는 것과 같다(§14·§471). AI 사용료 카드 안에 조건을 같이 둔다. -->
     <!-- ⛔ 「잠긴다」 사실과 「데이터는 남는다」를 함께 보이게 둔다(법-라이선스: 데이터 보존만 말하고 잠금을 숨기는 조합 금지). -->
-    <p class="pricing-note">처음 7일은 무료 체험(카드 등록 없음) · 구독이 끝나면 추출·편집·내보내기는 사용할 수 없고, 문제 보기·백업은 계속 사용할 수 있습니다(문제는 지워지지 않습니다)</p>
+    <p class="pricing-note">구독이 끝나면 추출·편집·시험지 만들기·내보내기는 사용할 수 없고, 문제 보기·백업 저장은 계속 사용할 수 있습니다(문제는 지워지지 않습니다)</p>
     <!-- ⚖️ 구매 전 고지 6줄은 접은 상자 안에 원문 그대로(2026-10-27 사용자: 길면 접기).
          ⚠️ 결제를 열기 전에 legal에게 「접힌 상태로 명시·설명 의무가 되나」를 다시 물을 것 — 안 되면 펼친다. -->
     <details class="install" style="max-width:720px; margin-top:22px;">
@@ -579,17 +840,22 @@ body,body *:not(code){font-family:"Paperlogy","IBM Plex Sans KR",sans-serif!impo
          ⛔ 이 블록을 약관 링크 안으로 옮기지 말 것: "구매 버튼과 같은 화면"에 있어야 명시로 인정된다.
          결제 도입 시 ①결제 최종 확인 화면 ②앱 첫 실행 화면에도 같은 내용을 반복 배치할 것. -->
     <div class="notice-list">
-      <p>구독이 끝나면 새 PDF 추출 · 문제 편집 · 시험지 제작 · 한글(HWP) 내보내기는 사용할 수 없습니다. 문제 보기와 백업은 계속 사용할 수 있습니다.</p>
+      <p>구독이 끝나면 새 PDF 추출 · 문제 편집 · 시험지 제작 · 한글(HWP) 내보내기는 사용할 수 없습니다. 문제 보기와 백업 저장은 계속 사용할 수 있습니다.</p>
       <p>구독이 끝나도 문제·시험지 데이터는 지워지지 않고 선생님 컴퓨터에 남습니다. 백업 파일(zip)은 언제든 내보낼 수 있습니다.</p>
       <p>이미 내보낸 한글(HWP) 파일은 구독과 관계없이 계속 사용할 수 있습니다.</p>
       <p>다시 구독하면 기존 문제·시험지 데이터를 그대로 이어서 사용할 수 있습니다.</p>
-      <p>문제를 추출하려면 <b>체험 기간에도</b> 선생님이 직접 발급한 구글 Gemini API 키가 필요합니다.
+      <p>오픈 기념 금액은 2027년 1월 31일까지 첫 결제한 컴퓨터 1대에 적용됩니다. 첫 결제 포함 3개월까지입니다(첫 결제일부터 3개월 안에 3번). 전액 환불된 결제는 세지 않고, 중간에 환불한 결제는 1번으로 셉니다. 중간에 쉬어도 기간은 늘어나지 않습니다. 2027년 2월 1일부터 처음 결제하시면 매달 결제 금액입니다.</p>
+      <p>자동 결제는 2027년 1월을 목표로 준비 중이며 일정은 달라질 수 있습니다. 열리기 전에는 선택할 수 없고, 그동안은 매달 결제 금액으로 직접 결제합니다. 선택한 분은 해지할 때까지 매달 자동 결제됩니다.</p>
+      <p>정식판 결제 일정은 달라질 수 있습니다. 구글 충전 잔액은 구글 계정에 남으며, 큐쏙 이용 중이면 다음 달에도 이어서 쓸 수 있습니다.</p>
+      <p>월 이용료가 바뀌면 한 달 전에 미리 알리고, 이미 결제한 기간에는 적용하지 않습니다.</p>
+      <p>문제를 추출하려면 <b>체험 기간에도</b> 선생님이 직접 발급한 구글 AI 키(Gemini API 키)가 필요합니다.
         <span class="sub"><b>구글 AI 사용료는 구독료에 포함되지 않습니다.</b></span>
         <span class="sub">사용료는 선생님 구글 계정에 미리 충전한 금액에서 차감됩니다.</span>
         <span class="sub">충전 조건(구글 정책): 최소 8,000원 · 환불 불가 · 충전일부터 1년 뒤 소멸</span></p>
-      <p>문제를 추출할 때만 페이지 이미지와 그 페이지에서 읽어 낸 글자가 구글 Gemini로 전송됩니다.
+      <p>시험지는 AI가 일할 때만 구글 Gemini로 전송됩니다.
+        <span class="sub">문제를 추출할 때는 페이지 이미지와 그 페이지에서 읽어 낸 글자, 편집 화면에서 그림을 다시 자를 때는 낙서를 지우려고 그 그림 한 장이 갑니다.</span>
         <span class="sub">무료 키로 보낸 내용은 구글이 AI 개선·검토에 사용할 수 있습니다.</span>
-        <span class="sub">유료 키(구글 결제가 연결된 키)로 보낸 내용은 결제가 연결된 동안 AI 개선에 사용하지 않습니다.</span></p>
+        <span class="sub">유료 키(결제를 연결한 구글 프로젝트의 키)로 보낸 내용은 결제가 연결된 동안 AI 개선에 사용하지 않습니다.</span></p>
     </div>
     </div>
     </details>
@@ -598,7 +864,7 @@ body,body *:not(code){font-family:"Paperlogy","IBM Plex Sans KR",sans-serif!impo
 
 <section class="final" id="download">
   <div class="wrap">
-    <div class="hd reveal dark"><p class="hd-q">먼저 사용해 보세요</p><h2><span class="mark">7일</span> 무료 체험</h2><p class="sub">카드 등록 없음 · 자동 결제 없음 · Windows용 (Mac용 준비 중)</p></div>
+    <div class="hd reveal dark"><p class="hd-q">먼저 사용해 보세요</p><h2><span class="mark">7일</span> 무료 체험</h2><p class="sub">체험하는 7일 동안은 프로그램 값을 받지 않습니다 · 구글 AI 사용료 별도 · Windows용</p></div>
     <div class="topc" id="topc"><b>휴대폰으로 보고 계신가요?</b><p>큐쏙은 PC(Windows)에 설치해 쓰는 프로그램입니다.<br>이 주소를 나에게 보내 두고 PC에서 열어 주세요.</p><div class="row"><button type="button" id="topc-copy">주소 복사</button><button type="button" id="topc-share" hidden>나에게 보내기</button></div></div>
     <!-- ⛔ 여기에 "밖으로 나가지 않는다"류를 쓰지 말 것 — 추출 순간 페이지 이미지가 Gemini로
          나가므로 거짓이 되고, 위 프라이버시 섹션과 정면으로 모순된다(2026-08-04 실제 사고). -->
@@ -607,10 +873,10 @@ body,body *:not(code){font-family:"Paperlogy","IBM Plex Sans KR",sans-serif!impo
          ⚠️ **설치 시간을 반드시 말한다** (2026-09-08 사용자 실측 5~6분) — 안 적으면 진행 막대가 도는 동안 「멈췄나?」를 겪는다.
          ⛔ 「용량이 크다」·「압축 해제」는 안 쓴다 — 강사 말이 아니다. ⚠️ 같은 말이 **릴리즈 노트에도** 있어야 한다. -->
     <div class="steps-row">
-      <div class="step reveal"><i>1</i><b>설치</b><span class="big">약 5분</span><ul class="mini"><li>멈춘 듯 보여도 설치 중입니다</li><li>15분이 넘으면 다시 설치해 주세요</li></ul></div>
-      <div class="step reveal"><i>2</i><b>이메일 확인</b><span class="big">6자리 코드</span><ul class="mini"><li>비밀번호·카드 없음</li><li>컴퓨터·이메일당 한 번</li><li>이메일은 체험 안내·문의 확인에 사용</li></ul></div>
-      <div class="step reveal"><i>3</i><b>구글 AI 연결</b><span class="big">약 5분</span><ul class="mini"><li>설정 창의 ‘키 받으러 가기’ 버튼</li><li>무료 키는 카드 불필요</li></ul></div>
-      <div class="step reveal"><i>4</i><b>시험지 PDF 추출</b><span class="big">약 2분</span><ul class="mini"><li>유료 키로 수학 시험지 1부 <span class="nw">실측 기준</span></li></ul></div>
+      <div class="step reveal"><i>1</i><b>설치</b><span class="big">약 5분</span><ul class="mini"><li>파란 창이 뜨면 <b>추가 정보 → 게시자 Danbi 확인 → 실행</b></li></ul></div>
+      <div class="step reveal"><i>2</i><b>이메일 확인</b><span class="big">6자리 코드</span><ul class="mini"><li>카드·비밀번호 없이 <span class="nw">이메일 코드로 시작</span></li><li>이메일은 체험 안내·문의 확인에 사용</li></ul></div>
+      <div class="step reveal"><i>3</i><b>구글 AI 키 받기</b><span class="big">약 5분</span><p class="keydef">선생님 구글 계정에서 받아 큐쏙에 넣는 코드 — 이 코드로 구글 AI가 문제를 추출합니다</p><ul class="mini"><li>구글 로그인 → 키 만들기 → <span class="nw">큐쏙에 붙여넣기</span></li><li>무료 키: 카드 없이 하루 약 5~10문제(계정·문제마다 다름)</li></ul><a class="go-line" href="guide/ai-key/">사진으로 보는 키 받는 법</a></div>
+      <div class="step reveal"><i>4</i><b>시험지 PDF 추출</b><span class="big">약 2분</span><ul class="mini"><li>구글 AI 충전 후, 수학 시험지 1부 실측</li><li>처음엔 짧은 시험지로 시작하세요</li></ul></div>
     </div>
     <div class="cta-row">
       <!-- ⚠️ 버전을 올릴 때마다 아래 주소와 지문(SHA-256)을 **함께** 갱신할 것.
@@ -620,47 +886,85 @@ body,body *:not(code){font-family:"Paperlogy","IBM Plex Sans KR",sans-serif!impo
            ⛔ 아직 없는 파일(Mac)에 링크를 걸지 말 것 — 준비되면 이 줄 옆에 같은 꼴로 단다. -->
       <a class="btn-primary" href="https://github.com/gamjanuna/gamjanuna.github.io/releases/download/v0.7.0/Qssok.Setup.0.7.0.exe">⬇ Windows용</a>
     </div>
-    <!-- ⚠️ 서명 ≠ 경고 없음(법-라이선스-점검 §10-5-A) — 새 버전 직후엔 파란 창이 뜰 수 있다.
-         «뜰 수도 있다»로만 남긴다. ⛔ 「경고 없음」·「Microsoft 인증」 금지. -->
-    <p class="dl-warn"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4M12 17h.01"/></svg><span>설치 중 파란 창(Windows의 PC 보호)이 뜨면 <b>추가 정보 → 실행</b>을 누르세요</span></p>
     <!-- 설치본엔 Danbi 서명이 붙어 있지만(v0.6.2~) 지문은 계속 게시한다 — 서명은 «누가 배포했나», 지문은 «받은 파일이 그 파일인가».
          docs/법-라이선스-점검.md §10-5 「다운로드 버튼 연결 조건 3종」 -->
-    <p class="dl-meta">Windows 10 이상(64비트) · 약 314MB · 버전 0.7.0</p>
-    <p class="dl-meta">SHA-256 <code>6378169ce6c1b895c9ece22b63989ade0584e7506516a866a61613b8cf110e5c</code></p>
+    <p class="dl-os"><span class="nw">Windows 10 이상(64비트) 전용</span> · <span class="nw">Mac에서는 설치되지 않습니다</span></p>
+    <p class="dl-meta">버전 0.7.0</p>
+    <details class="dl-more"><summary>파일 확인용 지문(SHA-256) · 약 314MB</summary><p class="dl-meta">SHA-256 <code>6378169ce6c1b895c9ece22b63989ade0584e7506516a866a61613b8cf110e5c</code></p></details>
   </div>
 </section>
 
+
 <section class="alt" id="faq">
   <div class="wrap">
-    <div class="hd reveal"><p class="hd-q">자주 묻는 질문</p><h2>FAQ</h2></div>
+    <div class="hd reveal"><p class="hd-q">FAQ</p><h2>자주 묻는 질문</h2></div>
     <div class="faq">
       <details>
-        <summary>"구글 AI 연결"이 뭔가요? 체험에도 필요한가요?</summary>
-        <p>체험·정식판 모두 처음 한 번 하는 설정입니다(약 5분, 구글 계정 필요). 앱 설정의 <b>키 받으러 가기</b>에서 받은 키를 붙여넣습니다. 무료 키는 카드 등록이 필요 없습니다. 막히면 <a href="https://open.kakao.com/o/swrvSxUi" target="_blank" rel="noopener">카카오톡</a>이나 메일로 문의해 주세요.</p>
-      </details>
-      <details>
-        <summary>무료 키로도 시험지 한 부를 다 추출할 수 있나요?</summary>
-        <p>대개 못 합니다. 무료 키는 하루 <b>5문제 안팎</b>입니다(계정마다 다름, 구글 미공개). 추출한 문제는 저장되고, 한국 시간 오후 4시(겨울 오후 5시)에 다시 채워집니다. 한 번에 끝내려면 미리 충전해야 합니다(최소 8,000원).</p>
-      </details>
-      <details>
-        <summary>추출이 틀리면 어떻게 하나요?</summary>
-        <p>편집 화면에서 원본 그림을 보며 고칩니다. 스캔 상태가 나쁘면 오타가 더 많을 수 있습니다.</p>
-      </details>
-      <details>
-        <summary>다른 컴퓨터로 옮길 수 있나요?</summary>
-        <p>백업을 zip 한 파일로 저장하고, 새 컴퓨터의 큐쏙(Qssok)에서 그 파일로 복원합니다. 정식판은 한 번에 컴퓨터 한 대에서 씁니다. 컴퓨터를 바꾸면 문의해 주세요(옛 컴퓨터 등록을 풀어 드립니다).</p>
-      </details>
-      <details>
-        <summary>인터넷이 꼭 필요한가요?</summary>
-        <p>추출할 때만 필요합니다. 보기·편집·시험지 만들기는 인터넷 없이 됩니다. 단, 구독 확인을 위해 며칠에 한 번은 연결해야 합니다.</p>
-      </details>
-      <details>
-        <summary>저작권 문제는 없나요?</summary>
-        <p>큐쏙(Qssok)은 자료를 모으거나 공유하지 않고, 선생님 컴퓨터 안에서 정리하는 도구입니다. 이용 권한이 있는 자료만 올려 주세요 — 저작권을 지키는 책임은 선생님께 있습니다. 수능·교육청 기출 같은 공공저작물을 권합니다.</p>
+        <summary>제 시험지는 어디로 가나요? 다른 사람이 볼 수 있나요?</summary>
+        <div class="ans"><p class="lead">시험지와 추출한 문제는 선생님 컴퓨터에만 저장되고, 큐쏙 서버로는 보내지 않습니다. 시험지는 AI가 일할 때만(문제 추출, 그림 낙서 지우기) 구글 Gemini로 암호화되어 전송됩니다.</p><p>보내는 것은 문제를 추출할 때 페이지 이미지와 그 페이지에서 읽어 낸 글자, 낙서를 지울 때 그 그림 한 장입니다. 구글이 다루는 방식은 키 종류에 따라 다릅니다.</p><ul><li><b>무료 키</b>: 구글이 AI 개선(학습 포함)에 쓸 수 있고, 구글 검토 담당자가 읽어 볼 수 있습니다. 보관 기간은 구글이 밝히지 않았습니다.</li><li><b>유료 키</b>(구글 결제를 연결한 키): AI 개선에 쓰지 않고 일정 기간만 보관합니다. 결제 연결을 끊으면 무료 키 기준으로 돌아갑니다.</li></ul><p>학생 이름·성적처럼 개인정보가 들어 있는 페이지는 어느 키를 쓰든 올리지 마세요.</p><p class="note">2026년 10월, 구글 Gemini API 약관 기준</p></div>
       </details>
       <details>
         <summary>Mac에서도 되나요?</summary>
-        <p>지금은 <b>Windows용</b>만 있습니다. Mac용은 준비 중입니다.</p>
+        <div class="ans"><p class="lead">아니요, 지금은 Windows용만 있습니다.</p><p>Mac·아이패드·휴대폰에는 설치되지 않습니다.</p></div>
+      </details>
+      <details>
+        <summary>어떤 과목이 되나요?</summary>
+        <div class="ans"><p class="lead">지금은 수학 시험지를 지원합니다.</p><p>다른 과목은 준비 중입니다.</p></div>
+      </details>
+      <details>
+        <summary>"구글 AI 키"가 뭔가요? 체험에도 필요한가요?</summary>
+        <div class="ans"><p class="lead">네, 체험·정식판 모두 처음 한 번 넣는 설정입니다.</p><ul><li>선생님 구글 계정에서 받아 큐쏙에 넣는 코드입니다. 이 코드로 구글 AI가 문제를 추출합니다.</li><li>구글 계정으로 받고, 약 5분 걸립니다. 무료 키는 카드 등록이 필요 없습니다.</li><li>앱 설정의 <b>키 받으러 가기</b>에서 받은 키를 붙여넣습니다.</li></ul><p class="note">막히면 <a href="https://open.kakao.com/o/swrvSxUi" target="_blank" rel="noopener">카카오톡</a>이나 메일로 문의해 주세요.</p><p class="faq-go"><a class="go-line" href="guide/ai-key/">구글 AI 키 등록 안내</a></p></div>
+      </details>
+      <details>
+        <summary>무료 키로도 시험지 한 부를 다 추출할 수 있나요?</summary>
+        <div class="ans"><p class="lead">대개 못 합니다. 무료 키는 하루 약 5~10문제입니다(문제에 따라 다르고, 구글이 한도를 공개하지 않아 계정마다 다를 수 있습니다).</p><ul><li>추출한 문제는 저장되고, 다음 날 <b class="nw">이어서 추출</b>을 누르면 남은 쪽부터 추출합니다.</li><li>무료 한도는 한국 시간 오후 4시(겨울 오후 5시)에 다시 채워집니다.</li><li>한 번에 끝내려면 구글에 충전해 주세요. 최소 8,000원이면 수학 문제 약 1,000문제입니다(2026년 가격 · 2027년 1월 구글 가격 인상 예정). <a href="guide/ai-key/#charge">구글 충전 안내</a></li></ul><p class="note">구글 충전 금액은 환불되지 않고, 충전일부터 1년 안에 쓰지 않으면 사라집니다(구글 정책).</p></div>
+      </details>
+      <details class="more">
+        <summary>질문 더 보기</summary>
+        <details>
+          <summary>설치할 때 파란 경고 창이 떠요.</summary>
+          <div class="ans"><p class="lead">‘추가 정보’를 눌러 게시자가 <b>Danbi</b>인지 확인한 뒤 ‘실행’을 누르면 설치됩니다.</p><ul><li>윈도우가 아직 많이 설치되지 않은 프로그램에 띄우는 확인 창(Windows의 PC 보호)입니다.</li><li>설치는 약 5분 걸리고, 진행 막대가 멈춘 듯해도 설치 중입니다.</li></ul><p class="note">이 사이트에서 받은 파일만 실행해 주세요. 게시자가 다르거나 ‘알 수 없는 게시자’로 나오면 실행하지 말고 알려 주세요.</p></div>
+        </details>
+        <details>
+          <summary>정답·해설도 시험지에 같이 넣을 수 있나요?</summary>
+          <div class="ans"><p class="lead">네. 해설 PDF를 따로 올리면 문제마다 정답·해설이 붙습니다.</p><ul><li>한글(HWP) 시험지 맨 뒤에 정답지를 넣을 수 있습니다.</li><li>문제마다 정답을 다는 미주를 넣을 수 있고, <b>해설 포함</b>을 켜면 미주에 해설(글·수식·표·그림)까지 들어갑니다.</li><li>정답지만 따로 저장할 수도 있습니다.</li></ul></div>
+        </details>
+        <details>
+          <summary>어떤 PDF를 올릴 수 있나요?</summary>
+          <div class="ans"><p class="lead">지금은 PDF 파일만 올릴 수 있습니다. 문제지와 해설을 합쳐 한 번에 500쪽까지입니다.</p><ul><li>jpg·png 같은 사진 파일은 지금은 올릴 수 없습니다.</li><li>스캔한 PDF나 휴대폰으로 찍어 만든 PDF도 올릴 수 있습니다. 흐리거나 기울면 오타가 늘 수 있습니다.</li></ul></div>
+        </details>
+        <details>
+          <summary>추출이 틀리면 어떻게 하나요?</summary>
+          <div class="ans"><p class="lead">편집 화면에서 원본 그림을 보며 고칩니다.</p><p>문제 DB에서 <b>살펴볼 문제</b>로 표시된 문제부터 보시면 됩니다.</p></div>
+        </details>
+        <details>
+          <summary>한글(HWP) 프로그램이 꼭 있어야 하나요?</summary>
+          <div class="ans"><p class="lead">한글이 없으면 한컴독스(웹)에서 열어 볼 수 있습니다.</p><p>큐쏙이 만드는 시험지는 한글 파일(.hwpx)이라, 한글 또는 한컴독스가 있어야 열립니다.</p></div>
+        </details>
+        <details>
+          <summary>만든 한글(HWP) 파일을 한글에서 다시 고칠 수 있나요?</summary>
+          <div class="ans"><p class="lead">네, 한글에서 고칠 수 있습니다.</p><ul><li>글자는 그대로 고칩니다.</li><li>수식은 대부분 한글 수식으로 들어가 수식 편집기로 고칩니다. 한글 수식으로 바꾸지 못한 일부 수식은 그림으로 들어갑니다.</li><li>미주를 켜 두면 문제를 옮겨도 정답이 따라갑니다.</li></ul></div>
+        </details>
+        <details>
+          <summary>체험이 끝나면 만든 문제는 어떻게 되나요?</summary>
+          <div class="ans"><p class="lead">지워지지 않고 선생님 컴퓨터에 남습니다.</p><ul><li>문제 보기와 백업 저장은 계속 됩니다.</li><li>추출·편집·시험지 만들기·한글(HWP) 내보내기는 정식판 결제 뒤 다시 됩니다.</li></ul><p class="note">결제가 열리기 전에 체험이 끝났다면 <a href="https://open.kakao.com/o/swrvSxUi" target="_blank" rel="noopener">카카오톡</a>이나 메일로 연장을 문의해 주세요.</p></div>
+        </details>
+        <details>
+          <summary>인터넷이 꼭 필요한가요?</summary>
+          <div class="ans"><p class="lead">AI가 일할 때(문제 추출, 그림 낙서 지우기)와 체험을 시작할 때 필요합니다.</p><ul><li>이용 기간 안에는 문제 보기·편집·시험지 만들기·한글(HWP) 내보내기를 인터넷 없이 할 수 있습니다.</li><li>결제·연장은 인터넷에 연결해 큐쏙을 켜면 반영됩니다.</li></ul></div>
+        </details>
+        <details>
+          <summary>다른 컴퓨터로 옮길 수 있나요?</summary>
+          <div class="ans"><p class="lead">네. 문제와 시험지는 백업(zip)으로 옮깁니다.</p><ul><li>새 컴퓨터의 큐쏙에서 백업을 불러옵니다. 백업 불러오기는 정식판에서 됩니다.</li><li>정식판은 결제한 이메일로 contact@danbilab.com에 알려 주시면 옛 컴퓨터에서 해제하고 새 컴퓨터에서 활성화해 드립니다.</li></ul></div>
+        </details>
+        <details>
+          <summary>학원 컴퓨터 여러 대에서 쓰려면 어떻게 하나요?</summary>
+          <div class="ans"><p class="lead">컴퓨터마다 따로 결제해 주세요. 이용권 하나는 컴퓨터 1대에서 씁니다.</p><ul><li>컴퓨터마다 번호를 받아 결제합니다. 같은 컴퓨터 번호로 여러 번 결제하면 그 컴퓨터의 기간만 늘어납니다.</li><li>문제와 시험지도 컴퓨터마다 따로 저장됩니다.</li><li>다른 선생님이 이미 체험한 컴퓨터라 체험이 안 되면 <a href="https://open.kakao.com/o/swrvSxUi" target="_blank" rel="noopener">카카오톡</a>이나 메일로 알려 주세요. 확인 후 안내해 드립니다.</li></ul><p class="note">여러 선생님이 함께 쓰시려면 <a href="https://open.kakao.com/o/swrvSxUi" target="_blank" rel="noopener">카카오톡</a>이나 메일로 문의해 주세요.</p></div>
+        </details>
+        <details>
+          <summary>환불되나요?</summary>
+          <div class="ans"><p class="lead">네. 이용 기간이 시작되기 전이거나 결제한 날 요청하면 전액 환불합니다.</p><ul><li>이용 기간이 시작된 뒤에는 지난 날수만큼 빼고 환불합니다.</li><li>결제 이메일과 컴퓨터 번호를 contact@danbilab.com으로 보내 주세요. 메일을 받은 날부터 3영업일 안에 결제를 취소합니다.</li></ul><p class="note">구글 AI 충전 금액은 구글에 낸 돈이라 큐쏙이 환불할 수 없습니다. 자세한 기준은 <a href="https://danbilab.com/terms/" target="_blank" rel="noopener">이용약관 제9조</a></p></div>
+        </details>
       </details>
     </div>
   </div>
@@ -668,9 +972,10 @@ body,body *:not(code){font-family:"Paperlogy","IBM Plex Sans KR",sans-serif!impo
 
 <footer>
   <div class="wrap">
-    큐쏙(Qssok)™ · © 2026 · 문의: contact@danbilab.com · <a href="https://open.kakao.com/o/swrvSxUi" target="_blank" rel="noopener">카카오톡 문의</a> · <a href="https://danbilab.com/terms/" target="_blank" rel="noopener">이용약관</a> · <a href="https://danbilab.com/privacy/" target="_blank" rel="noopener">개인정보처리방침</a>
+    큐쏙(Qssok)™ · © 2026 · 문의: contact@danbilab.com · <a href="https://open.kakao.com/o/swrvSxUi" target="_blank" rel="noopener">카카오톡 문의·기능 제안</a> · <a href="https://danbilab.com/terms/" target="_blank" rel="noopener">이용약관</a> · <a href="https://danbilab.com/terms/" target="_blank" rel="noopener">환불정책(이용약관 제9조)</a> · <a href="https://danbilab.com/privacy/" target="_blank" rel="noopener">개인정보처리방침</a>
     <br>상호 단비 · 대표 이단비 · 사업자등록번호 622-42-01304 · 주소 경상북도 구미시 산호대로25길 41, 204동 7층 5호(옥계동, 부영아파트2차) · 전화 070-8064-3798 · 호스팅 제공자 GitHub
-    <br>한글, HWP는 (주)한글과컴퓨터의 상표입니다.
+    <br><a href="https://blog.naver.com/qssok" target="_blank" rel="noopener">블로그</a> · <a href="https://www.youtube.com/@qssok" target="_blank" rel="noopener">유튜브</a> · <a href="https://www.instagram.com/qssok" target="_blank" rel="noopener">인스타그램</a>
+    <br>큐쏙은 계속 업데이트하고 있습니다 · 필요한 기능은 카카오톡으로 알려 주세요<br>한글, HWP는 (주)한글과컴퓨터의 상표입니다.<br>Windows는 Microsoft Corporation의 상표입니다.<br>Mac은 Apple Inc.의 상표입니다.<br>Google, Google AI Studio, Gemini는 Google LLC의 상표입니다.
   </div>
 </footer>
 
@@ -682,9 +987,10 @@ body,body *:not(code){font-family:"Paperlogy","IBM Plex Sans KR",sans-serif!impo
   setTimeout(function(){var a=document.querySelector('h1 .accent');if(a)a.classList.add('on')},200);
   var tabs=[].slice.call(document.querySelectorAll('.tab')),imgs=[].slice.call(document.querySelectorAll('.stage img')),mob=document.getElementById('mobd');
   if(!tabs.length)return;
-  function show(i){tabs.forEach(function(b,k){b.setAttribute('aria-selected',k===i?'true':'false')});imgs.forEach(function(m,k){m.classList.toggle('on',k===i)});if(mob)mob.innerHTML=tabs[i].querySelector('.d').innerHTML}
+  function show(i){tabs.forEach(function(b,k){b.setAttribute('aria-selected',k===i?'true':'false')});imgs.forEach(function(m,k){m.classList.toggle('on',k===i)});if(mob)mob.innerHTML=tabs[i].querySelector('.d').innerHTML;var st=document.getElementById('stage');if(st)st.classList.toggle('is-hwp',i===2)}
   tabs.forEach(function(b,i){b.addEventListener('mouseenter',function(){show(i)});b.addEventListener('click',function(){show(i)});b.addEventListener('focus',function(){show(i)})});
   show(0);
+  var th=document.querySelector('.to-hwp');if(th)th.addEventListener('click',function(){show(2)});
 })();
 (function(){
   var u=location.href.split('#')[0]+'#download',c=document.getElementById('topc-copy'),h=document.getElementById('topc-share');
@@ -693,5 +999,5 @@ body,body *:not(code){font-family:"Paperlogy","IBM Plex Sans KR",sans-serif!impo
   if(navigator.share){h.hidden=false;h.addEventListener('click',function(){navigator.share({title:'큐쏙(Qssok) — PC에서 열기',url:u}).catch(function(){})})}
 })();
 </script>
-</body>
+<script>(function(){var hv=document.querySelector(".hero-vid");document.querySelectorAll(".wtab").forEach(function(b){b.addEventListener("click",function(){var v=b.dataset.v==="1";document.querySelectorAll(".wtab").forEach(function(x){x.classList.toggle("on",(x.dataset.v==="1")===v)});var w=document.querySelector(".wscr");if(w)w.classList.toggle("alt",v);if(hv)hv.classList.toggle("alt",v);hv.querySelectorAll("video").forEach(function(m){if(v)m.pause();else m.play().catch(function(){})})})})})()</script></body>
 </html>
