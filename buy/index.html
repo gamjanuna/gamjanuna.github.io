@@ -12,11 +12,11 @@
      자동 결제 카드 = 대표 결정(2026-11-04)으로 열리기 전에도 「준비 중」으로 둔다 — 구매 단추 없음·날짜는 목표로만·열리기 전 실제 금액·선택한 분만 자동 갱신, 네 표기를 빼지 말 것(§9-6-F).
      색 = 앱 tokens.css 값을 옮겨 적음.      ⛔⛔ 지금은 「심사용 시험 결제」판(대표 11-09, 포트원 심사 11-17) — 결제창은 포트원 테스트 채널만 열고 우리 결제 서버를 부르지 않는다.
         맨 위 시험 띠(.test-band)는 접지 않는다(legal 11-09 표시광고). 실제 결제를 열 때 띠·buy.js의 TEST 묶음을 같이 걷는다.
-     ⛔ CSP(아래 meta)가 이 페이지의 바깥 주소 한계다 — 포트원 결제창 코드(cdn.portone.io)와 결제사 창만. 넓히려면 legal·security 먼저(§14).
+     ⛔ CSP(아래 meta)가 이 페이지의 바깥 주소 한계다 — 포트원 결제창 코드(cdn.portone.io)와 결제사 창, 우리 결제 서버(pay.danbilab.com — 주문·결과 확인만). 넓히려면 legal·security 먼저(§14).
      ⛔ 인라인 <script> 금지(CSP가 막는다) — 동작은 buy.js에. -->
 <meta name="robots" content="noindex">
 <meta name="referrer" content="strict-origin">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.portone.io https://*.inicis.com; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://*.portone.io https://*.iamport.co https://*.iamport.kr; frame-src https://*.portone.io https://*.iamport.co https://*.iamport.kr https://*.inicis.com; form-action https://*.portone.io https://*.iamport.co https://*.iamport.kr https://*.inicis.com; base-uri 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.portone.io https://*.inicis.com; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://pay.danbilab.com https://*.portone.io https://*.iamport.co https://*.iamport.kr; frame-src https://*.portone.io https://*.iamport.co https://*.iamport.kr https://*.inicis.com; form-action https://*.portone.io https://*.iamport.co https://*.iamport.kr https://*.inicis.com; base-uri 'none'; object-src 'none'">
 <link rel="icon" href="../favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="../fonts.css">
 <style>
@@ -569,6 +569,16 @@ body:has(#pay:not([hidden])) .nav-in, body:has(#pay:not([hidden])) .nav a, body:
 .notice-more[open] summary svg { transform: rotate(90deg); }
 .notice-more summary:focus-visible { outline: 2px solid var(--brand-600); outline-offset: 2px; }
 .notice-more > .notice { margin-top: 8px; }
+  /* 11-12 요금 정리(홈페이지 v293·앱 요금제와 한 벌 — design·ux-writing·legal, 강사 역 피드백) */
+  .cards-hd { margin: 0 0 8px; font-size: 12.5px; color: var(--ink-3); text-align: right; }
+  .card .price small { color: var(--ink-3); }
+  .card .save { font-size: 11.5px !important; font-weight: 600; padding: 0 6px !important; background: var(--surface-2) !important; color: var(--ink-2) !important; }
+  .ai-lead { display: inline-block; align-self: flex-start; margin: 0 !important; padding: 2px 10px !important; border: 0 !important; border-radius: 999px; background: var(--brand-700); color: #fff !important; font-size: 12.5px; }
+  .ai-table .sol > * { background: none !important; }
+  .sum { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 4px 10px; margin: 14px 0 6px; font-size: 14px; color: var(--ink-2); }
+  .sum .eq { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 50%; background: var(--brand-700); color: #fff; font-weight: 700; }
+  .sum b { font-size: 22px; color: var(--brand-700); }
+  .sum small { flex-basis: 100%; text-align: center; font-size: 12.5px; color: var(--ink-3); }
 </style>
 </head>
 <body>
@@ -578,15 +588,15 @@ body:has(#pay:not([hidden])) .nav-in, body:has(#pay:not([hidden])) .nav a, body:
 <main class="page" id="shop">
   <h1>정식판</h1>
 
+    <p class="cards-hd">이용료는 모두 VAT 별도 · 컴퓨터 1대 기준</p>
     <div class="cards">
-    <section class="card emph" data-card="open3"><p class="name"><span class="open">오픈 기념</span>첫 3개월</p><div class="amt"><p class="price">월 <b>27,000원</b><small>(VAT 별도, 최종 결제 금액 29,700원)</small></p><p class="cond">결제가 열린 날부터 2027년 1월 31일까지 첫 결제 · <span class="nw">첫 결제 포함 3개월</span></p></div><button class="go" type="button" data-buy="open3">구매하기</button></section>
-    <section class="card" data-card="monthly"><p class="name">매달 결제</p><div class="amt"><p class="price">월 <b>36,000원</b><small>(VAT 별도, 최종 결제 금액 39,600원)</small></p><p class="cond"><span class="nw">첫 3개월 뒤</span> · <span class="nw">한 달씩 직접 결제</span></p></div><button class="go" type="button" data-buy="monthly">구매하기</button></section>
+    <section class="card emph" data-card="open3"><p class="name"><span class="open">오픈 기념</span>첫 3개월</p><div class="amt"><p class="price">월 <b>27,000원</b><small>부가세 포함 29,700원</small></p><p class="cond">2027년 1월 31일까지 첫 결제하면 <span class="nw">그날부터 3개월</span></p></div><button class="go" type="button" data-buy="open3">구매하기</button></section>
+    <section class="card" data-card="monthly"><p class="name">매달 결제</p><div class="amt"><p class="price">월 <b>36,000원</b><small>부가세 포함 39,600원</small></p></div><button class="go" type="button" data-buy="monthly">구매하기</button></section>
     <!-- 자동 결제는 열리기 전엔 맨 뒤(대표 11-09) — 열리면 두 번째(오픈 기념 다음)로 옮긴다 -->
-    <section class="card is-soon" data-card="auto"><p class="name">자동 결제<span class="save">월 4,000원 절약</span></p><div class="amt"><p class="price">월 <b>32,000원</b><small>(VAT 별도, 최종 결제 금액 35,200원)</small></p><p class="cond"><span class="nw">첫 3개월 뒤 · 2027년 1월 목표</span></p></div><p class="soon">준비 중</p></section>
+    <section class="card is-soon" data-card="auto"><p class="name">자동 결제<span class="save">월 4,000원 절약</span></p><div class="amt"><p class="price">월 <b>32,000원</b><small>부가세 포함 35,200원</small></p><p class="cond"><span class="nw">※ 2027년 1월 목표</span></p></div><p class="soon">준비 중</p></section>
   </div>
   <div class="ask" style="margin-top:12px"><b>문의</b><span class="mail">contact@danbilab.com</span><button type="button" data-copy="contact@danbilab.com">메일 주소 복사</button><span class="sp"></span><a href="https://open.kakao.com/o/swrvSxUi">카카오톡 문의</a></div>
-  <div class="allin"><b>기능은 모두 같습니다</b><span>PDF 추출</span><span>문제 편집</span><span>문제 DB</span><span>시험지 만들기</span><span>정답·해설</span><span>한글 저장</span><span>백업</span></div>
-  <p class="common">컴퓨터 1대 · 카드 · 간편결제</p>
+  <p class="common">카드 · 간편결제</p>
 
   <p class="h">구매 방법</p>
   <div class="steps">
@@ -603,18 +613,19 @@ body:has(#pay:not([hidden])) .nav-in, body:has(#pay:not([hidden])) .nav a, body:
       <div><span>수학 모의고사 한 부 기준</span><b>약 400원</b><small>46문제 · 해설 제외</small></div>
     </div>
     <div class="ai-info">
-      <p class="ai-cap">한 문제당 · 한 번 추출 기준<small>다시 추출하면 더 듭니다</small></p>
-      <table class="ai-table"><thead><tr><th scope="col"></th><th scope="col">영어</th><th scope="col">수학</th><th scope="col">과학</th><th scope="col">국어</th></tr></thead><tbody><tr><th scope="row">문제만</th><td><small>약</small> 8원</td><td><small>약</small> 8원</td><td><small>약</small> 11원</td><td><small>약</small> 15원</td></tr><tr class="sol"><th scope="row">해설까지</th><td><small>약</small> 16원</td><td><small>약</small> 20원</td><td><small>약</small> 22원</td><td><small>약</small> 30원</td></tr></tbody></table>
-      <ul class="ai-notes"><li>추출한 만큼 차감됩니다 · 남은 금액은 구글 계정에 남아 큐쏙 이용 중이면 다음 달에도 이어서 쓰고, 모자라면 추가 충전합니다</li><li>충전 후 <b>1년 안에</b> 쓰지 않은 금액은 사라지고 <span class="nw">환불 불가(구글 정책)</span></li></ul>
-      <p class="ai-foot"><a href="https://qssok.com/guide/ai-key/#charge">구글 충전 안내</a> · 2026년 구글 가격 기준 · 2027년 1월 구글 가격 인상 예정</p>
+      <p class="ai-cap">한 문제당 · 한 번 추출 기준 (수학)</p>
+      <table class="ai-table"><tbody><tr><th scope="row">문제만</th><td><small>약</small> 8원</td></tr><tr class="sol"><th scope="row">해설까지</th><td><small>약</small> 20원</td></tr></tbody></table>
+      <ul class="ai-notes"><li>추출한 만큼 차감되고, 남은 금액은 다음 달에도 이어서 씁니다(큐쏙 이용 중일 때)</li><li>충전 후 <b>1년 안에</b> 쓰지 않은 금액은 사라지고 <span class="nw">환불 불가(구글 정책)</span></li></ul>
+      <p class="ai-foot"><a href="https://qssok.com/guide/ai-key/#charge">구글 충전 안내</a> · 2026년 11월 13일 기준 · 구글 정책에 따라 2027년 1월 1일부터 구글 AI 사용료 2배 인상 예정</p>
     </div>
   </div>
+  <p class="sum"><span class="eq" aria-hidden="true">=</span>시작 비용 <b>37,700원</b><small>큐쏙 29,700원(오픈 기념) + 구글 최소 충전 약 8,000원</small></p>
 
-  <p class="more-lock">결제한 1개월이 끝나면 새 파일 불러오기 · 추출 · 편집 · 글자 복사 · 시험지 만들기와 한글 내보내기 · 백업 불러오기가 잠깁니다. 문제 보기와 백업 저장은 계속 쓰실 수 있고, 저장된 문제와 시험지는 지워지지 않습니다. 문제를 추출하는 순간에만 페이지 이미지가 구글로 전송됩니다</p>
+  <p class="more-lock">결제한 1개월이 끝나면 새 파일 불러오기 · 추출 · 편집 · 글자 복사 · 시험지 만들기와 한글 내보내기 · 백업 불러오기가 잠깁니다. 문제 보기와 백업 저장은 계속 쓰실 수 있고, 저장된 문제와 시험지는 지워지지 않습니다. 시험지는 AI가 일할 때만(문제 추출, 그림 낙서 지우기) 구글 Gemini로 전송됩니다</p>
   <details class="more"><summary><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l8 7-8 7z"/></svg>알아 두실 것 <span>적용·이용 기간, 오픈 기념 금액, 자동 결제 조건</span></summary><ul class="know">
     <li>결제가 확인되면 1개월을 바로 적용합니다. 큐쏙을 켜지 않아도 기간은 시작됩니다. 적용한 날부터 시작하며, 체험이나 앞서 결제한 달이 남아 있으면 그 기간이 끝난 다음 날부터 시작합니다</li>
     <li>자동 결제가 열리기 전에는 매달 직접 결제해 주세요. 기간이 끝나기 전에 결제하셔도 남은 기간 뒤에 이어집니다</li>
-    <li>오픈 기념 금액은 결제가 열린 날부터 2027년 1월 31일까지 첫 결제한 컴퓨터 1대에 적용됩니다. 첫 결제 포함 3개월까지입니다(첫 결제일부터 3개월 안에 3번). 전액 환불된 결제는 세지 않고, 중간에 환불한 결제는 1번으로 셉니다. 중간에 쉬어도 기간은 늘어나지 않습니다. 2027년 2월 1일부터 처음 결제하시면 매달 결제 금액입니다</li>
+    <li>오픈 기념 금액은 컴퓨터 번호마다 따로 적용됩니다. 그 번호로 2027년 1월 31일까지 첫 결제하면 첫 결제 포함 3개월까지입니다(첫 결제일부터 3개월 안에 3번). 전액 환불된 결제는 세지 않고, 중간에 환불한 결제는 1번으로 셉니다. 중간에 쉬어도 기간은 늘어나지 않습니다. 2027년 2월 1일부터 처음 결제하시면 매달 결제 금액입니다</li>
     <li>자동 결제는 준비 중이며 일정은 달라질 수 있습니다. 열리기 전에는 선택할 수 없고, 그동안은 매달 결제 금액으로 직접 결제합니다. 선택한 분은 해지할 때까지 매달 자동 결제됩니다</li>
     <li>오픈 기념 금액 대상인데 39,600원으로 결제하셨다면 문의해 주세요. 차액 9,900원을 돌려드립니다. 컴퓨터를 옮기거나 번호를 고쳐 번호가 달라져도 대상 여부는 처음 번호의 첫 결제일과 횟수로 봅니다</li>
     <li>월 이용료가 바뀌면 한 달 전에 미리 알리고, 이미 결제한 기간에는 적용하지 않습니다</li>
@@ -627,8 +638,8 @@ body:has(#pay:not([hidden])) .nav-in, body:has(#pay:not([hidden])) .nav a, body:
       <dt>전액 환불</dt><dd>정식판 이용 기간이 시작되기 전이거나 결제한 날 요청하면 <b>전액 환불</b>합니다.</dd>
       <dt>이용 중</dt><dd>사용 여부와 관계없이, 시작일부터 환불 요청일까지 지난 일수를 뺀 금액으로 환불이 가능합니다. 큐쏙은 선생님이 앱을 언제, 어떻게 사용하시는지 알 수 없기 때문에 지난 일수로만 계산합니다.</dd>
       <dt>계산</dt><dd>환불액 = 결제액 − 결제액 ÷ 이용 일수 × 지난 일수 <span class="sub">결제액 = 실제 결제한 금액(부가세 포함) · 요청일 포함 · 빼는 금액의 1원 미만은 버림 · 예) 29,700원, 30일 중 10일 지남 → 19,800원 환불</span></dd>
-      <dt>청약철회</dt><dd>이용 기간이 시작된 뒤 지난 일수만큼은 청약철회가 제한됩니다(전자상거래법 제17조 제2항 제5호). 결제 전에 7일 무료 체험으로 백업 불러오기를 뺀 모든 기능을 써 보실 수 있습니다.</dd>
-      <dt>요청 방법</dt><dd>이용 기간 중 언제든 요청하실 수 있습니다. 결제 이메일과 컴퓨터 번호를 contact@danbilab.com으로 보내 주세요. 요청 메일을 받은 날부터 3영업일 안에 결제를 취소하고, 그 컴퓨터의 정식판은 해제됩니다. <span class="sub">카드사 환급일은 다를 수 있습니다</span></dd>
+      <dt>청약철회</dt><dd>이용 기간이 시작된 뒤 지난 일수만큼은 청약철회가 제한됩니다(전자상거래법 제17조 제2항 제5호). 결제 전에 7일 무료 체험으로 백업 불러오기를 제외한 모든 기능을 써 보실 수 있습니다.</dd>
+      <dt>요청 방법</dt><dd>이용 기간 중 언제든 요청하실 수 있습니다. 결제 이메일과 컴퓨터 번호를 contact@danbilab.com으로 보내 주세요. 요청 메일을 받은 날부터 3영업일 안에 결제를 취소합니다. 이용 중이면 요청한 날까지 쓰시고 다음 날부터 잠깁니다. <span class="sub">카드사 환급일은 다를 수 있습니다</span></dd>
       <dt>그 밖</dt><dd>위약금 없음 · 결제 오류와 중복 결제는 전액 환불 · 환불이 늦어지면 늦어진 날수만큼 전자상거래법 시행령이 정한 지연배상금(연 15%)을 더해 드립니다</dd>
     </dl>
   </section>
@@ -661,8 +672,9 @@ body:has(#pay:not([hidden])) .nav-in, body:has(#pay:not([hidden])) .nav a, body:
         </div>
         <div class="slot stack" id="mSlot"></div>
         <p class="slot-keep">번호는 큐쏙 앱 설정 › 이용 상태에도 있습니다.</p>
+        <p class="slot-keep">같은 번호로 여러 번 결제하면 이 컴퓨터의 기간만 늘어납니다. 여러 대에서 쓰려면 컴퓨터마다 번호를 받아 따로 결제해 주세요.</p>
         <button class="link-btn" type="button" id="noIdBtn" aria-expanded="false">번호가 없을 때</button>
-        <div class="noid" id="noId" style="margin:8px 0 0" hidden>앱을 처음 쓴다면 7일 무료 체험을 시작해야 번호가 생깁니다. 바로 구매하실 분도 체험을 먼저 시작해 주세요. 체험이 남아 있을 때 결제하면 1개월은 체험이 끝난 다음 날부터 시작합니다. <a href="../#download">큐쏙 내려받기</a></div>
+        <div class="noid" id="noId" style="margin:8px 0 0" hidden>앱을 처음 쓴다면 7일 무료 체험을 시작해야 번호가 생깁니다. 바로 구매하실 분도 체험을 먼저 시작해 주세요. 체험은 컴퓨터 한 대, 이메일 하나에 한 번입니다. 이미 다른 컴퓨터에서 체험했다면 ‘7일 체험 시작’에 그때의 이메일을 넣어 주세요. 체험 없이 이 컴퓨터의 번호만 발급하며, 이 컴퓨터도 체험한 컴퓨터로 기록됩니다. 체험이 남아 있을 때 결제하면 1개월은 체험이 끝난 다음 날부터 시작합니다. <a href="../#download">큐쏙 내려받기</a></div>
       </section>
       <section class="sec">
         <h2 class="sec-t">구매자 정보</h2>
@@ -684,6 +696,7 @@ body:has(#pay:not([hidden])) .nav-in, body:has(#pay:not([hidden])) .nav a, body:
         <dl class="notice nb">
           <dt>이용 기간</dt><dd>결제가 확인된 날부터 1개월입니다. 체험이나 앞서 결제한 기간이 남아 있으면 그 기간이 끝난 다음 날부터 1개월입니다. <span class="must">큐쏙을 켜지 않아도 기간은 시작됩니다.</span></dd>
           <dt>환불</dt><dd>이용 기간이 시작되기 전이거나 결제한 날 요청하면 전액, 그 뒤에는 지난 일수를 뺀 금액을 환불합니다. <span class="must">지난 일수만큼은 청약철회(구매 취소)가 제한됩니다</span>(전자상거래법 제17조 제2항 제5호). 환불 요청은 contact@danbilab.com으로 보내 주세요.</dd>
+          <dt>번호 오기</dt><dd>컴퓨터 번호를 잘못 넣으셨다면 정식판이 적용된 날(보통 결제한 날)의 다음 날까지 알려 주셔야 전액 환불됩니다. 그 뒤에는 위 환불과 같이 지난 일수를 뺍니다.</dd>
         </dl>
         <details class="notice-more"><summary><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l8 7-8 7z"/></svg>더 보기</summary>
           <dl class="notice nb">
@@ -696,7 +709,7 @@ body:has(#pay:not([hidden])) .nav-in, body:has(#pay:not([hidden])) .nav a, body:
         </div>
         <label class="all"><input type="checkbox" id="agAll"><span>전체 동의 <small id="allHint">아래 3가지를 모두 확인했습니다.</small><span class="slot" id="aSlot"></span></span></label>
         <div class="ags" id="ags">
-          <label class="ag"><input type="checkbox"><span><b>[필수] 이용약관과 환불정책(제9조)에 동의합니다. <a href="https://danbilab.com/terms/" target="_blank" rel="noopener">이용약관 보기</a></b></span></label>
+          <label class="ag"><input type="checkbox"><span><b>[필수] 이용약관과 환불정책(제9조)에 동의합니다. <a href="https://danbilab.com/terms/v1.3/" target="_blank" rel="noopener">이용약관 보기</a></b></span></label>
           <label class="ag"><input type="checkbox"><span><b>[필수] <span class="must">이용 기간이 끝나면 아래 기능이 잠기는 것</span>에 동의합니다.</b><small class="lock-list">새 파일 불러오기 · 추출 · 편집 · 글자 복사 · 시험지 만들기와 한글 내보내기 · 백업 불러오기</small><small>문제 보기와 백업 저장은 계속 쓰실 수 있고, 저장된 문제와 시험지는 지워지지 않습니다.</small></span></label>
           <label class="ag"><input type="checkbox"><span><b>[필수] 구글 AI 키를 직접 받아 넣어야 추출할 수 있다는 것에 동의합니다.</b><small>구글 AI 사용료는 추출한 만큼 본인이 구글에 냅니다. <span class="must">큐쏙 이용료와 별도입니다.</span> 구글에 낸 돈은 큐쏙이 돌려 드리거나 대신 내 드리지 않습니다. 추출할 때 페이지 이미지가 구글로 전송됩니다.</small></span></label>
         </div>
