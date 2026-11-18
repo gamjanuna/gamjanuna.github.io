@@ -24,6 +24,9 @@ const TEST = {   // 포트원 콘솔 › 결제 연동 › 연동 관리 › 테
   //    KG가 검수 때 실 MID 결제창을 요구하면 그 확인 동안만 바꾸고 바로 되돌린다.
   // 시험 결제라 실제 개인정보가 포트원·결제사로 가지 않게 미리 채운다(legal 11-09 — 처리방침에 아직 이름·휴대폰이 없다)
   machine: 'TESTPAY234', name: '시험결제', phone: '01000000000', email: 'test@qssok.com',
+  // 자동 결제의 카드 등록 창(KG 신규계약 11-18: 정기결제도 테스트 결제창이 뜨면 된다) — 포트원 테스트 채널(KG이니시스 정기결제·빌링)
+  // ⛔ 실연동 정기결제 채널(KG MID MOI3766296)을 넣지 말 것 — 위 11-09 사고와 같은 길
+  billKey: 'channel-key-7fd8f41d-1f2f-48be-bc74-faa76c0ec790',   // 테스트 채널 「큐쏙 시험 정기」(공용 MID INIBillTst, 11-18)
 };
 const SVG = {
   warn: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm1 15h-2v-2h2zm0-4h-2V7h2z"/></svg>',
@@ -31,6 +34,11 @@ const SVG = {
 };
 const P = {
   open3: { title: '<span class="open">오픈 기념</span>첫 3개월', name: '큐쏙 정식판 1개월 이용권 (오픈 기념)', amount: 29700, base: '27,000원', vat: '2,700원', pay: '29,700원', price: '월 27,000원 (VAT 별도, 최종 결제 금액 29,700원)', cond: '이번 결제: 1개월분 · 결제가 열린 날부터 2027년 1월 31일까지 첫 결제 · 첫 결제 포함 3개월' },
+  // 자동 결제 둘(bill = 결제창 대신 카드 등록 창, 대표 11-18 ㉡: 오픈 기념 대상은 첫 3번 27,000원 → 4번째부터 32,000원) — 문구 ux-writing·legal 11-18
+  open3auto: { bill: 1, title: '<span class="open">오픈 기념</span>첫 3개월 · 자동 결제', name: '큐쏙 정식판 1개월 이용권 (오픈 기념 · 자동 결제)', amount: 29700, base: '27,000원', vat: '2,700원', pay: '29,700원', price: '월 27,000원 (VAT 별도, 최종 결제 금액 29,700원)', cond: '이번 단계: 카드 등록 · 첫 3개월 매달 29,700원, 4개월째부터 매달 35,200원 · 해지할 때까지 자동 결제',
+    agree: '[필수] 첫 3개월은 매달 29,700원, 4개월째부터 매달 35,200원(월 32,000원, VAT 별도)이 해지할 때까지 등록한 카드로 자동 결제되는 것에 동의합니다.', term: '해지할 때까지 매달 1개월씩 (첫 3개월 29,700원 → 4개월째부터 35,200원)' },
+  auto: { bill: 1, title: '자동 결제', name: '큐쏙 정식판 1개월 이용권 (자동 결제)', amount: 35200, base: '32,000원', vat: '3,200원', pay: '35,200원', price: '월 32,000원 (VAT 별도, 최종 결제 금액 35,200원)', cond: '이번 단계: 카드 등록 · 해지할 때까지 매달 35,200원 자동 결제',
+    agree: '[필수] 매달 35,200원(월 32,000원, VAT 별도)이 해지할 때까지 등록한 카드로 자동 결제되는 것에 동의합니다.', term: '해지할 때까지 매달 1개월씩' },
   monthly: { title: '매달 결제', name: '큐쏙 정식판 1개월 이용권', amount: 39600, base: '36,000원', vat: '3,600원', pay: '39,600원', price: '월 36,000원 (VAT 별도, 최종 결제 금액 39,600원)', cond: '이번 결제: 1개월분 · 한 달씩 직접 결제' },
 };
 const MAIL = 'contact@danbilab.com', NOPAID = '결제되지 않았습니다.';
@@ -52,7 +60,13 @@ function show(id) {
   document.body.classList.toggle('narrow', id !== 'shop');
   window.scrollTo({ top: 0, behavior: 'instant' });
 }
-document.querySelectorAll('[data-buy]').forEach((b) => (b.onclick = () => toPay(b.dataset.buy, true)));
+// 오픈 기념 카드는 결제 방식 고르기(기본 = 직접 결제 — 자동은 손님이 눌러야, legal 11-18)를 따른다
+document.querySelectorAll('[data-buy]').forEach((b) => (b.onclick = () => toPay(b.dataset.buy === 'open3' ? (document.querySelector('input[name="o3"]:checked')?.value || 'open3') : b.dataset.buy, true)));
+// 실제 판매(LIVE)엔 자동 결제 길(결제 서버 빌링·약관 자동 결제 장·온라인 해지)이 아직 없다 → 「준비 중」으로 되돌린다(legal 11-18 🔴 · 랜딩·앱과 같게)
+if (LIVE) {
+  document.querySelectorAll('[data-auto]').forEach((e) => (e.hidden = true));
+  const a = document.querySelector('[data-card="auto"]'); a.classList.add('is-soon'); a.querySelector('.go').outerHTML = '<p class="soon">준비 중</p>';
+}
 
 document.addEventListener('click', (e) => {
   const c = e.target.closest('[data-copy]');
@@ -69,9 +83,15 @@ function setProduct(id) {
   product = id; const p = P[id];
   $('itName').innerHTML = p.title; $('itPrice').innerHTML = p.price.replace(/^월 ([\d,]+원) (\(.*\))$/, '월 <b>$1</b> <small>$2</small>'); $('itCond').textContent = p.cond;
   $('sBase').textContent = p.base; $('sVat').textContent = p.vat; $('sTotal').textContent = p.pay; $('bName').textContent = (LIVE ? '' : '[시험] ') + p.name;   // 결제창 주문명과 같게
+  // 자동 결제면 결제 화면의 말이 달라진다 — 「자동으로 결제되지 않습니다」를 숨기고 넷째 필수 동의(미리 체크 ⛔)를 연다(legal 11-18)
+  $('methodNote').textContent = p.bill ? '자동 결제는 카드만 등록할 수 있습니다. 카드 정보는 ‘카드 등록 창 열기’를 누른 뒤 열리는 창에서 넣습니다.' : '카드와 간편결제(카카오페이·네이버페이·토스페이·페이코)는 결제창 열기를 누른 뒤 열리는 결제창에서 고릅니다.';
+  $('autoDd').textContent = p.bill ? '해지할 때까지 등록한 카드로 매달 결제됩니다. 지금은 심사용 시험판이라 카드를 등록해도 자동 결제가 시작되지 않습니다.' : '자동으로 결제되지 않습니다. 다음 달은 직접 결제해 주세요.';
+  $('agAuto').hidden = !p.bill; $('agAuto').querySelector('input').checked = false; $('agAutoT').textContent = p.agree || ''; $('agN').textContent = String(items().length); $('agAll').checked = false;
+  $('bTerm').textContent = p.term || '1개월 (시작일·종료일은 메일로 안내)'; $('bPay').textContent = p.bill ? '카드 (카드 등록 창에서 입력)' : '결제창에서 선택';
+  $('sTotalL').textContent = p.bill ? '매달 결제 금액' : '최종 결제 금액';
   unlock();
 }
-function unlock() { const b = $('payBtn'); b.disabled = false; b.textContent = P[product].pay + ' 결제창 열기'; $('toCards').disabled = false; $('left').disabled = false; }
+function unlock() { const b = $('payBtn'); b.disabled = false; b.textContent = P[product].bill ? '카드 등록 창 열기' : P[product].pay + ' 결제창 열기'; $('toCards').disabled = false; $('left').disabled = false; }
 function brief() { // 단추 바로 위 — 맞게 넣었을 때만 값을 보인다
   const a = norm($('m1').value), b = norm($('m2').value), e = $('em').value.trim();
   const mOk = MACHINE.test(a) && a === b, eOk = EMAIL.test(e);
@@ -107,7 +127,7 @@ addEventListener('popstate', () => { if (!$('pay').hidden) show('shop'); });
 $('noIdBtn').onclick = (e) => { const n = $('noId'); n.hidden = !n.hidden; e.target.setAttribute('aria-expanded', String(!n.hidden)); };
 
 // 전체 동의 — 개별 칸의 실제 상태와 맞물린다
-const items = () => [...document.querySelectorAll('.ag input')];
+const items = () => [...document.querySelectorAll('.ag:not([hidden]) input')];   // 숨은 넷째(자동 결제 동의)는 세지 않는다
 $('agAll').onchange = (e) => { items().forEach((c) => (c.checked = e.target.checked)); document.querySelectorAll('.ag.miss').forEach((g) => g.classList.remove('miss')); if (e.target.checked) { $('aSlot').className = 'slot'; $('aSlot').textContent = ''; $('allHint').hidden = false; } };
 items().forEach((c) => (c.onchange = () => { $('agAll').checked = items().every((x) => x.checked); if (c.checked) c.closest('.ag').classList.remove('miss'); }));
 
@@ -125,8 +145,8 @@ function validate() {
   if (e1 || e2) slotErr($('mSlot'), e1 || e2);
   if (e3) slotErr($('eSlot'), e3);
   let miss = false;
-  document.querySelectorAll('.ag').forEach((g) => { const m = !g.querySelector('input').checked; g.classList.toggle('miss', m); if (m) miss = true; });
-  if (miss) { $('allHint').hidden = true; slotErr($('aSlot'), '필수 3개에 모두 체크해 주세요.'); }
+  document.querySelectorAll('.ag:not([hidden])').forEach((g) => { const m = !g.querySelector('input').checked; g.classList.toggle('miss', m); if (m) miss = true; });
+  if (miss) { $('allHint').hidden = true; slotErr($('aSlot'), `필수 ${items().length}개에 모두 체크해 주세요.`); }
   const first = e1 ? $('m1') : e2 ? $('m2') : e4 ? $('nm') : e5 ? $('ph') : e3 ? $('em') : miss ? $('agAll') : null;
   if (first) { first.focus({ preventScroll: true }); first.scrollIntoView({ block: 'center', behavior: 'instant' }); return false; }
   return true;
@@ -145,6 +165,7 @@ const PID = /^test-[0-9a-f]{20}$/;
 
 $('payBtn').onclick = async () => {
   if (!validate()) return;
+  if (P[product].bill) { if (!LIVE) payBill(); return; }   // LIVE엔 자동 결제 카드가 「준비 중」이라 오지 않는다(위)
   if (LIVE) { payLive(); return; }
   paying('결제창을 여는 중');
   try { await loadSdk(); } catch { unlock(); modal('noSdk'); return; }
@@ -164,6 +185,28 @@ $('payBtn').onclick = async () => {
   if (r.code != null) { modal('fail'); return; }
   testDone(paymentId);
 };
+
+// ── 자동 결제(시험판) — 포트원 빌링키 발급 창(정기결제의 결제창)만 연다 · 실제 매달 청구는 결제 서버 몫(아직 없음) ──
+// ⛔ 돌아온 빌링키는 있는지만 본다 — 화면·console·저장소·결제 서버 어디에도 쓰지 않는다(security·legal 11-18, 「큐쏙에 저장하지 않습니다」의 근거)
+async function payBill() {
+  paying('카드 등록 창을 여는 중');
+  try { await loadSdk(); } catch { unlock(); modal('billNoSdk'); return; }
+  paying('카드 등록 창에서 진행 중');
+  const issueId = 'bill-' + randHex(10);
+  let r;
+  try {
+    r = await window.PortOne.requestIssueBillingKey({
+      storeId: TEST.storeId, channelKey: TEST.billKey, billingKeyMethod: 'CARD', issueId,
+      issueName: '[시험] ' + P[product].name,   // 결제 화면 「상품」 줄과 같게
+      customer: { fullName: TEST.name, phoneNumber: TEST.phone, email: TEST.email },
+      redirectUrl: location.origin + location.pathname,   // 폰은 결제사 화면에 갔다가 이 주소로 돌아온다(아래 복귀 처리)
+    });
+  } catch { unlock(); modal('billNoWindow'); return; }
+  unlock();
+  if (!r) return;                                   // 폰 — 돌아오는 주소에서 이어서 처리
+  if (r.code != null || !r.billingKey) { modal('billFail'); return; }
+  billDone(issueId);
+}
 
 // ── 실제 결제 길(LIVE) — 주문 접수 → 결제창 → 결제 서버에 결과 확인 ──
 // ⛔ 결과는 결제창·주소의 값이 아니라 /pay/confirm 답으로만 정한다(security 11-09). 서버 값은 글자로만 넣는다.
@@ -277,12 +320,22 @@ function testDone(paymentId, fromRedirect) {   // 정식판 적용 문장은 쓰
     + `<div class="d-rows">${row('시험 결제 번호', `<code>${esc(paymentId)}</code>`)}${fromRedirect ? '' : row('결제 금액', esc(P[product].pay), 'total')}${row('문의', `<a href="mailto:${MAIL}" style="color:var(--brand-700)">${MAIL}</a>`)}</div>`
     + `<div class="d-act"><button class="d-btn" type="button" data-act="요금제로 돌아가기">요금제로 돌아가기</button></div>`);
 }
+function billDone(issueId) {   // testDone과 짝(ux-writing 11-18) · 「돈이 나가지 않았다」 ⛔ — KG 시험 창의 소액 승인 여부 실측 전(legal)
+  frame('info', 'ic-info', '시험 카드 등록이 승인되었습니다',
+    `<p class="d-p">심사용 시험이라 정식판은 적용되지 않고, 자동 결제도 시작되지 않습니다.</p><p class="d-p">등록한 카드 정보는 큐쏙에 저장하지 않습니다.</p>`
+    + `<div class="d-rows">${issueId ? row('시험 등록 번호', `<code>${esc(issueId)}</code>`) : ''}${row('문의', `<a href="mailto:${MAIL}" style="color:var(--brand-700)">${MAIL}</a>`)}</div>`
+    + `<div class="d-act"><button class="d-btn" type="button" data-act="요금제로 돌아가기">요금제로 돌아가기</button></div>`);
+}
 
 // 가운데 창 — 방금 누른 행동의 결과에만
 const M = {
   fail: ['alert', 'ic-bad', '결제되지 않았습니다', ['결제창이 닫혔거나 승인되지 않았습니다.'], [['닫기'], ['결제창 다시 열기', 1]]],
   noSdk: ['alert', 'ic-bad', '결제창을 불러오지 못했습니다', [NOPAID + ' 인터넷 연결을 확인한 뒤 ‘결제창 다시 열기’를 눌러 주세요.'], [['닫기'], ['결제창 다시 열기', 1]]],
   noWindow: ['alert', 'ic-bad', '결제창을 열지 못했습니다', [NOPAID + ' 브라우저에서 이 사이트의 팝업(새 창)을 허용한 뒤 ‘결제창 다시 열기’를 눌러 주세요.'], [['닫기'], ['결제창 다시 열기', 1]]],
+  // 「카드 등록 시험」 짝(ux-writing 11-18) — 「결제」 낱말·NOPAID ⛔(결제하려던 거였나로 읽힌다) · 다시 열기는 카드 등록 단추로
+  billFail: ['alert', 'ic-bad', '카드가 등록되지 않았습니다', ['카드 등록 창이 닫혔거나 등록이 승인되지 않았습니다. 자동 결제는 신청되지 않았습니다.'], [['닫기'], ['카드 등록 창 다시 열기', 1]]],
+  billNoSdk: ['alert', 'ic-bad', '카드 등록 창을 불러오지 못했습니다', ['자동 결제는 신청되지 않았습니다. 인터넷 연결을 확인한 뒤 ‘카드 등록 창 다시 열기’를 눌러 주세요.'], [['닫기'], ['카드 등록 창 다시 열기', 1]]],
+  billNoWindow: ['alert', 'ic-bad', '카드 등록 창을 열지 못했습니다', ['자동 결제는 신청되지 않았습니다. 브라우저에서 이 사이트의 팝업(새 창)을 허용한 뒤 ‘카드 등록 창 다시 열기’를 눌러 주세요.'], [['닫기'], ['카드 등록 창 다시 열기', 1]]],
   // 주문 접수 오류(실제 결제 길) — 문구 정본 = 시안 v272(design·ux-writing 11-07)
   S14e: ['alert', 'ic-bad', '이 컴퓨터 번호는 오픈 기념 금액 대상이 아닙니다', [NOPAID + ' 매달 결제는 이용할 수 있습니다.', '컴퓨터를 옮겼다면 ' + MAIL + '으로 문의해 주세요.'], [['번호 고치기'], ['매달 결제로 바꾸기', 1]]],
   S14c: ['alert', 'ic-bad', '오픈 기념 금액 판매가 종료되었습니다', [NOPAID + ' 매달 결제는 이용할 수 있습니다.'], [['닫기'], ['매달 결제로 바꾸기', 1]]],
@@ -303,6 +356,7 @@ dlg.addEventListener('close', () => { if (!$('pay').hidden) $('payBtn').focus({ 
 dlg.addEventListener('click', (e) => {
   const b = e.target.closest('[data-ms]'); if (!b) return; const t = b.dataset.ms; closeModal();
   if ((t === '결제창 다시 열기' || t === '다시 시도') && !$('pay').hidden) $('payBtn').click();
+  else if (t === '카드 등록 창 다시 열기' && !$('pay').hidden) $('payBtn').click();
   else if (t === '매달 결제로 바꾸기') { setProduct('monthly'); $('payBtn').scrollIntoView({ block: 'center', behavior: 'instant' }); }
   else if (t === '번호 고치기') { $('m1').focus({ preventScroll: true }); $('m1').scrollIntoView({ block: 'center', behavior: 'instant' }); }
   else if (t === '새로고침') location.reload();
@@ -311,8 +365,15 @@ dlg.addEventListener('click', (e) => {
 // 폰 — 결제사 화면에서 이 주소로 돌아왔을 때(?paymentId=…&code=…). 모양이 맞는 값만, 글자로만 쓴다
 (() => {
   const q = new URLSearchParams(location.search), pid = q.get('paymentId');
+  // 주소의 값부터 지운다 — 어떤 값이든, 가르기 전에(빌링키가 방문 기록·북마크·공유 링크에 남지 않게, security 11-18)
+  if (location.search) history.replaceState(null, '', location.pathname);
+  if (!pid && (q.has('billingKey') || q.get('transactionType') === 'ISSUE_BILLING_KEY')) {   // 자동 결제 카드 등록 복귀 — 값은 있는지만 본다
+    if (LIVE || !TEST.billKey) return;
+    show('shop');
+    if (q.get('code') || !q.get('billingKey')) modal('billFail'); else billDone();
+    return;
+  }
   if (!pid) return;
-  history.replaceState(null, '', location.pathname);
   if (LIVE) {   // 실제 결제 길 — 주문 번호 모양만 받고, 결과는 결제 서버 답으로(주소의 code는 「실패일 수 있다」는 신호로만)
     if (!ORDER.test(pid)) return;
     if (q.get('code')) notPaid(pid); else check(pid);
