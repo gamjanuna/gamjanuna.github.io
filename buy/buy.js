@@ -49,9 +49,15 @@ let product = 'open3';
 // 「간편결제」로 따로 부르면 이니시스 V2는 결제사를 미리 정하라며 거절한다(11-09 실측).
 const PAY_METHOD = 'CARD';
 
-const links = document.querySelector('#shop .links'), foot = document.querySelector('#shop footer');
-document.querySelectorAll('.tail').forEach((t) => t.append(links.cloneNode(true), foot.cloneNode(true)));
-document.querySelectorAll('.tail footer').forEach((f) => { f.innerHTML = '<span class="ln">상호 단비 · 대표 이단비 · 사업자등록번호 622-42-01304</span><span class="ln">주소 경상북도 구미시 산호대로25길 41, 204동 7층 5호(옥계동, 부영아파트2차)</span><span class="ln">전화 070-8064-3798 · contact@danbilab.com · 통신판매업 신고 준비 중</span><span class="ln">소비자 피해 보상과 분쟁 처리는 공정거래위원회 소비자분쟁해결기준을 따릅니다.</span><span class="ln">호스팅 제공자 GitHub · 큐쏙(Qssok)™ © 2026</span>'; });
+// 결제·완료 화면 맨 아래 = 첫 화면과 같은 공통 바닥글(tools/site_footer.py) + 분쟁 처리 문장. 결제 중에 같은 탭에서 약관을 열면
+// 입력한 이름·번호가 날아가므로 새 창으로(design 11-19). 바닥글 안엔 id가 없다(복제해도 겹치지 않게).
+const disp = document.querySelector('#shop .dispute'), foot = document.querySelector('#shop footer.sf');
+document.querySelectorAll('.tail').forEach((t) => {
+  const f = foot.cloneNode(true);
+  f.querySelector('.sf-brand').remove();   // 결제 화면엔 안 보이는 자리 + 로고 그림의 이름표(sf-…)가 한 페이지에 겹치지 않게
+  f.querySelectorAll('a:not([target])').forEach((a) => { a.target = '_blank'; a.rel = 'noopener'; });
+  t.append(disp.cloneNode(true), f);
+});
 if (LIVE) document.querySelector('.test-band').hidden = true;   // 「결제하지 마세요」 띠는 시험판에만
 ['400', '700'].forEach((w) => document.fonts?.load(`${w} 13.5px "IBM Plex Sans KR"`, document.body.innerText));
 

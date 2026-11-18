@@ -142,10 +142,12 @@
   .rf dd b { color: var(--ink); }
   .rf .sub { display: block; font-size: 12.5px; color: var(--ink-3); }
   .rf dt:nth-last-of-type(1), .rf dd:last-child { border-bottom: 0; padding-bottom: 0; }
-  .links { font-size: 12.5px; margin-top: 18px; }
-  .links a { color: var(--brand-700); font-weight: 600; text-underline-offset: 2px; }
-  /* 사업자 정보 — 단비 11-03: 맨 아래 연하고 작게. legal: 12px 이상 · 대비 4.5:1 이상(#6e685c on #faf6ef ≈ 5.1:1) · 접지 말고 펼쳐 둔다 */
-  footer { margin-top: 28px; padding: 18px 0 40px; border-top: 1px solid var(--line); font-size: 12.5px; color: var(--foot); line-height: 1.8; }
+  /* 사업자 정보·약관 = 공통 바닥글(tools/site_footer.py, 맨 아래 <style>) — 판매 페이지에만 있는 분쟁 처리 문장은 그 바로 위에. legal: 12px 이상 · 대비 4.5:1 이상 · 접지 않는다 */
+  .dispute { margin-top: 28px; font-size: 12px; line-height: 18px; color: var(--foot); }
+  .dispute + footer.sf { margin-top: 12px; }
+  /* 결제·완료 화면 맨 아래: 약관·정책과 사업자 정보만(밖으로 나가는 길을 줄인다 — design 11-19) */
+  .tail footer.sf .sf-brand, .tail footer.sf .sf-c1, .tail footer.sf .sf-c2 { display: none; }
+  .tail footer.sf .sf-top { grid-template-columns: 1fr; }
   /* 문의 줄 — 파랑 채움 금지(주 동작은 구매하기 하나). 칸 값 = .step과 같다 */
   .ask { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 10px 16px; font-size: 13.5px; color: var(--ink-2); }
   .ask b { color: var(--ink); }
@@ -356,7 +358,6 @@
   .band{font-size:13px;border-radius:8px}.band b{font-size:14px;font-weight:600}.band a{font-weight:400}
   .sbtn{min-height:32px;padding:3px 10px;border-radius:6px;font-size:13px;font-weight:500}
   .noid{font-size:13px;border-radius:8px}.noid a{font-weight:500}
-  .tail .links a{font-weight:400}
   .done-head{font-size:16px;font-weight:600;gap:8px;margin-bottom:12px}
   .done-head svg{width:20px;height:20px}
   .done-card > p{font-size:14px;color:var(--ink)}
@@ -404,9 +405,6 @@
 
 /* ── 0. 왼쪽 선: 결제·완료 화면은 머리줄도 580 ── */
 body.narrow .nav a { max-width: 580px; }
-.tail .links { margin-top: 20px; font-size: 13px; }
-.tail footer { font-size: 13px; line-height: 20px; color: var(--ink-2); }
-.tail footer span.ln { display: block; }
 
 /* ── 1. 칸 오류 = 언제나 칸 바로 아래. 이름·전화는 슬롯 자체가 줄 간격 ── */
 .buyer { gap: 0 12px; }
@@ -517,9 +515,6 @@ html:has(dialog.ms[open]) { overflow: hidden; }
 
   /* 맨 아래: 작게·가운데(legal 12px 이상·대비 4.5:1·펼침 유지) */
   .tail { text-align: center; }
-  .tail .links { font-size: 12px; margin-top: 24px; }
-  .tail .links a { color: var(--foot); }
-  .tail footer { margin-top: 12px; padding: 12px 0 32px; font-size: 12px; line-height: 18px; color: var(--foot); }
   .d-p + .d-p { margin-top: 4px; }
 
 
@@ -546,7 +541,7 @@ html:has(dialog.ms[open]) { overflow: hidden; }
   .fd input { border-radius: 10px; border-color: #948b7c; }
   .back-link, .sbtn, .noid a, .checking { font-weight: 600; }   /* Paperlogy는 500이 Light로 떨어진다 */
   .price small, .cond, .common, .allin span, .allin b, .ai-nums span, .ai-nums small, .ai-foot, .ai-cap small, .step .where, .rf .sub { font-size: 13px; color: var(--ink-2); }
-  .tail footer, footer { color: var(--ink-2); }
+  .dispute { color: var(--ink-2); }
   .soon { background: transparent !important; border: 1px solid var(--line-strong) !important; color: var(--ink-2) !important; }   /* 「준비 중」이 누르는 단추로 읽히지 않게(design 11-09 2차) */
   /* 두 단계 요금(md 11-18 — 홈페이지 v255 꼴): 왼쪽 오픈 기념, 오른쪽 「첫 3개월 뒤」 자동·매달 */
   .cards.stage { grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); }
@@ -593,6 +588,61 @@ body:has(#pay:not([hidden])) .nav-in, body:has(#pay:not([hidden])) .nav a, body:
   .sum b { font-size: 22px; color: var(--brand-700); }
   .sum small { flex-basis: 100%; text-align: center; font-size: 12.5px; color: var(--ink-3); }
 </style>
+<style>/*site-footer*/
+footer.sf{--sf-k:#1a1f2e;--sf-v:#3a3832;--sf-f:#6e685c;--sf-l:#e8e1d5;--sf-o:#fff;container-type:inline-size;
+  display:block;width:100%;max-width:none;margin:48px 0 0;padding:48px 0 88px;border-top:1px solid var(--sf-l);
+  text-align:left;color:var(--sf-v);font-size:14px;line-height:1.6;word-break:keep-all;overflow-wrap:normal}
+footer.sf *{box-sizing:border-box}
+footer.sf a{color:inherit;font-weight:inherit;text-decoration:none;text-underline-offset:3px}
+footer.sf a:hover{text-decoration:underline}
+footer.sf a:focus-visible{outline:2px solid var(--sf-k);outline-offset:2px;border-radius:4px}
+footer.sf ul,footer.sf dl,footer.sf p,footer.sf dt,footer.sf dd{list-style:none;margin:0;padding:0;border:0;background:none}   /* 페이지의 dl·dt 규칙(회사 소개 표 줄 등)이 새지 않게 */
+footer.sf .sf-in{max-width:1040px;margin:0 auto;padding:0 24px}
+footer.sf .sf-top{display:grid;grid-template-columns:260px 1fr 1fr 1fr;column-gap:40px}
+footer.sf .sf-cols{display:contents}
+footer.sf .sf-logo{display:inline-flex;align-items:center;gap:8px;color:var(--sf-k)}
+footer.sf .sf-logo:hover{text-decoration:none}
+footer.sf .sf-ic{width:28px;height:28px;flex:none}
+footer.sf .sf-logo b{font-size:20px;font-weight:800}
+footer.sf .sf-intro{margin-top:10px;font-size:13px}
+footer.sf .sf-sns{display:flex;gap:8px;margin-top:16px}
+footer.sf .sf-sns a{display:grid;place-items:center;width:40px;height:40px;border:1px solid var(--sf-l);border-radius:50%;
+  background:var(--sf-o);color:var(--sf-k)}
+footer.sf .sf-sns svg{width:18px;height:18px;fill:currentColor}
+footer.sf .sf-h{margin-bottom:10px;font-size:13px;font-weight:600;color:var(--sf-f)}
+footer.sf .sf-col a{display:block;line-height:32px}
+footer.sf strong{font-weight:700;color:var(--sf-k)}
+footer.sf .sf-biz{margin-top:40px;padding-top:24px;border-top:1px solid var(--sf-l);font-size:12px;line-height:22px}
+footer.sf .sf-biz dl{display:flex;flex-wrap:wrap;gap:2px 20px}
+footer.sf .sf-biz dl>div{white-space:nowrap}
+footer.sf .sf-biz dl>div.sf-wr{white-space:normal}
+footer.sf dt{display:inline;margin-right:6px;color:var(--sf-f)}
+footer.sf dd{display:inline;margin:0}
+footer.sf .sf-mo{display:none}
+footer.sf .sf-u{text-decoration:underline;text-decoration-color:var(--sf-l)}
+footer.sf .sf-run,footer.sf .sf-tm{font-size:12px;line-height:18px;color:var(--sf-f)}
+footer.sf .sf-run{margin-top:16px}
+footer.sf .sf-tm{margin-top:4px}
+@container (max-width:640px){
+  footer.sf .sf-in{padding:0 16px}
+  footer.sf .sf-top{display:block}
+  footer.sf .sf-sns{margin:16px 0 20px;padding-bottom:20px;border-bottom:1px solid var(--sf-l)}
+  footer.sf .sf-sns a{width:44px;height:44px}
+  footer.sf .sf-cols{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:16px}
+  footer.sf .sf-col,footer.sf .sf-col ul{display:contents}
+  footer.sf .sf-intro,footer.sf .sf-h,footer.sf .sf-c1,footer.sf .o-faq{display:none}
+  footer.sf .o-terms{order:1}footer.sf .o-pp{order:2}footer.sf .o-refund{order:3}
+  footer.sf .o-lic{order:4}footer.sf .o-kakao{order:5}footer.sf .o-key{order:6}
+  footer.sf .sf-biz{margin-top:16px;padding-top:0;border-top:0;line-height:17px}
+  footer.sf .sf-biz dl{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:16px;row-gap:4px}   /* 위 링크 두 칸과 같은 세로선(대표·design 11-19) */
+  footer.sf .sf-biz dl+dl{margin-top:4px}
+  footer.sf .sf-biz dl>div{display:contents}
+  footer.sf .sf-pc{display:none!important}
+  footer.sf dt,footer.sf dd{display:block;margin:0;white-space:normal}
+  footer.sf .sf-h1{display:block;white-space:normal}
+  footer.sf .sf-hs{display:none}
+}
+/*/site-footer*/</style>
 </head>
 <body>
 <div class="nav"><div class="nav-in"><a class="logo" href="../" aria-label="큐쏙 홈으로"><svg class="logo-ic" viewBox="4 4 112 112" aria-hidden="true" focusable="false"><defs><linearGradient id="lg-gHand" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd8b3"></stop><stop offset="1" stop-color="#ffbe8f"></stop></linearGradient><g id="lg-hand"> <path d="M -15 6 C -23 12 -26 22 -22 31" fill="none" stroke="#ffc89d" stroke-width="8" stroke-linecap="round"></path> <rect x="-8" y="-30" width="16" height="28" rx="8" fill="url(#lg-gHand)"></rect> <rect x="-17" y="-7" width="34" height="31" rx="13" fill="url(#lg-gHand)"></rect> <path d="M -12.5 13 V 34" fill="none" stroke="#ffc49a" stroke-width="6.4" stroke-linecap="round"></path> <path d="M -4.5 15 V 38" fill="none" stroke="#ffc49a" stroke-width="6.4" stroke-linecap="round"></path> <path d="M 3.5 15 V 38" fill="none" stroke="#ffc49a" stroke-width="6.4" stroke-linecap="round"></path> <path d="M 11.5 13 V 34" fill="none" stroke="#ffc49a" stroke-width="6.4" stroke-linecap="round"></path> </g><filter id="lg-tShadow" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="0" dy="3" stdDeviation="3" flood-color="#1a2a8a" flood-opacity=".35"></feDropShadow></filter><linearGradient id="lg-fB0" gradientUnits="userSpaceOnUse" x1="4" y1="4" x2="116" y2="116"><stop offset="0" stop-color="#24358a"></stop><stop offset="1" stop-color="#1c2a6e"></stop></linearGradient><linearGradient id="lg-fR0" gradientUnits="userSpaceOnUse" x1="27" y1="23" x2="89" y2="85"><stop offset="0" stop-color="#3550c8"></stop><stop offset="1" stop-color="#2a3f8f"></stop></linearGradient><clipPath id="lg-cw"><rect x="4" y="4" width="112" height="112" rx="27"/></clipPath></defs><g clip-path="url(#lg-cw)"><rect x="4" y="4" width="112" height="112" fill="url(#lg-fB0)"/><rect x="18" y="74" width="90" height="50" rx="4" fill="#8f9fd6"/><rect x="15" y="77" width="90" height="50" rx="4" fill="#c3cceb"/><g transform="translate(4 -8) rotate(-7 58 50)"><rect x="30" y="16" width="58" height="72" rx="6" fill="#fff" filter="url(#lg-tShadow)"/><rect x="37" y="23" width="22" height="5" rx="2" fill="#3550c8"/><circle cx="52" cy="52" r="12" fill="none" stroke="url(#lg-fR0)" stroke-width="6.5"/><path d="M 57.4 57.4 L 66.4 66.4" stroke="#fff" stroke-width="10.4" stroke-linecap="round"/><path d="M 57.4 57.4 L 66.4 66.4" stroke="#e0243f" stroke-width="6.5" stroke-linecap="round"/><rect x="70" y="46" width="12" height="3.5" rx="1.75" fill="#c5cde4"/><rect x="70" y="53" width="9" height="3.5" rx="1.75" fill="#dfe3f0"/><use href="#lg-hand" transform="translate(59 4) scale(.95)"/></g><rect x="12" y="82" width="90" height="50" rx="4" fill="#fff"/><rect x="56.5" y="88" width="1" height="40" fill="#c5cde4"/><path d="M0.6 0.9 L1.6 0 L1.6 4.4" transform="translate(17 89) scale(1.1363636363636362)" fill="none" stroke="#14213d" stroke-width="1.232" stroke-linecap="round" stroke-linejoin="round"/><circle cx="22" cy="93.4" r=".8" fill="#14213d"/><rect x="24" y="90.2" width="29.0" height="2.6" rx="1.3" fill="#c5cde4"/><rect x="17" y="97" width="35.0" height="2.6" rx="1.3" fill="#dfe3f0"/><circle cx="19.2" cy="104.4" r="2.1" fill="none" stroke="#5b6b85" stroke-width=".45"/><path d="M0.6 0.9 L1.6 0 L1.6 4.4" transform="translate(18.45 103.3) scale(0.5)" fill="none" stroke="#5b6b85" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round"/><circle cx="24.2" cy="104.4" r="2.1" fill="none" stroke="#5b6b85" stroke-width=".45"/><path d="M0.2 1 C0.4 -0.2,2.8 -0.2,2.8 1.2 C2.8 2.2,0.2 3.2,0.2 4.4 L2.9 4.4" transform="translate(23.45 103.3) scale(0.5)" fill="none" stroke="#5b6b85" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round"/><circle cx="29.2" cy="104.4" r="2.1" fill="none" stroke="#5b6b85" stroke-width=".45"/><path d="M0.3 0.4 C1.5 -0.3,2.9 0.4,2.6 1.4 C2.4 2,1.4 2.1,1.2 2.1 C2.6 2.1,3 3,2.6 3.8 C2.1 4.6,0.6 4.6,0.2 4" transform="translate(28.45 103.3) scale(0.5)" fill="none" stroke="#5b6b85" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round"/><circle cx="34.2" cy="104.4" r="2.1" fill="none" stroke="#5b6b85" stroke-width=".45"/><path d="M2.2 4.4 L2.2 0 L0 3 L3 3" transform="translate(33.45 103.3) scale(0.5)" fill="none" stroke="#5b6b85" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round"/><circle cx="39.2" cy="104.4" r="2.1" fill="none" stroke="#5b6b85" stroke-width=".45"/><path d="M2.8 0 L0.6 0 L0.4 2 C1.5 1.4,2.9 1.8,2.9 3 C2.9 4.3,1 4.7,0.2 4" transform="translate(38.45 103.3) scale(0.5)" fill="none" stroke="#5b6b85" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round"/><path d="M0.2 1 C0.4 -0.2,2.8 -0.2,2.8 1.2 C2.8 2.2,0.2 3.2,0.2 4.4 L2.9 4.4" transform="translate(61.0 89) scale(1.1363636363636362)" fill="none" stroke="#14213d" stroke-width="1.232" stroke-linecap="round" stroke-linejoin="round"/><circle cx="66.0" cy="93.4" r=".8" fill="#14213d"/><rect x="68.0" y="90.2" width="29.0" height="2.6" rx="1.3" fill="#c5cde4"/><rect x="61.0" y="97" width="35.0" height="2.6" rx="1.3" fill="#dfe3f0"/><circle cx="63.2" cy="104.4" r="2.1" fill="none" stroke="#5b6b85" stroke-width=".45"/><path d="M0.6 0.9 L1.6 0 L1.6 4.4" transform="translate(62.45 103.3) scale(0.5)" fill="none" stroke="#5b6b85" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round"/><circle cx="68.2" cy="104.4" r="2.1" fill="none" stroke="#5b6b85" stroke-width=".45"/><path d="M0.2 1 C0.4 -0.2,2.8 -0.2,2.8 1.2 C2.8 2.2,0.2 3.2,0.2 4.4 L2.9 4.4" transform="translate(67.45 103.3) scale(0.5)" fill="none" stroke="#5b6b85" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round"/><circle cx="73.2" cy="104.4" r="2.1" fill="none" stroke="#5b6b85" stroke-width=".45"/><path d="M0.3 0.4 C1.5 -0.3,2.9 0.4,2.6 1.4 C2.4 2,1.4 2.1,1.2 2.1 C2.6 2.1,3 3,2.6 3.8 C2.1 4.6,0.6 4.6,0.2 4" transform="translate(72.45 103.3) scale(0.5)" fill="none" stroke="#5b6b85" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round"/><circle cx="78.2" cy="104.4" r="2.1" fill="none" stroke="#5b6b85" stroke-width=".45"/><path d="M2.2 4.4 L2.2 0 L0 3 L3 3" transform="translate(77.45 103.3) scale(0.5)" fill="none" stroke="#5b6b85" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round"/><circle cx="83.2" cy="104.4" r="2.1" fill="none" stroke="#5b6b85" stroke-width=".45"/><path d="M2.8 0 L0.6 0 L0.4 2 C1.5 1.4,2.9 1.8,2.9 3 C2.9 4.3,1 4.7,0.2 4" transform="translate(82.45 103.3) scale(0.5)" fill="none" stroke="#5b6b85" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round"/><rect x="15" y="85" width="9" height="2.2" rx="1" fill="#8a94a6" transform="rotate(-35 19 86)"/><path d="M 18 46 L 18 32 M 102 52 L 102 38 M 12 60 L 12 52" stroke="#c5cde4" stroke-width="3.5" stroke-linecap="round"/></g></svg><span class="logo-t">큐쏙<span>(Qssok)</span></span></a></div></div>
@@ -661,11 +711,24 @@ body:has(#pay:not([hidden])) .nav-in, body:has(#pay:not([hidden])) .nav a, body:
     </dl>
   </section>
 
-  <p class="links"><a href="https://danbilab.com/terms/">이용약관</a> · <a href="https://danbilab.com/privacy/">개인정보처리방침</a> · <a href="https://danbilab.com/terms/v1.3/">환불정책(이용약관 제9조)</a></p>
-  <footer>
-    상호 단비 · 대표 이단비 · 사업자등록번호 622-42-01304 · 통신판매업 신고 준비 중 · 주소 경상북도 구미시 산호대로25길 41, 204동 7층 5호(옥계동, 부영아파트2차) · 전화 070-8064-3798 · contact@danbilab.com · 호스팅 제공자 GitHub<br>
-    소비자 피해 보상과 분쟁 처리는 공정거래위원회 소비자분쟁해결기준을 따릅니다. · 큐쏙(Qssok)™ © 2026
-  </footer>
+  <p class="dispute">소비자 피해 보상과 분쟁 처리는 공정거래위원회 소비자분쟁해결기준을 따릅니다.</p>
+  <!--site-footer-->
+<footer class="sf">
+<div class="sf-in">
+<div class="sf-top">
+<div class="sf-brand"><a class="sf-logo" href="https://qssok.com/"><svg class="sf-ic" viewBox="4 4 112 112" aria-hidden="true" focusable="false"><defs><linearGradient id="sf-gHand" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd8b3"></stop><stop offset="1" stop-color="#ffbe8f"></stop></linearGradient><g id="sf-hand"> <path d="M -15 6 C -23 12 -26 22 -22 31" fill="none" stroke="#ffc89d" stroke-width="8" stroke-linecap="round"></path> <rect x="-8" y="-30" width="16" height="28" rx="8" fill="url(#sf-gHand)"></rect> <rect x="-17" y="-7" width="34" height="31" rx="13" fill="url(#sf-gHand)"></rect> <path d="M -12.5 13 V 34" fill="none" stroke="#ffc49a" stroke-width="6.4" stroke-linecap="round"></path> <path d="M -4.5 15 V 38" fill="none" stroke="#ffc49a" stroke-width="6.4" stroke-linecap="round"></path> <path d="M 3.5 15 V 38" fill="none" stroke="#ffc49a" stroke-width="6.4" stroke-linecap="round"></path> <path d="M 11.5 13 V 34" fill="none" stroke="#ffc49a" stroke-width="6.4" stroke-linecap="round"></path> </g><filter id="sf-tShadow" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="0" dy="3" stdDeviation="3" flood-color="#1a2a8a" flood-opacity=".35"></feDropShadow></filter><linearGradient id="sf-fB0" gradientUnits="userSpaceOnUse" x1="4" y1="4" x2="116" y2="116"><stop offset="0" stop-color="#24358a"></stop><stop offset="1" stop-color="#1c2a6e"></stop></linearGradient><linearGradient id="sf-fR0" gradientUnits="userSpaceOnUse" x1="27" y1="23" x2="89" y2="85"><stop offset="0" stop-color="#3550c8"></stop><stop offset="1" stop-color="#2a3f8f"></stop></linearGradient><clipPath id="sf-cw"><rect x="4" y="4" width="112" height="112" rx="27"/></clipPath></defs><g clip-path="url(#sf-cw)"><rect x="4" y="4" width="112" height="112" fill="url(#sf-fB0)"/><rect x="18" y="74" width="90" height="50" rx="4" fill="#8f9fd6"/><rect x="15" y="77" width="90" height="50" rx="4" fill="#c3cceb"/><g transform="translate(4 -8) rotate(-7 58 50)"><rect x="30" y="16" width="58" height="72" rx="6" fill="#fff" filter="url(#sf-tShadow)"/><rect x="37" y="23" width="22" height="5" rx="2" fill="#3550c8"/><circle cx="52" cy="52" r="12" fill="none" stroke="url(#sf-fR0)" stroke-width="6.5"/><path d="M 57.4 57.4 L 66.4 66.4" stroke="#fff" stroke-width="10.4" stroke-linecap="round"/><path d="M 57.4 57.4 L 66.4 66.4" stroke="#e0243f" stroke-width="6.5" stroke-linecap="round"/><rect x="70" y="46" width="12" height="3.5" rx="1.75" fill="#c5cde4"/><rect x="70" y="53" width="9" height="3.5" rx="1.75" fill="#dfe3f0"/><use href="#sf-hand" transform="translate(59 4) scale(.95)"/></g><rect x="12" y="82" width="90" height="50" rx="4" fill="#fff"/><rect x="56.5" y="88" width="1" height="40" fill="#c5cde4"/><path d="M0.6 0.9 L1.6 0 L1.6 4.4" transform="translate(17 89) scale(1.1363636363636362)" fill="none" stroke="#14213d" stroke-width="1.232" stroke-linecap="round" stroke-linejoin="round"/><circle cx="22" cy="93.4" r=".8" fill="#14213d"/><rect x="24" y="90.2" width="29.0" height="2.6" rx="1.3" fill="#c5cde4"/><rect x="17" y="97" width="35.0" height="2.6" rx="1.3" fill="#dfe3f0"/><circle cx="19.2" cy="104.4" r="2.1" fill="none" stroke="#5b6b85" stroke-width=".45"/><path d="M0.6 0.9 L1.6 0 L1.6 4.4" transform="translate(18.45 103.3) scale(0.5)" fill="none" stroke="#5b6b85" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round"/><circle cx="24.2" cy="104.4" r="2.1" fill="none" stroke="#5b6b85" stroke-width=".45"/><path d="M0.2 1 C0.4 -0.2,2.8 -0.2,2.8 1.2 C2.8 2.2,0.2 3.2,0.2 4.4 L2.9 4.4" transform="translate(23.45 103.3) scale(0.5)" fill="none" stroke="#5b6b85" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round"/><circle cx="29.2" cy="104.4" r="2.1" fill="none" stroke="#5b6b85" stroke-width=".45"/><path d="M0.3 0.4 C1.5 -0.3,2.9 0.4,2.6 1.4 C2.4 2,1.4 2.1,1.2 2.1 C2.6 2.1,3 3,2.6 3.8 C2.1 4.6,0.6 4.6,0.2 4" transform="translate(28.45 103.3) scale(0.5)" fill="none" stroke="#5b6b85" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round"/><circle cx="34.2" cy="104.4" r="2.1" fill="none" stroke="#5b6b85" stroke-width=".45"/><path d="M2.2 4.4 L2.2 0 L0 3 L3 3" transform="translate(33.45 103.3) scale(0.5)" fill="none" stroke="#5b6b85" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round"/><circle cx="39.2" cy="104.4" r="2.1" fill="none" stroke="#5b6b85" stroke-width=".45"/><path d="M2.8 0 L0.6 0 L0.4 2 C1.5 1.4,2.9 1.8,2.9 3 C2.9 4.3,1 4.7,0.2 4" transform="translate(38.45 103.3) scale(0.5)" fill="none" stroke="#5b6b85" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round"/><path d="M0.2 1 C0.4 -0.2,2.8 -0.2,2.8 1.2 C2.8 2.2,0.2 3.2,0.2 4.4 L2.9 4.4" transform="translate(61.0 89) scale(1.1363636363636362)" fill="none" stroke="#14213d" stroke-width="1.232" stroke-linecap="round" stroke-linejoin="round"/><circle cx="66.0" cy="93.4" r=".8" fill="#14213d"/><rect x="68.0" y="90.2" width="29.0" height="2.6" rx="1.3" fill="#c5cde4"/><rect x="61.0" y="97" width="35.0" height="2.6" rx="1.3" fill="#dfe3f0"/><circle cx="63.2" cy="104.4" r="2.1" fill="none" stroke="#5b6b85" stroke-width=".45"/><path d="M0.6 0.9 L1.6 0 L1.6 4.4" transform="translate(62.45 103.3) scale(0.5)" fill="none" stroke="#5b6b85" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round"/><circle cx="68.2" cy="104.4" r="2.1" fill="none" stroke="#5b6b85" stroke-width=".45"/><path d="M0.2 1 C0.4 -0.2,2.8 -0.2,2.8 1.2 C2.8 2.2,0.2 3.2,0.2 4.4 L2.9 4.4" transform="translate(67.45 103.3) scale(0.5)" fill="none" stroke="#5b6b85" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round"/><circle cx="73.2" cy="104.4" r="2.1" fill="none" stroke="#5b6b85" stroke-width=".45"/><path d="M0.3 0.4 C1.5 -0.3,2.9 0.4,2.6 1.4 C2.4 2,1.4 2.1,1.2 2.1 C2.6 2.1,3 3,2.6 3.8 C2.1 4.6,0.6 4.6,0.2 4" transform="translate(72.45 103.3) scale(0.5)" fill="none" stroke="#5b6b85" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round"/><circle cx="78.2" cy="104.4" r="2.1" fill="none" stroke="#5b6b85" stroke-width=".45"/><path d="M2.2 4.4 L2.2 0 L0 3 L3 3" transform="translate(77.45 103.3) scale(0.5)" fill="none" stroke="#5b6b85" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round"/><circle cx="83.2" cy="104.4" r="2.1" fill="none" stroke="#5b6b85" stroke-width=".45"/><path d="M2.8 0 L0.6 0 L0.4 2 C1.5 1.4,2.9 1.8,2.9 3 C2.9 4.3,1 4.7,0.2 4" transform="translate(82.45 103.3) scale(0.5)" fill="none" stroke="#5b6b85" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round"/><rect x="15" y="85" width="9" height="2.2" rx="1" fill="#8a94a6" transform="rotate(-35 19 86)"/><path d="M 18 46 L 18 32 M 102 52 L 102 38 M 12 60 L 12 52" stroke="#c5cde4" stroke-width="3.5" stroke-linecap="round"/></g></svg><b>큐쏙</b></a><p class="sf-intro">윈도우 설치형 문제 DB 프로그램</p><ul class="sf-sns"><li><a href="https://blog.naver.com/qssok" target="_blank" rel="noopener" aria-label="큐쏙 네이버 블로그 (새 창)" title="네이버 블로그"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M16.273 12.845 7.376 0H0v24h7.726V11.156L16.624 24H24V0h-7.727v12.845Z"/></svg></a></li><li><a href="https://www.youtube.com/@qssok" target="_blank" rel="noopener" aria-label="큐쏙 유튜브 (새 창)" title="유튜브"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg></a></li><li><a href="https://www.instagram.com/qssok" target="_blank" rel="noopener" aria-label="큐쏙 인스타그램 (새 창)" title="인스타그램"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M7.0301.084c-1.2768.0602-2.1487.264-2.911.5634-.7888.3075-1.4575.72-2.1228 1.3877-.6652.6677-1.075 1.3368-1.3802 2.127-.2954.7638-.4956 1.6365-.552 2.914-.0564 1.2775-.0689 1.6882-.0626 4.947.0062 3.2586.0206 3.6671.0825 4.9473.061 1.2765.264 2.1482.5635 2.9107.308.7889.72 1.4573 1.388 2.1228.6679.6655 1.3365 1.0743 2.1285 1.38.7632.295 1.6361.4961 2.9134.552 1.2773.056 1.6884.069 4.9462.0627 3.2578-.0062 3.668-.0207 4.9478-.0814 1.28-.0607 2.147-.2652 2.9098-.5633.7889-.3086 1.4578-.72 2.1228-1.3881.665-.6682 1.0745-1.3378 1.3795-2.1284.2957-.7632.4966-1.636.552-2.9124.056-1.2809.0692-1.6898.063-4.948-.0063-3.2583-.021-3.6668-.0817-4.9465-.0607-1.2797-.264-2.1487-.5633-2.9117-.3084-.7889-.72-1.4568-1.3876-2.1228C21.2982 1.33 20.628.9208 19.8378.6165 19.074.321 18.2017.1197 16.9244.0645 15.6471.0093 15.236-.005 11.977.0014 8.718.0076 8.31.0215 7.0301.0839m.1402 21.6932c-1.17-.0509-1.8053-.2453-2.2287-.408-.5606-.216-.96-.4771-1.3819-.895-.422-.4178-.6811-.8186-.9-1.378-.1644-.4234-.3624-1.058-.4171-2.228-.0595-1.2645-.072-1.6442-.079-4.848-.007-3.2037.0053-3.583.0607-4.848.05-1.169.2456-1.805.408-2.2282.216-.5613.4762-.96.895-1.3816.4188-.4217.8184-.6814 1.3783-.9003.423-.1651 1.0575-.3614 2.227-.4171 1.2655-.06 1.6447-.072 4.848-.079 3.2033-.007 3.5835.005 4.8495.0608 1.169.0508 1.8053.2445 2.228.408.5608.216.96.4754 1.3816.895.4217.4194.6816.8176.9005 1.3787.1653.4217.3617 1.056.4169 2.2263.0602 1.2655.0739 1.645.0796 4.848.0058 3.203-.0055 3.5834-.061 4.848-.051 1.17-.245 1.8055-.408 2.2294-.216.5604-.4763.96-.8954 1.3814-.419.4215-.8181.6811-1.3783.9-.4224.1649-1.0577.3617-2.2262.4174-1.2656.0595-1.6448.072-4.8493.079-3.2045.007-3.5825-.006-4.848-.0608M16.953 5.5864A1.44 1.44 0 1 0 18.39 4.144a1.44 1.44 0 0 0-1.437 1.4424M5.8385 12.012c.0067 3.4032 2.7706 6.1557 6.173 6.1493 3.4026-.0065 6.157-2.7701 6.1506-6.1733-.0065-3.4032-2.771-6.1565-6.174-6.1498-3.403.0067-6.156 2.771-6.1496 6.1738M8 12.0077a4 4 0 1 1 4.008 3.9921A3.9996 3.9996 0 0 1 8 12.0077"/></svg></a></li><li><a href="https://www.threads.com/@qssok" target="_blank" rel="noopener" aria-label="큐쏙 스레드 (새 창)" title="스레드"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M18.263 11.097c-.03-3.486-1.92-5.586-5.111-5.586-2.13 0-3.922.963-4.863 2.499l2.062 1.438c.535-.843 1.272-1.543 2.628-1.543 1.528 0 2.318.85 2.544 2.431a15 15 0 0 0-2.236-.173c-4.125 0-6.068 1.867-6.068 4.336s1.943 3.99 4.804 3.99c3.139 0 5.013-2.115 5.781-4.735.798.361 1.348 1.204 1.348 2.47 0 3.387-3.907 5.232-7.22 5.232-4.885 0-8.077-3.207-8.077-8.424 0-6.392 4.223-10.487 9.9-10.487 3.808 0 5.69 1.671 6.97 3.914l2.108-1.475C21.44 2.078 18.331 0 13.663 0 6.227 0 1.168 5.277 1.168 12.934c0 7 4.953 11.066 10.856 11.066 4.878 0 9.809-2.846 9.809-7.716 0-2.545-1.46-4.231-3.569-5.187m-6.33 4.855c-1.077 0-2.026-.512-2.026-1.453 0-1.483 1.822-1.934 3.606-1.934.678 0 1.34.045 1.927.173-.422 1.927-1.671 3.215-3.508 3.214Z"/></svg></a></li><li><a href="https://x.com/qssok_kr" target="_blank" rel="noopener" aria-label="큐쏙 X (새 창)" title="X"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M14.234 10.162 22.977 0h-2.072l-7.591 8.824L7.251 0H.258l9.168 13.343L.258 24H2.33l8.016-9.318L16.749 24h6.993zm-2.837 3.299-.929-1.329L3.076 1.56h3.182l5.965 8.532.929 1.329 7.754 11.09h-3.182z"/></svg></a></li></ul></div>
+<div class="sf-cols" role="navigation" aria-label="큐쏙 사이트 안내">
+<div class="sf-col sf-c1"><p class="sf-h">큐쏙</p><ul><li><a href="https://qssok.com/#features">기능 소개</a></li><li><a href="https://qssok.com/#pricing">요금 안내</a></li><li><a href="https://qssok.com/#download">다운로드</a></li></ul></div>
+<div class="sf-col sf-c2"><p class="sf-h">도움말</p><ul><li class="o-faq"><a href="https://qssok.com/#faq">자주 묻는 질문</a></li><li class="o-key"><a href="https://qssok.com/guide/ai-key/">구글 AI 키 등록 안내</a></li><li class="o-kakao"><a href="https://open.kakao.com/o/swrvSxUi" target="_blank" rel="noopener">카톡 문의</a></li></ul></div>
+<div class="sf-col sf-c3"><p class="sf-h">약관·정책</p><ul><li class="o-terms"><a href="https://danbilab.com/terms/">이용약관</a></li><li class="o-refund"><a href="https://danbilab.com/terms/v1.3/">환불 규정</a></li><li class="o-pp"><a href="https://danbilab.com/privacy/"><strong>개인정보처리방침</strong></a></li><li class="o-lic"><a href="https://danbilab.com/licenses/">오픈소스 라이선스</a></li></ul></div>
+</div>
+</div>
+<div class="sf-biz"><dl><div class="sf-pc"><dt>상호</dt><dd>단비</dd></div><div class="sf-pc"><dt>대표자</dt><dd>이단비</dd></div><div class="sf-mo"><dt>상호·대표자</dt><dd>단비 · 이단비</dd></div><div><dt>사업자등록번호</dt><dd>622-42-01304</dd></div><div><dt>통신판매업 신고</dt><dd>준비 중</dd></div></dl><dl><div class="sf-wr"><dt>주소</dt><dd>경상북도 구미시 산호대로25길 41, 204동 7층 5호(옥계동, 부영아파트2차)</dd></div><div><dt>전화</dt><dd><a class="sf-u" href="tel:070-8064-3798">070-8064-3798</a></dd></div><div><dt>이메일</dt><dd><a class="sf-u" href="mailto:contact@danbilab.com">contact@danbilab.com</a></dd></div><div class="sf-wr"><dt>호스팅 제공자</dt><dd><span class="sf-h1">GitHub, Inc.<wbr>(qssok.com)</span><span class="sf-hs"> · </span><span class="sf-h1">Cloudflare, Inc.<wbr>(danbilab.com)</span></dd></div></dl></div>
+<p class="sf-run">큐쏙(Qssok)™은 <a class="sf-u" href="https://danbilab.com/">단비</a>가 운영합니다. © 2026 단비</p>
+<p class="sf-tm">한글·HWP는 (주)한글과컴퓨터, Windows는 Microsoft Corporation, Mac은 Apple Inc., Instagram·Threads는 Meta Platforms, Inc., X는 X Corp., 네이버는 네이버(주), Google·Google AI Studio·Gemini·YouTube는 Google LLC의 상표입니다.</p>
+</div>
+</footer>
+<!--/site-footer-->
 </main>
 <section class="screen" id="pay" hidden>
   <div class="head">
