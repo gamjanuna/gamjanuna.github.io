@@ -14,7 +14,7 @@ const MODE = 'test';
 const LOCAL = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
 const LIVE = MODE === 'live' || LOCAL;
 const API = LOCAL ? '' : 'https://pay.danbilab.com';
-const TERMS_VER = '1.3';   // = worker/pay/wrangler.toml TERMS_VER — 다르면 서버가 「약관 바뀜」으로 막는다(가드 §14p)
+const TERMS_VER = '1.5';   // = worker/pay/wrangler.toml TERMS_VER — 다르면 서버가 「약관 바뀜」으로 막는다(가드 §14p)
 const SDK = 'https://cdn.portone.io/v2/browser-sdk.js';
 const TEST = {   // 포트원 콘솔 › 결제 연동 › 연동 관리 › 테스트 채널 「큐쏙 시험」 — 비밀값 아님(결제창에 넘기는 공개 값)
   storeId: 'store-a36ecae1-4cef-4ba3-877a-c9d970fd0ec7',
