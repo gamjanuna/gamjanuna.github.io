@@ -535,7 +535,7 @@ html:has(dialog.ms[open]) { overflow: hidden; }
   .card.is-soon { background: var(--surface-2); border: 1px solid var(--line-strong); box-shadow: none; }
   .card.is-soon .save { background: var(--brand-soft); color: var(--brand-700); }
   .fd input:focus-visible { box-shadow: 0 0 0 3px rgba(36,53,138,.18); }
-  .ai, .rf, .sheet, #doneBody { border: 1px solid var(--line); border-radius: var(--r); box-shadow: var(--sh); }
+  .ai, .rf, .sheet, #doneBody, .ap-box { border: 1px solid var(--line); border-radius: var(--r); box-shadow: var(--sh); }
   .step, .ask { border-color: var(--line); border-radius: 14px; }
   .go, .soon, .pay-btn, .d-btn, .ms-btn, .sbtn, .ask button { border-radius: 999px; }
   .fd input { border-radius: 10px; border-color: #948b7c; }
@@ -587,6 +587,59 @@ body:has(#pay:not([hidden])) .nav-in, body:has(#pay:not([hidden])) .nav a, body:
   .sum .eq { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 50%; background: var(--brand-700); color: #fff; font-weight: 700; }
   .sum b { font-size: 22px; color: var(--brand-700); }
   .sum small { flex-basis: 100%; text-align: center; font-size: 12.5px; color: var(--ink-3); }
+
+  /* ── 자동 결제 해지 칸(메일 없이 해지 — design·ux-writing 11-20): 「해지 · 환불」 맨 위, 접지 않는다. 자동 결제 카드와 같은 스위치(data-auto) ── */
+  #cancel { scroll-margin-top: 16px; }
+  .ap-box { background: var(--surface); padding: 18px 20px; margin-bottom: 12px; }
+  @media (max-width: 640px) { .ap-box { padding: 16px; } }
+  .ap-box:not(.card-on) [data-card] { display: none; }
+  .ap-t { font-size: 15px; font-weight: 700; color: var(--ink); line-height: 22px; }
+  .ap-d { margin-top: 4px; font-size: 14px; line-height: 21px; color: var(--ink); }
+  .ap-c { margin-top: 2px; font-size: 13px; line-height: 19px; color: var(--ink-2); }
+  .ap-box .pair { margin-top: 14px; }
+  .ap-box .fd label { font-size: 15px; font-weight: 700; line-height: 22px; margin-bottom: 6px; color: var(--ink); }
+  .ap-box .fd label small { margin-left: 6px; font-size: 13px; font-weight: 400; color: var(--ink-2); white-space: nowrap; }
+  .ap-box .fd > .slot { min-height: 0; margin: 4px 0 0; }
+  .ap-box .fd > .slot:not(.bad) { display: none; }
+  /* 단추 — 입력 칸 아래 왼쪽, 해지가 먼저 · 같은 무게(legal). 폰에선 반씩 나란히 */
+  .ap-acts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+  .ap-btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 44px; padding: 0 18px; border-radius: 999px; font: inherit; font-size: 15px; font-weight: 700; color: var(--brand-700); background: var(--white); border: 1.5px solid var(--brand-300); cursor: pointer; white-space: nowrap; }
+  .ap-btn:hover { background: var(--brand-soft); }
+  .ap-btn:disabled { cursor: default; color: var(--ink-3); background: var(--white); border-color: var(--line-strong); }
+  @media (max-width: 640px) { .ap-acts > .ap-btn { flex: 1 1 0; } }
+  .ap-res:not(:empty) { margin-top: 12px; }
+  .ap-res .band p { margin-top: 4px; }
+  .ap-res .band strong { display: block; font-weight: 600; color: var(--ink); }
+  .ap-alt { margin-top: 12px; font-size: 13px; line-height: 18px; color: var(--ink-2); }
+  .know a { color: var(--brand-700); }
+
+  /* ── 메일 링크 화면(?renew= 계속 여부 · ?cancel= 해지) — 시안 v299 + v302 결정(대표 11-19: 알약 단추 · 「~할까요?」 · 해지 화면 출구 = 작은 글 + 큐쏙 홈으로) ── */
+  #ap.screen { max-width: 580px; }
+  #ap .head { display: block; }
+  #ap h1 { font-size: 22px; line-height: 1.35; }
+  .rn-dek { margin: 4px 0 0; font-size: 14.5px; color: var(--ink-2); }
+  .rn-amt { display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; align-items: baseline; }
+  .rn-amt .k { font-size: 13.5px; color: var(--ink-2); }
+  .rn-amt .was { font-size: 15px; color: var(--ink-2); }
+  .rn-amt .now { font-size: 24px; font-weight: 700; color: var(--ink); }
+  .rn-amt small { display: block; font-size: 12.5px; color: var(--ink-2); font-weight: 400; line-height: 1.4; }
+  #ap .terms { grid-template-columns: 76px minmax(0, 1fr); margin-top: 16px; font-size: 14px; }
+  #ap .terms:first-child { margin-top: 0; }
+  #ap code { font-size: inherit; letter-spacing: .04em; }
+  .rn-btns { display: grid; gap: 8px; margin-top: 18px; }
+  @media (min-width: 401px) { .rn-btns:not(.one) { grid-template-columns: 1fr 1fr; } }
+  #ap .pay-btn { margin-top: 0; height: 54px; font-size: 16px; border-radius: 999px; }
+  .pay-btn.ghost { background: var(--surface); color: var(--brand-700); border: 1.5px solid var(--brand-300); }
+  .pay-btn.ghost:hover { background: var(--brand-soft); }
+  .pay-btn.ghost:disabled { color: var(--ink-3); background: var(--surface-2); border-color: var(--line); }
+  .rn-after { margin: 12px 0 0; font-size: 13px; color: var(--ink-2); line-height: 1.65; }
+  #ap .band { margin-top: 0; font-size: 13.5px; }
+  #ap .band p + p { margin-top: 4px; }
+  #ap .band-acts .sbtn { display: inline-flex; align-items: center; gap: 6px; }
+  .rn-quiet { margin: 14px 0 0; font-size: 13px; color: var(--ink-2); text-align: center; }
+  .rn-quiet a { color: var(--brand-700); font-weight: 600; white-space: nowrap; }
+  .rn-after a { color: var(--brand-700); font-weight: 600; }
+  #ap .rn-note { margin-bottom: 14px; }
 </style>
 <style>/*site-footer*/
 footer.sf{--sf-k:#1a1f2e;--sf-v:#3a3832;--sf-f:#6e685c;--sf-l:#e8e1d5;--sf-o:#fff;container-type:inline-size;
@@ -693,20 +746,37 @@ footer.sf .sf-tm{margin-top:4px}
     <li>결제가 확인되면 1개월을 바로 적용합니다. 큐쏙을 켜지 않아도 기간은 시작됩니다. 적용한 날부터 시작하며, 체험이나 앞서 결제한 달이 남아 있으면 그 기간이 끝난 다음 날부터 시작합니다</li>
     <li>오픈 기념(직접 결제)과 매달 결제는 한 달씩 직접 결제합니다. 기간이 끝나기 전에 결제하셔도 남은 기간 뒤에 이어집니다</li>
     <li>오픈 기념 금액은 컴퓨터 번호마다 따로 적용됩니다. 그 번호로 2027년 1월 31일까지 첫 결제하면 첫 결제 포함 3개월까지입니다(첫 결제일부터 3개월 안에 3번). 전액 환불된 결제는 세지 않고, 중간에 환불한 결제는 1번으로 셉니다. 중간에 쉬어도 기간은 늘어나지 않습니다. 2027년 2월 1일부터 처음 결제하시면 매달 결제 금액입니다</li>
-    <li>자동 결제는 선택한 분만 해당됩니다. 해지할 때까지 등록한 카드로 매달 같은 날 35,200원(월 32,000원, VAT 별도)이 결제됩니다. 오픈 기념을 ‘자동 결제로 시작’하면 첫 3개월은 29,700원, 4개월째부터 35,200원입니다. 해지는 큐쏙 앱의 설정 › 이용 상태나 이 페이지에서 언제든 할 수 있고, 해지하면 다음 결제부터 멈춥니다. 지금 이 페이지는 심사용 시험판이라 카드를 등록해도 자동 결제가 시작되지 않습니다</li>
+    <li>자동 결제는 선택한 분만 해당됩니다. 해지할 때까지 등록한 카드로 매달 같은 날 35,200원(월 32,000원, VAT 별도)이 결제됩니다. 오픈 기념을 ‘자동 결제로 시작’하면 첫 3개월은 29,700원, 4개월째부터 35,200원입니다. 해지는 큐쏙 앱의 설정 › 이용 상태나 <a href="#cancel">이 페이지에서</a> 언제든 할 수 있고, 해지하면 다음 결제부터 멈춥니다. 지금 이 페이지는 심사용 시험판이라 카드를 등록해도 자동 결제가 시작되지 않습니다</li>
     <li>오픈 기념 금액 대상인데 39,600원으로 결제하셨다면 문의해 주세요. 차액 9,900원을 돌려드립니다. 컴퓨터를 옮기거나 번호를 고쳐 번호가 달라져도 대상 여부는 처음 번호의 첫 결제일과 횟수로 봅니다</li>
     <li>월 이용료가 바뀌면 한 달 전에 미리 알리고, 이미 결제한 기간에는 적용하지 않습니다</li>
     <li>필요한 것: Windows 10 이상(64비트) · 인터넷 연결 (지금은 Windows용만 있습니다. Mac용은 준비 중입니다)</li>
   </ul></details>
 
-  <section class="refund">
+  <section class="refund" id="cancel">
     <p class="h">해지 · 환불</p>
+    <!-- 메일 없이 해지(대표 11-19 ㉠ 원클릭 · design·ux-writing 11-20) — 결제 서버 /pay/autopay/web-cancel. 확인창 없음(누르면 바로 해지 — 해지 취소가 따로 있다).
+         data-auto = 자동 결제 카드와 같은 스위치(LIVE에서 카드가 「준비 중」이면 같이 숨는다 — buy.js). 입력 확인은 결제 화면과 같은 함수(machineErr·emailErr) -->
+    <!-- 3안-나(대표 11-20, 시안 v306 new-3b — web-design·ux-flow·ux-writing·a11y → ui-visual 「깔끔」): 번호+결제 이메일 한 칸 · 단추는 입력 칸 아래 왼쪽 · 해지가 먼저.
+         카드 변경([data-card])은 서버 기능이 생길 때 .ap-box에 card-on을 붙여 켠다(⏳ 그 전엔 숨김 — 누르면 안 되는 단추를 보이지 않게) -->
+    <div class="ap-box" data-auto>
+      <p class="ap-t">자동 결제 해지<span data-card> · 카드 변경</span></p>
+      <p class="ap-d">해지는 누르면 바로 됩니다.<span data-card> 카드 변경은 결제 이메일로 링크를 보내 드립니다.</span></p>
+      <p class="ap-c">해지 취소는 다음 결제일 전날 밤 11시 59분까지 · 위약금 없음</p>
+      <div class="pair">
+        <div class="fd"><label for="cm">컴퓨터 번호<small>큐쏙 앱 › 설정 › 이용 상태에 있음</small></label><input class="mc" id="cm" autocomplete="off" spellcheck="false" autocapitalize="characters" aria-describedby="cmSlot"><div class="slot stack" id="cmSlot"><span class="s-err"></span></div></div>
+        <div class="fd"><label for="ce">결제 이메일<small>큐쏙 결제 메일을 받은 주소</small></label><input id="ce" type="email" autocomplete="email" spellcheck="false" placeholder="name@example.com" aria-describedby="ceSlot"><div class="slot stack" id="ceSlot"><span class="s-err"></span></div></div>
+      </div>
+      <div class="ap-acts"><button class="ap-btn" type="button" id="apBtn">자동 결제 해지</button><button class="ap-btn" type="button" id="cardBtn" data-card disabled>카드 변경</button></div>
+      <div class="ap-res" id="apRes" role="status" aria-live="polite"></div>
+      <p class="ap-alt">큐쏙 앱·결제 메일에서도 해지 가능</p>
+    </div>
     <dl class="rf">
       <dt>전액 환불</dt><dd>정식판 이용 기간이 시작되기 전이거나 결제한 날 요청하면 <b>전액 환불</b>합니다.</dd>
       <dt>이용 중</dt><dd>사용 여부와 관계없이, 시작일부터 환불 요청일까지 지난 일수를 뺀 금액으로 환불이 가능합니다. 큐쏙은 선생님이 앱을 언제, 어떻게 사용하시는지 알 수 없기 때문에 지난 일수로만 계산합니다.</dd>
       <dt>계산</dt><dd>환불액 = 결제액 − 결제액 ÷ 이용 일수 × 지난 일수 <span class="sub">결제액 = 실제 결제한 금액(부가세 포함) · 요청일 포함 · 빼는 금액의 1원 미만은 버림 · 예) 29,700원, 30일 중 10일 지남 → 19,800원 환불</span></dd>
       <dt>청약철회</dt><dd>이용 기간이 시작된 뒤 지난 일수만큼은 청약철회가 제한됩니다(전자상거래법 제17조 제2항 제5호). 결제 전에 7일 무료 체험으로 백업 불러오기를 제외한 모든 기능을 써 보실 수 있습니다.</dd>
-      <dt>요청 방법</dt><dd>이용 기간 중 언제든 요청하실 수 있습니다. 결제 이메일과 컴퓨터 번호를 contact@danbilab.com으로 보내 주세요. 요청 메일을 받은 날부터 3영업일 안에 결제를 취소합니다. 이용 중이면 요청한 날까지 쓰시고 다음 날부터 잠깁니다. <span class="sub">카드사 환급일은 다를 수 있습니다</span></dd>
+      <dt data-auto>자동 결제 해지</dt><dd data-auto>이 페이지의 ‘자동 결제 해지’ 칸이나 큐쏙 앱의 설정 › 이용 상태에서 바로 할 수 있습니다. 해지는 다음 결제를 멈추는 것이고, 이미 결제한 금액의 환불은 아래 요청 방법을 따릅니다.</dd>
+      <dt>환불 요청</dt><dd>이용 기간 중 언제든 요청하실 수 있습니다. 결제 이메일과 컴퓨터 번호를 contact@danbilab.com으로 보내 주세요. 요청 메일을 받은 날부터 3영업일 안에 결제를 취소합니다. 이용 중이면 요청한 날까지 쓰시고 다음 날부터 잠깁니다. <span class="sub">카드사 환급일은 다를 수 있습니다</span></dd>
       <dt>그 밖</dt><dd>위약금 없음 · 결제 오류와 중복 결제는 전액 환불 · 환불이 늦어지면 늦어진 날수만큼 전자상거래법 시행령이 정한 지연배상금(연 15%)을 더해 드립니다</dd>
     </dl>
   </section>
@@ -793,7 +863,7 @@ footer.sf .sf-tm{margin-top:4px}
           <label class="ag"><input type="checkbox"><span><b>[필수] <span class="must">이용 기간이 끝나면 아래 기능이 잠기는 것</span>에 동의합니다.</b><small class="lock-list">새 파일 불러오기 · 추출 · 편집 · 글자 복사 · 시험지 만들기와 한글 내보내기 · 백업 불러오기</small><small>문제 보기와 백업 저장은 계속 쓰실 수 있고, 저장된 문제와 시험지는 지워지지 않습니다.</small></span></label>
           <label class="ag"><input type="checkbox"><span><b>[필수] 구글 AI 키를 직접 받아 넣어야 추출할 수 있다는 것에 동의합니다.</b><small>구글 AI 사용료는 추출한 만큼 본인이 구글에 냅니다. <span class="must">큐쏙 이용료와 별도입니다.</span> 구글에 낸 돈은 큐쏙이 돌려 드리거나 대신 내 드리지 않습니다. 추출할 때 페이지 이미지가 구글로 전송됩니다.</small></span></label>
           <!-- 자동 결제 경로만(legal 11-18 — 미리 체크 ⛔, 전환 금액·해지 방법을 숨기지 않는다). 문장은 buy.js가 상품에 맞춰 넣는다 -->
-          <label class="ag" id="agAuto" hidden><input type="checkbox"><span><b id="agAutoT"></b><small>해지는 큐쏙 앱의 설정 › 이용 상태나 판매 페이지에서 언제든 할 수 있고, 해지하면 다음 결제부터 멈춥니다.</small></span></label>
+          <label class="ag" id="agAuto" hidden><input type="checkbox"><span><b id="agAutoT"></b><small>해지는 큐쏙 앱의 설정 › 이용 상태나 <a href="#cancel" target="_blank" rel="noopener">판매 페이지에서</a> 언제든 할 수 있고, 해지하면 다음 결제부터 멈춥니다.</small></span></label>
         </div>
       </section>
     </fieldset>
@@ -822,6 +892,13 @@ footer.sf .sf-tm{margin-top:4px}
 <section class="screen" id="done" hidden>
   <div class="head"><h1 id="doneTitle" tabindex="-1"></h1></div>
   <div class="sheet" id="doneBody"></div>
+  <div class="tail"></div>
+</section>
+
+<!-- 메일 링크 화면(?renew= · ?cancel=) — buy.js가 서버 답(view)으로 채운다 -->
+<section class="screen" id="ap" hidden>
+  <div class="head" id="apHead"></div>
+  <div class="sheet" id="apBody"></div>
   <div class="tail"></div>
 </section>
 

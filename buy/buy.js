@@ -49,6 +49,23 @@ let product = 'open3';
 // 「간편결제」로 따로 부르면 이니시스 V2는 결제사를 미리 정하라며 거절한다(11-09 실측).
 const PAY_METHOD = 'CARD';
 
+// 메일 링크(?renew=열쇠 · ?cancel=열쇠) — 다른 무엇보다 먼저 주소에서 걷는다(방문 기록·북마크·포트원 같은 바깥 요청에 열쇠가 남지 않게).
+// 열쇠는 이 탭의 메모리와 sessionStorage에만 — sessionStorage는 새로고침했을 때만 다시 읽는다(나중에 판매 페이지를 다시 열면 요금제 화면)
+const AP_LINK = (() => {
+  const lq = new URLSearchParams(location.search), kind = lq.has('cancel') ? 'cancel' : lq.has('renew') ? 'renew' : '';
+  if (kind) {
+    const v = { kind, t: lq.get(kind) || '', no: lq.get('pick') === 'no' };   // pick=no = 메일의 「계속하지 않기」 단추
+    history.replaceState(null, '', location.pathname);
+    try { sessionStorage.setItem('apLink', JSON.stringify(v)); } catch { /* 저장 못 해도 이번 화면은 그대로 */ }
+    return v;
+  }
+  try {
+    if (performance.getEntriesByType('navigation')[0]?.type !== 'reload') { sessionStorage.removeItem('apLink'); return null; }
+    const v = JSON.parse(sessionStorage.getItem('apLink'));
+    return v && (v.kind === 'renew' || v.kind === 'cancel') && typeof v.t === 'string' ? v : null;
+  } catch { return null; }
+})();
+
 // 결제·완료 화면 맨 아래 = 첫 화면과 같은 공통 바닥글(tools/site_footer.py) + 분쟁 처리 문장. 결제 중에 같은 탭에서 약관을 열면
 // 입력한 이름·번호가 날아가므로 새 창으로(design 11-19). 바닥글 안엔 id가 없다(복제해도 겹치지 않게).
 const disp = document.querySelector('#shop .dispute'), foot = document.querySelector('#shop footer.sf');
@@ -62,7 +79,7 @@ if (LIVE) document.querySelector('.test-band').hidden = true;   // 「결제하�
 ['400', '700'].forEach((w) => document.fonts?.load(`${w} 13.5px "IBM Plex Sans KR"`, document.body.innerText));
 
 function show(id) {
-  ['shop', 'pay', 'done'].forEach((k) => ($(k).hidden = k !== id));
+  ['shop', 'pay', 'done', 'ap'].forEach((k) => ($(k).hidden = k !== id));
   document.body.classList.toggle('narrow', id !== 'shop');
   window.scrollTo({ top: 0, behavior: 'instant' });
 }
@@ -85,6 +102,9 @@ document.addEventListener('click', (e) => {
 // ── 결제 화면 ──
 const MACHINE = /^[2-9A-HJ-NP-Z]{10}$/, EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const norm = (v) => v.replace(/\s+/g, '').toUpperCase();
+// 번호·이메일 확인 — 결제 화면과 해지 칸이 같은 함수(같은 말)
+const machineErr = (a) => !a ? '컴퓨터 번호를 입력해 주세요.' : a.length !== 10 ? `번호는 10자리입니다(지금 ${a.length}자리).` : !MACHINE.test(a) ? '0, 1, I, O는 번호에 없는 글자입니다.' : '';
+const emailErr = (em) => !em ? '이메일을 입력해 주세요.' : !EMAIL.test(em) ? '이메일 주소를 확인해 주세요.' : '';
 function setProduct(id) {
   product = id; const p = P[id];
   $('itName').innerHTML = p.title; $('itPrice').innerHTML = p.price.replace(/^월 ([\d,]+원) (\(.*\))$/, '월 <b>$1</b> <small>$2</small>'); $('itCond').textContent = p.cond;
@@ -139,11 +159,11 @@ items().forEach((c) => (c.onchange = () => { $('agAll').checked = items().every(
 
 function validate() {
   const a = norm($('m1').value), b = norm($('m2').value), em = $('em').value.trim();
-  const e1 = !a ? '컴퓨터 번호를 입력해 주세요.' : a.length !== 10 ? `번호는 10자리입니다(지금 ${a.length}자리).` : !MACHINE.test(a) ? '0, 1, I, O는 번호에 없는 글자입니다.' : '';
+  const e1 = machineErr(a);
   const e2 = e1 ? '' : !b ? '번호를 한 번 더 입력해 주세요.' : a !== b ? '두 칸의 번호가 다릅니다.' : '';
   const nm = $('nm').value.trim(), ph = $('ph').value.replace(/[\s-]/g, '');
   const e4 = !nm ? '이름을 입력해 주세요.' : '', e5 = !ph ? '휴대폰 번호를 입력해 주세요.' : !/^01\d{8,9}$/.test(ph) ? '휴대폰 번호를 확인해 주세요.' : '';
-  const e3 = !em ? '이메일을 입력해 주세요.' : !EMAIL.test(em) ? '이메일 주소를 확인해 주세요.' : '';
+  const e3 = emailErr(em);
   setSlots();
   $('m1').toggleAttribute('aria-invalid', !!e1); $('m2').toggleAttribute('aria-invalid', !!e2); $('em').toggleAttribute('aria-invalid', !!e3); $('nm').toggleAttribute('aria-invalid', !!e4); $('ph').toggleAttribute('aria-invalid', !!e5);
   if (e4) slotErr($('nSlot'), e4);
@@ -367,6 +387,193 @@ dlg.addEventListener('click', (e) => {
   else if (t === '번호 고치기') { $('m1').focus({ preventScroll: true }); $('m1').scrollIntoView({ block: 'center', behavior: 'instant' }); }
   else if (t === '새로고침') location.reload();
 });
+
+// ── 자동 결제 해지·계속 여부 — 판매 페이지 해지 칸 + 메일 링크 화면. 서버 판정 = worker/lib/autopay-cancel.js(앱·메일과 한 벌) ──
+// 날짜 「3월 20일」 — 같은 식의 kDay가 미커밋 「미리 결제 확인창」(다른 작업)에 있어 이름을 따로 둔다(그쪽 커밋 때 하나로 합칠 것)
+const apKDay = (d) => /^\d{4}-\d{2}-\d{2}$/.test(d ?? '') ? `${+d.slice(5, 7)}월 ${+d.slice(8, 10)}일` : '';
+// ⛔ 서버 값(날짜·번호·금액)은 글자로만(esc) · ⛔ 시험판(공개 주소, LIVE 아님)은 결제 서버를 부르지 않는다(§14p) — 자동 결제가 실제로 생길 수 없어 「찾지 못했습니다」와 같다
+const won = (n) => typeof n === 'number' ? n.toLocaleString('ko-KR') + '원' : '';
+const kDayW = (d) => apKDay(d) && `${apKDay(d)}(${'일월화수목금토'[new Date(d + 'T00:00:00Z').getUTCDay()]})`;   // 「3월 20일(목)」
+const addDay = (d, n) => apKDay(d) ? new Date(Date.parse(d + 'T00:00:00Z') + n * 864e5).toISOString().slice(0, 10) : '';
+const AP_ALT = '큐쏙 앱의 설정 › 이용 상태나 결제 안내 메일의 ‘자동 결제 해지하기’ 버튼으로도 해지할 수 있습니다.';
+// 해지된 뒤의 말 — 해지 칸과 메일 링크 화면이 같은 문장(ux-writing 11-20). 되돌릴 수 없는 까닭은 서버 undo_block으로(PC 시계로 짐작 ✕)
+function apCancelledLines(j) {
+  if (j.can_undo) return { strong: `${kDayW(j.until)}까지 지금처럼 사용하실 수 있습니다.`, rest: `${kDayW(j.next_charge_on)} 결제는 하지 않습니다. 만드신 문제는 지워지지 않습니다.` };
+  return { strong: `${kDayW(j.until)}까지 사용하실 수 있습니다.`, rest: (j.undo_block === 'charging'
+    ? '이번 자동 결제가 이미 시작되어 해지를 취소할 수는 없습니다. 결제가 되었다면 자동으로 전액 취소합니다.'
+    : '결제일이 되어 해지를 취소할 수는 없습니다. 이번 회차가 결제되었다면 자동으로 전액 취소합니다.') + ' 만드신 문제는 지워지지 않습니다.' };
+}
+
+// 해지 칸(메일 없이 해지 — 대표 11-19 ㉠ 원클릭 · design·ux-writing 11-20) → /pay/autopay/web-cancel. 확인창 없이 바로(해지 취소 기한이 따로 있다) · 결과는 칸 안 띠 하나
+// 404는 어느 칸이 틀렸는지 표시하지 않는다(서버도 말하지 않는다 — 남의 번호로 자동 결제 여부를 못 알아내게)
+function apBoxSlots() {
+  ['cmSlot', 'ceSlot'].forEach((i) => { $(i).classList.remove('bad'); $(i).querySelector('.s-err').textContent = ''; });
+  ['cm', 'ce'].forEach((i) => $(i).removeAttribute('aria-invalid'));
+}
+function apBoxLock(on, busy) {
+  $('cm').disabled = $('ce').disabled = $('apBtn').disabled = on;
+  $('apBtn').innerHTML = busy ? SVG.spin + '<span>해지하는 중…</span>' : '자동 결제 해지';
+}
+const apRes = (cls, title, ps) => { $('apRes').innerHTML = `<div class="band ${cls}"><b>${esc(title)}</b>${ps.map((p) => `<p>${p}</p>`).join('')}</div>`; };   // ps = 이미 esc 한 조각
+$('apBtn').onclick = async () => {
+  const m = norm($('cm').value), em = $('ce').value.trim(), e1 = machineErr(m), e2 = emailErr(em);
+  apBoxSlots(); $('apRes').innerHTML = '';
+  if (e1) { $('cm').setAttribute('aria-invalid', ''); slotErr($('cmSlot'), e1); }
+  if (e2) { $('ce').setAttribute('aria-invalid', ''); slotErr($('ceSlot'), e2); }
+  if (e1 || e2) { (e1 ? $('cm') : $('ce')).focus(); return; }
+  if (!LIVE) { apBoxShow({ code: 404, j: { error: 'not_found' } }); return; }   // 시험판 — 위 ⛔(같은 입력 확인을 거친 뒤 서버 대신 「찾지 못했습니다」)
+  apBoxLock(true, true);
+  let r = null;
+  try { r = await post('/pay/autopay/web-cancel', { machine_id: m, email: em }); } catch { /* 닿지 않음 — 아래 「확인하지 못했습니다」 */ }
+  apBoxShow(r);
+};
+function apBoxShow(r) {
+  const j = r?.j || {}, st = j.state;
+  if (r && (r.ok || r.code === 409) && st === 'cancelled') {   // 해지됨(이미 해지돼 있던 것도 같은 답) — 칸은 잠근 채
+    apBoxLock(true, false);
+    const L = apCancelledLines(j);
+    return apRes('mute', '자동 결제를 해지했습니다', [`<strong>${esc(L.strong)}</strong>${esc(L.rest)}`,
+      esc('해지 안내 메일을 결제 이메일로 보내 드립니다.' + (j.can_undo ? ` 마음이 바뀌시면 ${kDayW(j.undo_deadline)} 밤 11시 59분까지 그 메일이나 큐쏙 앱의 설정 › 이용 상태에서 해지를 취소하실 수 있습니다.` : ''))]);
+  }
+  apBoxLock(false, false);
+  if (r?.code === 409 && st === 'ending') return apRes('mute', '이미 ‘계속하지 않기’를 선택하셨습니다', [esc(`${kDayW(j.until)}까지 사용하신 뒤 자동 결제와 이용권이 종료됩니다. 따로 해지하지 않으셔도 이후로는 결제되지 않습니다.`)]);
+  if (r?.code === 409 && st === 'ended') return apRes('mute', `${apKDay(j.ended_on) ? kDayW(j.ended_on) + '에 ' : ''}이 컴퓨터 번호의 자동 결제는 이미 종료되었습니다`,
+    [esc('이후로는 결제되지 않습니다. 만드신 문제는 지워지지 않으며, 문제 DB에서 만든 문제 보기와 백업 저장은 언제든 하실 수 있습니다.')]);
+  if (!r) return apRes('warn', '해지되었는지 확인하지 못했습니다', [esc('인터넷 연결을 확인한 뒤 다시 눌러 주세요. 이미 해지되었다면 다시 눌러도 그대로 해지된 상태로 나옵니다.')]);
+  if (r.code === 404 && j.error === 'not_found') {
+    apRes('warn', '입력하신 정보로 자동 결제를 찾지 못했습니다', [esc('해지되지 않았습니다. 컴퓨터 번호와 결제 이메일을 다시 확인해 주세요. 결제 이메일은 결제 안내 메일을 받은 주소이며, 체험을 신청한 이메일과 다를 수 있습니다.'),
+      esc(AP_ALT), esc(`그래도 안 되면 ${MAIL}으로 문의해 주세요.`)]);
+    $('cm').focus(); return;
+  }
+  if (r.code === 429) { apRes('warn', '오늘 해지 시도가 너무 많습니다', [esc('해지되지 않았습니다. 큐쏙 앱의 설정 › 이용 상태나 결제 안내 메일의 ‘자동 결제 해지하기’ 버튼으로는 지금 바로 해지할 수 있습니다.'), esc('이 페이지에서는 내일 다시 해 주세요.')]); $('apBtn').disabled = true; return; }
+  if (r.code === 400) return apRes('warn', '컴퓨터 번호와 결제 이메일을 다시 확인해 주세요', [esc('해지되지 않았습니다.')]);
+  apRes('warn', '지금은 해지를 처리하지 못했습니다', [esc('해지되지 않았습니다. 입력하신 정보가 틀렸다는 뜻은 아닙니다. 잠시 뒤 다시 눌러 주세요.'), esc(AP_ALT)]);
+}
+
+// 메일 링크 화면(?renew= 계속 여부 · ?cancel= 해지·해지 취소) — 시안 v299 + v302(대표 11-19: 알약 단추 · 「~할까요?」 · 해지 화면 출구 = 작은 글 + 큐쏙 홈으로)
+// ⛔ 여는 것만으로는 아무것도 바꾸지 않는다 — view 먼저(메일 앱이 링크를 미리 열어 본다). 바꾸는 건 단추(POST)뿐. 문장은 메일(결제 서버 subMail)과 같게
+const LINK_T = /^[0-9a-f]{32}\.[A-Za-z0-9_-]{32}$/;   // = 결제 서버 LINK_RE(모양이 틀리면 부르지 않는다)
+let apKind = '', apT = '', apJ = null, apBusy = false;
+function apShow(title, body, dek = '') {
+  show('ap');
+  $('apHead').innerHTML = `<h1 id="apTitle" tabindex="-1">${esc(title)}</h1>` + (dek ? `<p class="rn-dek">${esc(dek)}</p>` : '');
+  $('apBody').innerHTML = body;
+}
+const apBand = (cls, strong, ps) => `<div class="band ${cls}">${strong ? `<b>${esc(strong)}</b>` : ''}${ps.map((p) => `<p>${esc(p)}</p>`).join('')}</div>`;
+const apNote = (t) => t ? `<div class="band warn rn-note"><p>${esc(t)}</p></div>` : '';
+const apBig = (act, label, cls = '') => `<button class="pay-btn ${cls}" type="button" data-ap="${act}">${esc(label)}</button>`;
+const apSmall = (act, label) => `<div class="band-acts"><button class="sbtn" type="button" data-ap="${act}">${esc(label)}</button></div>`;
+const apAfter = (...t) => `<p class="rn-after">${t.map(esc).join('<br>')}</p>`;
+const apTerms = (rows) => `<dl class="terms">${rows.map(([k, v]) => `<dt>${esc(k)}</dt><dd>${v}</dd>`).join('')}</dl>`;   // v = 이미 esc 한 조각
+const apMid = (j) => `<code>${esc(j.machine_id ?? '')}</code>`;
+const AGAIN = '이후로는 결제되지 않습니다. 만드신 문제는 지워지지 않으며, 문제 DB에서 만든 문제 보기와 백업 저장은 언제든 하실 수 있습니다.';
+
+function apRenew(j, note = '') {
+  const nx = j.next_charge_on, dl = j.deadline, a = won(j.amount_next);
+  if (j.state === 'ask') return apShow('자동 결제를 계속할까요?', apNote(note)
+    + `<div class="picked rn-amt"><span class="k">지금</span><span class="was">매달 ${esc(won(j.amount_now))}<small>오픈 기념 ${esc(j.used ?? '')}회 결제 완료 · ${esc(apKDay(dl))}까지</small></span>`
+    + `<span class="k">${esc(apKDay(nx))}부터</span><span class="now">매달 ${esc(a)}<small>월 ${esc(won(Math.round(j.amount_next * 10 / 11)))} + 부가세</small></span></div>`
+    + apTerms([['컴퓨터 번호', apMid(j)], ['선택 기한', `<b>${esc(kDayW(dl))} 밤 11시 59분까지</b>`]])
+    + `<div class="rn-btns">${apBig('yes', a + '으로 계속하기')}${apBig('no', '계속하지 않기', 'ghost')}</div>`
+    + apAfter(`계속하지 않으시면 ${apKDay(dl)}에 자동 결제와 이용권이 종료되고, ${apKDay(nx)}부터 문제 추출·편집 등 기능이 잠깁니다. 만드신 문제는 지워지지 않습니다.`,
+      '계속하신 뒤에도 결제일 전날까지 언제든 해지하실 수 있으며, 위약금은 없습니다.'),
+    `계속하시면 ${apKDay(nx)} 결제부터 ${a}입니다`);
+  if (j.state === 'yes') return apShow('자동 결제가 이어집니다', apNote(note)
+    + apTerms([['다음 결제', `<b>${esc(kDayW(nx))} · ${esc(a)}</b>`], ['그 뒤', '해지하실 때까지 한 달마다'], ['컴퓨터 번호', apMid(j)]])
+    + apAfter('확인 메일을 보내 드립니다.', '해지는 메일의 ‘자동 결제 해지하기’ 버튼이나 큐쏙 앱의 설정 › 이용 상태에서 하실 수 있으며, 위약금은 없습니다.'));
+  if (j.state === 'no') return apShow('‘계속하지 않기’를 선택하셨습니다', apNote(note)
+    + apBand('mute', `${apKDay(dl)}까지 지금처럼 사용하실 수 있습니다.`, [`${apKDay(nx)}부터 문제 추출·편집 등 기능이 잠기며, 이후로는 결제되지 않습니다. 만드신 문제는 지워지지 않습니다.`])
+    + apAfter(`마음이 바뀌시면 ${apKDay(dl)} 밤 11시 59분까지 아래 버튼으로 계속하실 수 있습니다. 확인 메일에도 같은 버튼이 있습니다.`)
+    + apSmall('yes', a + '으로 계속하기'));
+  if (j.state === 'closed') return apShow('계속하기 기한이 지났습니다', apNote(note)
+    + apBand('mute', `${apKDay(dl)}까지 ‘계속하기’를 누르지 않으셔서 자동 결제와 이용권이 종료되었습니다.`, [AGAIN]) + apSmall('shop', '다시 결제하기'));
+  if (j.state === 'ended') return apShow('자동 결제가 이미 종료되었습니다', apNote(note) + apBand('mute', '', [AGAIN]) + apSmall('shop', '다시 결제하기'));
+  // none(아직 오픈 기념 회차가 남음 · 이미 바뀐 금액으로 이어지는 중 · 결제일이 30일보다 멂) 과 모르는 값
+  apShow('지금은 고르실 것이 없습니다', apNote(note)
+    + apBand('mute', '', ['자동 결제는 지금처럼 이어집니다. 계속할지 여쭤야 할 때가 되면 메일로 다시 알려 드립니다.']));
+}
+function apCancel(j, action, ok, note = '') {
+  const N = j.next_charge_on;
+  if (j.state === 'active' && action === 'undo' && ok) return apShow('해지를 취소했습니다',
+    apBand('mute', '자동 결제가 그대로 이어집니다.', [`다음 결제일은 ${kDayW(N)}입니다.`]) + apAfter('확인 메일을 결제 이메일로 보내 드립니다.'));
+  if (j.state === 'active') {
+    const U = j.until_if_cancel, late = j.undo_if_cancel === false;   // late = 결제일이 이미 됨 — 오늘까지 쓰고, 되돌리기 없음
+    return apShow('자동 결제를 해지할까요?', apNote(note)
+      + apTerms([['컴퓨터 번호', apMid(j)], ['사용 기간', `<b>${esc(kDayW(U))}까지</b> 그대로`], ['다음 결제', `${esc(kDayW(N))} → <b>하지 않음</b>`]])
+      + `<div class="rn-btns one">${apBig('cancel', '자동 결제 해지')}</div>`
+      + apAfter(late ? '오늘 해지하시면 해지 취소는 할 수 없습니다. 이번 회차가 결제되었다면 자동으로 전액 취소합니다. 만드신 문제는 지워지지 않습니다. 위약금은 없습니다.'
+        : `${apKDay(addDay(U, 1))}부터 문제 추출·편집 등 기능이 잠기며, 만드신 문제는 지워지지 않습니다. ${apKDay(j.undo_deadline)} 밤 11시 59분까지는 이 화면이나 큐쏙 앱에서 ‘해지 취소’로 되돌리실 수 있습니다. 위약금은 없습니다.`)
+      + '<p class="rn-quiet">해지하지 않으시려면 이 창을 닫으셔도 됩니다. · <a href="../">큐쏙 홈으로</a></p>',
+      '해지하셔도 이미 결제하신 기간은 끝까지 사용하실 수 있습니다');
+  }
+  if (j.state === 'cancelled') {
+    const L = apCancelledLines(j), mail = action === 'cancel' && ok ? '해지 안내 메일을 결제 이메일로 보내 드립니다.' : '', failUndo = action === 'undo' && !j.can_undo;   // 엇갈려 다시 읽은 상태가 아직 해지 취소 가능이면 실패 판 아님(독립 리뷰 11-20)
+    return apShow(failUndo ? '지금은 해지 취소를 할 수 없습니다' : '자동 결제를 해지했습니다', apNote(note)
+      + apBand('mute', L.strong, [L.rest])
+      + (j.can_undo ? apAfter(`${mail ? mail + ' ' : ''}마음이 바뀌시면 ${apKDay(j.undo_deadline)} 밤 11시 59분까지 아래 ‘해지 취소하기’ 버튼으로 되돌리실 수 있습니다. 큐쏙 앱의 설정 › 이용 상태에서도 할 수 있습니다.`) + apSmall('undo', '해지 취소하기')
+        : failUndo ? apAfter('계속 사용하시려면 이 페이지에서 다시 결제해 주세요.') + apSmall('shop', '다시 결제하기')
+        : mail ? apAfter(mail) : ''));
+  }
+  if (j.state === 'ending') return apShow('이미 ‘계속하지 않기’를 선택하셨습니다', apNote(note)
+    + apBand('mute', '', [`${kDayW(j.until)}까지 사용하신 뒤 자동 결제와 이용권이 종료됩니다. 따로 해지하지 않으셔도 이후로는 결제되지 않습니다.`]));
+  apShow(`${apKDay(j.ended_on) ? kDayW(j.ended_on) + '에 ' : ''}이 컴퓨터 번호의 자동 결제는 이미 종료되었습니다`, apNote(note) + apBand('mute', '', [AGAIN]) + apSmall('shop', '다시 결제하기'));
+}
+// 링크가 맞지 않음(모양 틀림 · 서버 404 · 400) — 메일 없이 해지할 길을 같이 둔다(해지 칸이 보일 때만)
+function apBadLink(kind) {
+  const box = !document.querySelector('.ap-box').hidden;
+  apShow('링크를 열지 못했습니다', apBand('warn', '', ['주소가 잘렸거나 맞지 않는 링크입니다. 받으신 메일의 버튼을 다시 눌러 주세요.',
+    ...(kind === 'cancel' ? ['큐쏙 앱의 설정 › 이용 상태에서도 해지할 수 있습니다.'] : []), `그래도 안 되면 ${MAIL}으로 문의해 주세요.`])
+    + (box ? '<p class="rn-after"><a href="#cancel" data-ap="tocancel">번호와 이메일로 해지하기</a></p>' : ''));
+}
+function apFail(kind, r, acted) {
+  if (r && ((r.code === 404 && r.j?.error === 'not_found') || r.code === 400)) return apBadLink(kind);
+  const t = !r ? (acted ? '처리되었는지 확인하지 못했습니다' : '화면을 불러오지 못했습니다') : r.code === 429 ? '요청이 너무 많습니다' : '지금은 처리하지 못했습니다';
+  const p = !r ? (acted ? '인터넷 연결을 확인한 뒤 ‘다시 불러오기’를 눌러 지금 상태를 확인해 주세요. 이미 처리되었다면 처리된 상태로 나옵니다.' : '인터넷 연결을 확인한 뒤 ‘다시 불러오기’를 눌러 주세요.')
+    : (acted ? '처리되지 않았습니다. ' : '') + '잠시 뒤 ‘다시 불러오기’를 눌러 주세요.';
+  apShow(t, apBand('warn', '', [p]) + apSmall('view', '다시 불러오기'));
+}
+// kind = renew | cancel · action = view | yes | no | cancel | undo · note = 다시 불러온 까닭(그 사이 바뀜)
+async function apGo(kind, action, note = '') {
+  apKind = kind;
+  let r = null;
+  try { r = await post(kind === 'renew' ? '/pay/autopay/renew' : '/pay/autopay/cancel', { t: apT, action, ...(action === 'yes' ? { seen_amount: apJ?.amount_next } : {}) }); }
+  catch { /* 닿지 않음 */ }
+  const j = r?.j || {}, acted = action !== 'view';
+  if (r && (r.ok || r.code === 409) && j.state) {   // 409 = 그 사이 상태가 달라짐 — 지금 상태를 그린다
+    apJ = j;
+    if (kind === 'renew' && j.state === 'cancelled') return apGo('cancel', 'view', note);   // 해지 예약 중 — 계속하기 대신 해지 취소 화면으로
+    const why = note || (r.code === 409 && j.error === 'amount_changed' ? '화면을 연 사이 금액이 바뀌었습니다. 바뀐 금액을 확인하신 뒤 다시 눌러 주세요.' : '');
+    return kind === 'renew' ? apRenew(j, why) : apCancel(j, action, r.ok, why);
+  }
+  if (r?.code === 409) return apGo(kind, 'view', '화면을 연 사이 상태가 바뀌어 다시 불러왔습니다.');   // 상태 없는 409(changed)
+  apFail(kind, r, acted);
+}
+const AP_DOING = { yes: '처리하는 중…', no: '처리하는 중…', cancel: '해지하는 중…', undo: '해지 취소하는 중…', view: '불러오는 중…' };
+function apToShop(toCancel) {
+  try { sessionStorage.removeItem('apLink'); } catch { /* 없어도 된다 */ }
+  show('shop');
+  if (toCancel) { $('cancel').scrollIntoView({ block: 'start', behavior: 'instant' }); $('cm').focus({ preventScroll: true }); }
+}
+$('ap').addEventListener('click', async (e) => {
+  const b = e.target.closest('[data-ap]'); if (!b) return;
+  const act = b.dataset.ap;
+  if (act === 'shop' || act === 'tocancel') { e.preventDefault(); apToShop(act === 'tocancel'); return; }
+  if (apBusy) return;
+  apBusy = true;
+  $('apBody').querySelectorAll('button').forEach((x) => (x.disabled = true));
+  b.innerHTML = SVG.spin + `<span>${esc(AP_DOING[act] || '')}</span>`;
+  try { await apGo(act === 'yes' || act === 'no' ? 'renew' : act === 'view' ? apKind : 'cancel', act); }
+  finally { apBusy = false; }
+  $('apTitle')?.focus({ preventScroll: true });
+});
+if (AP_LINK) {
+  apKind = AP_LINK.kind; apT = AP_LINK.t;
+  if (!LIVE || !LINK_T.test(apT)) apBadLink(apKind);   // 시험판은 위 ⛔ · 모양이 틀린 링크는 서버에 묻지 않는다
+  else {
+    apShow('자동 결제 상태를 확인하고 있습니다', `<p class="checking" role="status">${SVG.spin}<span>잠시만 기다려 주세요.</span></p>`);
+    apGo(apKind, 'view').then(() => { if (AP_LINK.no) $('apBody').querySelector('[data-ap="no"]')?.focus({ preventScroll: true }); });   // 메일의 「계속하지 않기」로 왔으면 그 단추에(누르기 전엔 아무것도 안 바뀐다)
+  }
+}
 
 // 폰 — 결제사 화면에서 이 주소로 돌아왔을 때(?paymentId=…&code=…). 모양이 맞는 값만, 글자로만 쓴다
 (() => {
