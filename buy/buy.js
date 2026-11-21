@@ -14,7 +14,7 @@ const MODE = 'test';
 const LOCAL = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
 const LIVE = MODE === 'live' || LOCAL;
 const API = LOCAL ? '' : 'https://pay.danbilab.com';
-const TERMS_VER = '1.5';   // = worker/pay/wrangler.toml TERMS_VER — 다르면 서버가 「약관 바뀜」으로 막는다(가드 §14p)
+const TERMS_VER = '1.6';   // = worker/pay/wrangler.toml TERMS_VER — 다르면 서버가 「약관 바뀜」으로 막는다(가드 §14p)
 const SDK = 'https://cdn.portone.io/v2/browser-sdk.js';
 const TEST = {   // 포트원 콘솔 › 결제 연동 › 연동 관리 › 테스트 채널 「큐쏙 시험」 — 비밀값 아님(결제창에 넘기는 공개 값)
   storeId: 'store-a36ecae1-4cef-4ba3-877a-c9d970fd0ec7',
@@ -51,8 +51,15 @@ const PAY_METHOD = 'CARD';
 
 // 메일 링크(?renew=열쇠 · ?cancel=열쇠) — 다른 무엇보다 먼저 주소에서 걷는다(방문 기록·북마크·포트원 같은 바깥 요청에 열쇠가 남지 않게).
 // 열쇠는 이 탭의 메모리와 sessionStorage에만 — sessionStorage는 새로고침했을 때만 다시 읽는다(나중에 판매 페이지를 다시 열면 요금제 화면)
+// 7일 전 안내 메일의 [카드 변경하러 가기](#m=번호) — 번호만 칸에 채우고 주소에서 지운다(번호는 메일에 이미 있는 값 · 강사 역할 리뷰 11-21)
+// ⛔ ?m=(쿼리)로 되돌리지 말 것 — 쿼리는 페이지를 올려 둔 곳(GitHub·Cloudflare) 접속 기록에 남는다. # 뒤는 서버로 안 간다(legal 11-21 ㉡, 처리방침에 안 적은 이유)
+const PREFILL_M = (() => {
+  const m = /^#m=([2-9A-HJ-NP-Z]{10})$/.exec(location.hash);
+  if (m) history.replaceState(null, '', location.pathname + location.search + '#cancel');
+  return m ? m[1] : '';
+})();
 const AP_LINK = (() => {
-  const lq = new URLSearchParams(location.search), kind = lq.has('cancel') ? 'cancel' : lq.has('renew') ? 'renew' : '';
+  const lq = new URLSearchParams(location.search), kind = lq.has('cancel') ? 'cancel' : lq.has('renew') ? 'renew' : lq.has('card') ? 'card' : '';   // card = 카드 변경 링크(11-21)
   if (kind) {
     const v = { kind, t: lq.get(kind) || '', no: lq.get('pick') === 'no' };   // pick=no = 메일의 「계속하지 않기」 단추
     history.replaceState(null, '', location.pathname);
@@ -62,9 +69,14 @@ const AP_LINK = (() => {
   try {
     if (performance.getEntriesByType('navigation')[0]?.type !== 'reload') { sessionStorage.removeItem('apLink'); return null; }
     const v = JSON.parse(sessionStorage.getItem('apLink'));
-    return v && (v.kind === 'renew' || v.kind === 'cancel') && typeof v.t === 'string' ? v : null;
+    return v && (v.kind === 'renew' || v.kind === 'cancel' || v.kind === 'card') && typeof v.t === 'string' ? v : null;
   } catch { return null; }
 })();
+
+if (PREFILL_M && !AP_LINK) {   // 메일 단추로 왔다 — 번호 칸만 채우고 그 칸으로(주소의 #m=은 위에서 이미 지웠다)
+  $('cm').value = PREFILL_M;
+  addEventListener('load', () => $('cancel')?.scrollIntoView({ block: 'start' }));
+}
 
 // 결제·완료 화면 맨 아래 = 첫 화면과 같은 공통 바닥글(tools/site_footer.py) + 분쟁 처리 문장. 결제 중에 같은 탭에서 약관을 열면
 // 입력한 이름·번호가 날아가므로 새 창으로(design 11-19). 바닥글 안엔 id가 없다(복제해도 겹치지 않게).
@@ -460,7 +472,7 @@ function apShow(title, body, dek = '') {
   $('apBody').innerHTML = body;
 }
 const apBand = (cls, strong, ps) => `<div class="band ${cls}">${strong ? `<b>${esc(strong)}</b>` : ''}${ps.map((p) => `<p>${esc(p)}</p>`).join('')}</div>`;
-const apNote = (t) => t ? `<div class="band warn rn-note"><p>${esc(t)}</p></div>` : '';
+const apNote = (t) => t ? `<div class="band warn rn-note" role="alert"><p>${esc(t)}</p></div>` : '';   // 다시 그린 화면 위 알림 — 화면 읽기가 바로 읽게(a11y 11-21)
 const apBig = (act, label, cls = '') => `<button class="pay-btn ${cls}" type="button" data-ap="${act}">${esc(label)}</button>`;
 const apSmall = (act, label) => `<div class="band-acts"><button class="sbtn" type="button" data-ap="${act}">${esc(label)}</button></div>`;
 const apAfter = (...t) => `<p class="rn-after">${t.map(esc).join('<br>')}</p>`;
@@ -530,8 +542,147 @@ function apFail(kind, r, acted) {
   const t = !r ? (acted ? '처리되었는지 확인하지 못했습니다' : '화면을 불러오지 못했습니다') : r.code === 429 ? '요청이 너무 많습니다' : '지금은 처리하지 못했습니다';
   const p = !r ? (acted ? '인터넷 연결을 확인한 뒤 ‘다시 불러오기’를 눌러 지금 상태를 확인해 주세요. 이미 처리되었다면 처리된 상태로 나옵니다.' : '인터넷 연결을 확인한 뒤 ‘다시 불러오기’를 눌러 주세요.')
     : (acted ? '처리되지 않았습니다. ' : '') + '잠시 뒤 ‘다시 불러오기’를 눌러 주세요.';
-  apShow(t, apBand('warn', '', [p]) + apSmall('view', '다시 불러오기'));
+  apShow(t, apBand('warn', '', [p]) + apSmall(kind === 'card' ? 'cardview' : 'view', '다시 불러오기'));   // 카드 링크는 서명 열쇠가 달라 해지 길(view)로 보내면 「링크를 열지 못했습니다」가 된다(독립 리뷰 11-21)
 }
+// ── 자동 결제 카드 변경(대표 11-20·11-21 · ux-writing·legal·security 11-21) ──
+// ①해지 칸 [카드 변경] → /pay/autopay/card-ask: 맞으면 보냄 · 하나라도 틀리면 바로 「찾지 못했습니다」(해지 칸과 같은 답 — 대표 11-21) · 맞는데 못 바꾸면 까닭
+// ②메일 링크 ?card= → /pay/autopay/card(view · start · register). 카드는 포트원 카드 등록 창(정기 채널)에서만 — 카드 번호는 이 페이지·결제 서버로 오지 않는다
+// ⛔ 이름·휴대폰은 카드 등록 창으로만(결제 서버엔 안 보낸다) · 결제 이메일은 창 열기 전에 결제 서버가 견주기만 한다(돌려주지 않는다 — 가린 꼴도)
+$('cardBtn').onclick = async () => {
+  const m = norm($('cm').value), em = $('ce').value.trim(), e1 = machineErr(m), e2 = emailErr(em);
+  apBoxSlots(); $('apRes').innerHTML = '';
+  if (e1) { $('cm').setAttribute('aria-invalid', ''); slotErr($('cmSlot'), e1); }
+  if (e2) { $('ce').setAttribute('aria-invalid', ''); slotErr($('ceSlot'), e2); }
+  if (e1 || e2) { (e1 ? $('cm') : $('ce')).focus(); return; }
+  const lock = (on) => { $('cm').disabled = $('ce').disabled = $('apBtn').disabled = $('cardBtn').disabled = on; $('cardBtn').innerHTML = on ? SVG.spin + '<span>보내는 중…</span>' : '카드 변경'; };
+  let r = null;
+  if (LIVE) { lock(true); try { r = await post('/pay/autopay/card-ask', { machine_id: m, email: em }); } catch { /* 닿지 않음 */ } lock(false); }
+  else r = { ok: false, code: 404, j: { error: 'not_found' } };   // 시험판 — 결제 서버를 부르지 않는다(§14p). 자동 결제가 생길 수 없어 「찾지 못했습니다」(해지 칸과 같게)
+  const j = r?.j || {};
+  if (r?.ok) return apRes('mute', '카드 변경 메일을 보냈습니다', [esc('결제 이메일로 보냈습니다. 30분 안에 메일의 ‘카드 변경하기’를 눌러 새 카드를 등록해 주세요. 카드는 새 카드를 등록해야 바뀝니다. 메일을 여러 통 받으셨다면 가장 최근 메일의 버튼만 쓰실 수 있습니다.'),
+    esc('메일은 결제 이메일 메일함으로 갑니다. 그 메일을 받은 분이 30분 안에 열어 주세요. 몇 분이 지나도 오지 않으면 스팸함을 확인해 주세요.')]);
+  if (!r) return apRes('warn', '요청이 전달되었는지 확인하지 못했습니다', [esc('인터넷 연결을 확인한 뒤 다시 눌러 주세요. 메일이 두 통 오면 나중에 받은 메일의 버튼을 눌러 주세요.')]);
+  // 틀림·자동 결제 없음 = 해지 칸과 같은 답(대표 11-21 — 하나라도 틀리면 바로 알린다)
+  if (r.code === 404) { apRes('warn', '입력하신 정보로 자동 결제를 찾지 못했습니다', [esc('메일은 보내지 않았습니다. 컴퓨터 번호와 결제 이메일을 다시 확인해 주세요. 결제 이메일은 결제 안내 메일을 받은 주소이며, 체험을 신청한 이메일과 다를 수 있습니다.'),
+    esc('결제 이메일이 기억나지 않으시면 큐쏙 앱 › 설정 › 이용 상태에서 ‘카드 변경’을 눌러 주세요. 이메일을 넣지 않아도 결제 이메일로 보내 드립니다.'), esc(`그래도 안 되면 ${MAIL}으로 문의해 주세요.`)]); $('cm').focus(); return; }
+  // 맞는데 지금은 못 바꿈 — 까닭(메일 없음)
+  if (r.code === 409 && j.state === 'cancelled') return apRes('mute', '자동 결제를 해지하셔서 카드를 변경할 수 없습니다', [esc('다음 결제가 없으니 카드를 바꾸지 않으셔도 됩니다.'),
+    esc(j.can_undo ? '새 카드로 계속하시려면 먼저 큐쏙 앱 › 설정 › 이용 상태나 해지 안내 메일에서 해지를 취소한 뒤 다시 눌러 주세요.' : '계속 사용하시려면 이 페이지에서 다시 결제해 주세요.')]);
+  if (r.code === 409 && j.state === 'ending') return apRes('mute', '이미 ‘계속하지 않기’를 선택하셨습니다', [esc(`${kDayW(j.until)}까지 사용하신 뒤 자동 결제가 종료되어 카드를 바꾸지 않으셔도 됩니다.`)]);
+  if (r.code === 409 && j.state === 'charging') return apRes('mute', '지금은 카드를 변경할 수 없습니다', [esc(`${apKDay(j.next_charge_on) ? kDayW(j.next_charge_on) + ' ' : ''}결제를 처리하는 중입니다. 결제 결과는 결제 이메일로 알려 드립니다. 결제가 끝난 뒤 다시 눌러 주세요.`), esc(CARD_FAIL)]);
+  if (r.code === 409) return apRes('mute', '이 컴퓨터 번호의 자동 결제는 이미 종료되어 카드를 바꿀 수 없습니다', [esc((apKDay(j.ended_on) ? `${kDayW(addDay(j.ended_on, -1))}까지 사용하신 이용권이 끝났습니다. ` : '') + AGAIN),   // 카드 실패로 끝난 분(ux-flow·강사 역할 리뷰 11-21)
+    esc('카드를 바꾸는 대신 다시 결제하시면 바로 잠금이 풀리고, 만드신 문제를 그대로 이어서 사용하실 수 있습니다.') + ' <a href="#shop" data-top>위쪽 요금제 보기</a>']);
+  if (r.code === 429 && j.error === 'mail_busy') return apRes('warn', '지금은 카드 변경 메일을 보내지 못했습니다', [esc('오늘 보낼 수 있는 메일이 모두 나갔습니다. 카드와 자동 결제는 그대로입니다. 내일 다시 눌러 주세요.'), esc(`다음 결제일이 내일이면 컴퓨터 번호와 함께 ${MAIL}으로 알려 주세요.`)]);   // 하루 전체 몫(cs·ux-flow 11-21)
+  if (r.code === 429 && j.error === 'mail_cap') return apRes('warn', '오늘은 카드 변경 메일을 더 보낼 수 없습니다', [esc('오늘 보낼 수 있는 횟수를 모두 사용했습니다. 30분이 지나지 않았다면 가장 최근에 받은 메일의 ‘카드 변경하기’를 눌러 주세요. 아니면 내일 다시 해 주세요.')]);
+  if (r.code === 429) { apRes('warn', '오늘 카드 변경 요청이 너무 많습니다', [esc('메일은 보내지 않았습니다. 30분 안에 받은 카드 변경 메일이 있으면 그 메일의 ‘카드 변경하기’를 눌러 주세요.'), esc('이 페이지에서는 내일 다시 해 주세요.')]); $('cardBtn').disabled = true; return; }
+  if (r.code === 400) return apRes('warn', '컴퓨터 번호와 결제 이메일을 다시 확인해 주세요', [esc('메일은 보내지 않았습니다.')]);
+  apRes('warn', '지금은 카드 변경 메일을 보내지 못했습니다', [esc('입력하신 정보가 틀렸다는 뜻은 아닙니다. 잠시 뒤 다시 눌러 주세요.')]);
+};
+
+const kHm = (sec) => { if (typeof sec !== 'number') return ''; const d = new Date((sec + 9 * 3600) * 1000), h = d.getUTCHours(), mi = d.getUTCMinutes(); return `${h < 12 ? '오전' : '오후'} ${h % 12 || 12}시${mi ? ` ${mi}분` : ''}`; };   // 「오후 3시 42분」(KST)
+const kAt = (sec) => { if (typeof sec !== 'number') return ''; const d = new Date((sec + 9 * 3600) * 1000).toISOString(); return `${apKDay(d.slice(0, 10))} ${d.slice(11, 16)}`; };   // 「3월 5일 10:12」
+const PHONE = /^01\d{8,9}$/;
+const NEW_LINK = apSmall('tocancel', '번호와 이메일로 카드 변경 메일 받기');
+const NEW_LINK_SMALL = '<p class="rn-after"><a href="#cancel" data-ap="tocancel">새 카드 변경 메일 받기</a></p>';   // 「최근 메일을 쓰세요」가 먼저인 화면 — 단추 대신 작은 글 링크(강사 역할 리뷰 11-21)
+const CARD_FAIL = '결제가 되지 않으면 자동 결제가 종료되며, 그때는 판매 페이지(qssok.com/buy) 위쪽 요금제에서 다시 결제하시면 바로 잠금이 풀립니다.';   // 결제 처리 중 세 곳 한 벌(ux-flow 11-21)
+const CARD_END = '<p class="rn-quiet">큐쏙 앱에서 따로 하실 일은 없습니다. 이 창은 닫으셔도 됩니다. <span class="nw">· <a href="../">큐쏙 홈으로</a></span></p>';   // 끝나는 화면 출구(done·used·ended — ux-flow·ui-visual 11-21)
+const cardMid = (j) => j.machine_id ? apTerms([['컴퓨터 번호', apMid(j)]]) : '';   // 폰으로 연 분이 새 링크를 받을 때 번호를 보고 넣게(ux-flow 11-21)   // 형제 화면(처리 중·이메일 다름)과 같은 알약 단추(ui-visual 11-21)
+function cardView(j, note = '') {
+  const N = j.next_charge_on, amt = won(j.amount);
+  if (j.state === 'ok') return apShow('자동 결제 카드 변경', apNote(note)
+    + apTerms([['컴퓨터 번호', apMid(j)], ['다음 결제', `<b><span class="nw">${esc(kDayW(N))}</span>${amt ? ' · <span class="nw">' + esc(amt) + '</span>' : ''}</b>`], ['결제 이메일', j.pay_to_hint ? `<span class="nw">${esc(j.pay_to_hint)}</span>` : '결제 안내 메일을 받은 주소']])   // 가린 주소(링크 화면만 — 대표 11-21) · 폰에서 날짜·금액이 꺾이지 않게
+    + '<div class="card-form">'   // 테두리 판 ✕(겹 상자) — 위 구분선 한 줄로만 나눈다(ui-visual 11-21)
+    + `<div class="fd"><label for="cn">카드 주인 이름</label><input id="cn" autocomplete="name" aria-describedby="cnSlot"><div class="slot stack" id="cnSlot"><span class="s-err"></span></div></div>`
+    + `<div class="fd"><label for="cp">카드 주인 휴대폰 번호</label><input id="cp" type="tel" inputmode="numeric" autocomplete="tel" placeholder="숫자만 (예: 01012345678)" aria-describedby="cpSlot"><div class="slot stack" id="cpSlot"><span class="s-err"></span></div></div>`
+    // 결제 이메일 — 그대로 쓰려면 지금 주소, 바꾸려면 새 주소(대표 11-21 ㉡). 잘못 치면 안내가 엉뚱한 곳으로 가니 두 번 넣는다
+    + `<div class="fd"><label for="cx">결제 이메일 <small>그대로 쓰시려면 지금 주소${j.pay_to_hint ? '(' + esc(j.pay_to_hint) + ')' : ''}를, 바꾸시려면 새 주소를 넣어 주세요</small></label><input id="cx" type="email" autocomplete="email" spellcheck="false" placeholder="name@example.com" aria-describedby="cxSlot"><div class="slot stack" id="cxSlot"><span class="s-err"></span></div></div>`
+    + `<div class="fd"><label for="cx2">결제 이메일 다시 입력</label><input id="cx2" type="email" autocomplete="off" spellcheck="false" aria-describedby="cx2Slot"><div class="slot stack" id="cx2Slot"><span class="s-err"></span></div></div>`
+    + `<label class="ag"><input type="checkbox" id="cAgree" aria-describedby="cAgreeSlot"><span><b>[필수] ${esc(kDayW(N))} 결제부터 새 카드로 결제되는 것에 동의합니다.</b><small>결제일·금액 등 자동 결제 조건은 지금과 같습니다. <strong>오늘은 결제되지 않습니다.</strong></small></span></label><div class="slot stack" id="cAgreeSlot"><span class="s-err"></span></div>`
+    + '</div>'
+    + apAfter('다음 화면은 결제 회사(KG이니시스)의 카드 입력 창입니다. 그 창의 이메일 칸에도 방금 넣으신 결제 이메일을 그대로 넣어 주세요. 그 주소로 앞으로 결제 안내를 보내 드립니다.')   // 단추 위로(강사 역할 리뷰 — 누른 뒤에야 읽혔다)
+    + `<div class="rn-btns one">${apBig('cardopen', '카드 등록 창 열기')}</div>`
+    + apAfter((kHm(j.until) ? `이 링크는 ${kHm(j.until)}까지 사용하실 수 있습니다. ` : '') + '결제 이메일을 바꾸시면 확인 메일을 바뀌기 전 주소와 새 주소 둘 다로 보내 드립니다.')
+    + '<p class="rn-quiet">바꾸지 않으시려면 이 창을 닫으셔도 됩니다. 카드와 자동 결제는 그대로입니다. <span class="nw">· <a href="../">큐쏙 홈으로</a></span></p>',
+    '새 카드를 등록하면 다음 결제부터 새 카드로 결제됩니다');
+  if (j.state === 'done') return apShow(j.moved ? '자동 결제 카드와 결제 이메일이 변경되었습니다' : '자동 결제 카드가 변경되었습니다',
+    apTerms([['다음 결제', `<b>${esc(kDayW(N))}${amt ? ' · ' + esc(amt) : ''} · 새 카드로</b>`], ...(j.moved && j.pay_to_hint ? [['새 결제 이메일', `<span class="nw">${esc(j.pay_to_hint)}</span>`]] : []), ['변경한 시각', esc(kAt(j.done_at))], ['컴퓨터 번호', apMid(j)]])
+    + apBand('mute', '오늘 결제된 금액은 없습니다.', ['이전 카드로는 더 결제하지 않습니다. 이전 카드의 결제용 등록 정보는 지체 없이 삭제하며, 만드신 문제와는 상관없습니다.'])
+    + apAfter(j.moved ? '확인 메일을 바뀌기 전 주소와 새 주소 둘 다로 보내 드립니다. 앞으로 결제 안내는 새 주소로 갑니다.' : '확인 메일을 결제 이메일로 보내 드립니다.', '다른 컴퓨터도 자동 결제를 쓰고 계시면 그 컴퓨터의 카드는 따로 바꿔 주세요.') + CARD_END);
+  if (j.state === 'used') return apShow('이미 카드를 변경한 링크입니다', apBand('mute', '', [(kAt(j.done_at) ? `이 링크로 ${kAt(j.done_at)}에 카드${j.moved ? '와 결제 이메일' : ''}을 변경했습니다. ` : '') + '다음 결제부터 새 카드로 결제됩니다.',
+    `직접 하신 것이라면 따로 하실 일은 없습니다. 다시 바꾸시려면 새 링크를 받아 주세요. 직접 하지 않으셨다면 ${MAIL}으로 알려 주세요.`]) + cardMid(j) + NEW_LINK_SMALL + CARD_END);   // 완료 화면을 새로고침한 분이 놀라지 않게(QA 11-21) · 다 끝난 화면 — 「새 메일 받기」는 작게, 이름 하나로
+  if (j.state === 'expired') return apShow('링크 사용 시간이 지났습니다', apBand('warn', '', ['카드는 바뀌지 않았습니다. 큐쏙 앱 › 설정 › 이용 상태의 ‘카드 변경’을 누르거나, 이 페이지 아래 칸에서 새 링크를 받아 주세요.']) + cardMid(j) + NEW_LINK);
+  if (j.state === 'replaced') return apShow('더 최근에 보낸 메일의 링크를 써 주세요', apBand('warn', '이 링크 뒤로 카드 변경 메일을 한 번 더 보내 드렸습니다.', ['카드는 바뀌지 않았습니다. 메일함에서 ‘[큐쏙] 자동 결제 카드 변경 링크’ 메일 가운데 제목 끝 시각이 가장 늦은 메일의 ‘카드 변경하기’를 눌러 주세요.'])
+    + cardMid(j) + NEW_LINK_SMALL);   // 큰 단추로 또 받게 하지 않는다(강사 역할 리뷰 — 메일이 세 통이 됐다)
+  if (j.state === 'changed') return apShow('카드가 이미 변경되었습니다', apBand('mute', `${kAt(j.changed_at) ? kAt(j.changed_at) + '에 ' : ''}다른 카드 변경 메일의 링크로 카드가 이미 바뀌었습니다.`, ['다음 결제부터 그 카드로 결제됩니다. 이 링크로는 더 바꿀 수 없습니다.',
+    `다시 바꾸시려면 새 링크를 받아 주세요. 직접 변경하지 않으셨다면 ${MAIL}으로 알려 주세요.`]) + cardMid(j) + NEW_LINK_SMALL + CARD_END);
+  if (j.state === 'cancelled') return apShow('자동 결제를 해지하셔서 카드를 변경할 수 없습니다', apNote(note) + apBand('mute', '', ['다음 결제가 없으니 카드를 바꾸지 않으셔도 됩니다.',
+    j.can_undo ? '새 카드로 계속하시려면 먼저 큐쏙 앱 › 설정 › 이용 상태나 해지 안내 메일에서 해지를 취소한 뒤 새 링크를 받아 주세요.' : '계속 사용하시려면 이 페이지에서 다시 결제해 주세요.'])
+    + (j.can_undo ? '' : apSmall('shop', '다시 결제하기')));
+  if (j.state === 'ending') return apShow('이미 ‘계속하지 않기’를 선택하셨습니다', apNote(note) + apBand('mute', '', [`${kDayW(j.until)}까지 사용하신 뒤 자동 결제가 종료되어 카드를 바꾸지 않으셔도 됩니다.`]));
+  if (j.state === 'charging') return apShow('지금은 카드를 변경할 수 없습니다', apNote(note) + apBand('mute', '', [`${apKDay(N) ? kDayW(N) + ' ' : ''}결제를 처리하는 중입니다. 결제 결과는 결제 이메일로 알려 드립니다. 결제가 끝난 뒤 ‘다시 불러오기’를 눌러 주세요.`, CARD_FAIL])
+    + apSmall('cardview', '다시 불러오기'));
+  if (j.state === 'no_mail') return apShow('결제 이메일을 확인하지 못했습니다', apBand('warn', '', ['카드는 바뀌지 않았습니다. 카드 입력 창에 이메일을 넣고 다시 해 주세요.', `그래도 안 되면 컴퓨터 번호와 함께 ${MAIL}으로 알려 주세요.`]) + apSmall('cardview', '처음부터 다시 하기'));
+  apShow('이 컴퓨터 번호의 자동 결제는 이미 종료되었습니다', apNote(note) + apBand('mute', (j.end_reason === 'failed' ? '카드 결제가 되지 않아 자동 결제가 끝났습니다. ' : '') + (apKDay(j.ended_on) ? `${kDayW(addDay(j.ended_on, -1))}까지 사용하신 이용권이 끝났습니다.` : ''), [AGAIN, '카드를 바꾸는 대신, 아래 버튼에서 다시 결제하시면 바로 잠금이 풀립니다.']) + apSmall('shop', '다시 결제하기') + CARD_END);   // ended · 모르는 값 — 날짜는 앱 「사용 기한」과 같은 날(강사 역할 리뷰: 20일/21일 두 날짜)
+}
+// action = view · start · register → 그린다. 「창 열기」는 cardOpen, 등록 확인은 cardRegister가 부른다
+let cardTried = false;   // 이 탭에서 등록 확인을 보냈다(답이 끊겨도) — 다시 불러와 used면 완료로 그린다
+async function cardGo(action, extra = {}, note = '') {
+  apKind = 'card';
+  if (action === 'register') cardTried = true;
+  let r = null;
+  try { r = await post('/pay/autopay/card', { t: apT, action, ...extra }); } catch { /* 닿지 않음 */ }
+  const j = r?.j || {};
+  if (r && (r.ok || r.code === 409) && j.state) {
+    if (action !== 'start') apJ = j;   // 창 열기 답엔 가린 주소가 없다 — 보기 답을 지킨다(재리뷰 11-21)
+    if (j.state === 'used' && cardTried && action === 'view') return cardView({ ...j, state: 'done' }), r;   // 등록 답 자체가 used면 다른 창이 먼저 바꾼 것 — 그대로(재리뷰 11-21)   // 방금 이 탭에서 등록했고 답만 끊겼던 것 — 「이미 쓴 링크·직접 안 바꾸셨다면」 대신 완료(QA 11-21 ⚠️3)
+    if (action !== 'start') cardView(j, note);   // 창 열기(start)의 답은 cardOpen이 그린다 — 이메일만 틀렸는데 넣은 칸이 다 지워지지 않게(독립 리뷰 11-21)
+    return r;
+  }
+  if (r?.code === 409 && j.error === 'billing_mismatch') { apShow('카드가 변경되지 않았습니다', apBand('warn', '', ['이 링크로 연 카드 등록이 아닙니다. 카드는 바뀌지 않았습니다.', '받으신 메일의 ‘카드 변경하기’를 다시 눌러 주세요.'])); return r; }
+  if (action === 'register') { apShow('카드가 변경되었는지 확인하지 못했습니다', apBand('warn', '', ['카드 등록 창을 다시 열지 마시고, 인터넷 연결을 확인한 뒤 ‘다시 불러오기’를 눌러 주세요. 변경되었다면 변경된 상태로 나옵니다.', `그래도 확인되지 않으면 ${MAIL}으로 문의해 주세요.`]) + apSmall('cardview', '다시 불러오기')); return r; }
+  apFail('card', r, action !== 'view');
+  return r;
+}
+function cardSlot(id, msg) {   // 오류 꼴 = 같은 페이지 slotErr와 같게(⚠ 그림) · 동의 칸은 체크 칸 테두리도(.ag.miss — a11y 11-21)
+  const s = $(id + 'Slot'); s.classList.toggle('bad', !!msg); s.querySelector('.s-err').innerHTML = msg ? SVG.warn + `<span>${esc(msg)}</span>` : ''; $(id).toggleAttribute('aria-invalid', !!msg);
+  if (id === 'cAgree') $(id).closest('.ag').classList.toggle('miss', !!msg);
+}
+async function cardOpen() {
+  const nm = $('cn').value.trim(), ph = $('cp').value.replace(/[\s-]/g, ''), em = $('cx').value.trim(), em2 = $('cx2').value.trim();
+  const errs = [['cn', nm ? '' : '이름을 입력해 주세요.'], ['cp', !ph ? '휴대폰 번호를 입력해 주세요.' : PHONE.test(ph) ? '' : '휴대폰 번호를 확인해 주세요.'], ['cx', emailErr(em)],
+    ['cx2', !em2 ? '결제 이메일을 한 번 더 넣어 주세요.' : !emailErr(em) && em2.toLowerCase() !== em.toLowerCase() ? '위 결제 이메일과 같게 넣어 주세요.' : ''],
+    ['cAgree', $('cAgree').checked ? '' : '동의 칸에 체크해 주세요.']];   // 틀린 곳을 한 번에 다 보인다(강사 역할 리뷰 — 동의·다시 입력 칸이 나중에야 빨개졌다)
+  errs.forEach(([id, m]) => cardSlot(id, m));
+  const first = errs.find(([, m]) => m); if (first) { $(first[0]).focus(); return; }
+  const r = await cardGo('start');
+  const d = r?.j || {};   // 결제 서버 답 = d(창에 넘기는 값은 d에서만 — 가드 §14p)
+  if (!(r?.ok && d.issue_id)) {
+    if (d.state) cardView(d);   // 그 사이 상태가 바뀜(해지·만료 등) — 지금 상태로
+    return;
+  }
+  try { await loadSdk(); } catch { return apNoteTop('카드 등록 창을 열지 못했습니다. 인터넷 연결을 확인한 뒤 다시 눌러 주세요.'); }   // 넣은 칸은 그대로(다시 그리지 않는다)
+  try { sessionStorage.setItem('cardPend', JSON.stringify({ t: apT, at: Date.now() })); } catch { /* 폰 복귀만 못 이어 간다 — 그때는 링크를 다시 열면 된다 */ }
+  let w;
+  try {
+    w = await window.PortOne.requestIssueBillingKey({
+      storeId: d.store_id, channelKey: d.channel_key, billingKeyMethod: 'CARD', issueId: d.issue_id,
+      issueName: '큐쏙 정식판 자동 결제 카드 변경',
+      customer: { customerId: d.customer_id, fullName: nm, phoneNumber: ph, email: em },
+      redirectUrl: location.origin + location.pathname,   // 폰은 결제사 화면에 갔다가 이 주소로 돌아온다(아래 복귀 처리)
+    });
+  } catch { w = { code: 'window' }; }
+  if (!w) return;                                         // 폰 — 돌아오는 주소에서 이어서 처리
+  try { sessionStorage.removeItem('cardPend'); } catch { /* 없어도 된다 */ }
+  if (w.code != null || !w.billingKey) return apNoteTop('카드 등록 창을 닫으셔서 카드는 바뀌지 않았습니다. 다시 하시려면 ‘카드 등록 창 열기’를 눌러 주세요.');   // 넣은 칸은 그대로
+  return cardRegister(w.billingKey);
+}
+// ⛔ 새 카드 등록 값은 결제 서버로만 보낸다 — 화면·console·저장소에 쓰지 않는다
+async function cardRegister(key) {
+  apShow('카드를 변경하고 있습니다', `<p class="checking" role="status">${SVG.spin}<span>확인하는 중…</span></p>`);
+  return cardGo('register', { billing_key: key });
+}
+function apNoteTop(t) { $('apBody').querySelector(':scope > .rn-note')?.remove(); $('apBody').insertAdjacentHTML('afterbegin', apNote(t)); $('apTitle')?.scrollIntoView({ block: 'start' }); }   // 알림은 하나만
+
 // kind = renew | cancel · action = view | yes | no | cancel | undo · note = 다시 불러온 까닭(그 사이 바뀜)
 async function apGo(kind, action, note = '') {
   apKind = kind;
@@ -552,6 +703,7 @@ const AP_DOING = { yes: '처리하는 중…', no: '처리하는 중…', cancel
 function apToShop(toCancel) {
   try { sessionStorage.removeItem('apLink'); } catch { /* 없어도 된다 */ }
   show('shop');
+  if (toCancel && apKind === 'card' && /^[2-9A-HJ-NP-Z]{10}$/.test(apJ?.machine_id ?? '')) $('cm').value = apJ.machine_id;   // 카드 변경 화면에서 왔으면 번호만 채운다(이메일 ✕)
   if (toCancel) { $('cancel').scrollIntoView({ block: 'start', behavior: 'instant' }); $('cm').focus({ preventScroll: true }); }
 }
 $('ap').addEventListener('click', async (e) => {
@@ -559,6 +711,14 @@ $('ap').addEventListener('click', async (e) => {
   const act = b.dataset.ap;
   if (act === 'shop' || act === 'tocancel') { e.preventDefault(); apToShop(act === 'tocancel'); return; }
   if (apBusy) return;
+  if (act === 'cardopen' || act === 'cardview') {   // 카드 변경 화면 — 창 열기 · 다시 불러오기
+    apBusy = true; $('apBody').querySelectorAll('button').forEach((x) => (x.disabled = true));
+    const label = b.innerHTML;
+    b.innerHTML = SVG.spin + `<span>${act === 'cardopen' ? '카드 등록 창을 여는 중…' : '불러오는 중…'}</span>`;
+    try { await (act === 'cardopen' ? cardOpen() : cardGo('view')); }
+    finally { apBusy = false; $('apBody').querySelectorAll('button').forEach((x) => (x.disabled = false)); if (b.isConnected) b.innerHTML = label; else $('apTitle')?.focus({ preventScroll: true }); }   // 화면을 다시 그렸으면 제목으로(커서가 body로 빠지지 않게 — a11y 11-21)   // 입력 확인에서 막혀 화면이 그대로면 단추 글을 되돌린다(ui-visual 11-21 — 「여는 중…」이 남았다)
+    return;
+  }
   apBusy = true;
   $('apBody').querySelectorAll('button').forEach((x) => (x.disabled = true));
   b.innerHTML = SVG.spin + `<span>${esc(AP_DOING[act] || '')}</span>`;
@@ -571,7 +731,7 @@ if (AP_LINK) {
   if (!LIVE || !LINK_T.test(apT)) apBadLink(apKind);   // 시험판은 위 ⛔ · 모양이 틀린 링크는 서버에 묻지 않는다
   else {
     apShow('자동 결제 상태를 확인하고 있습니다', `<p class="checking" role="status">${SVG.spin}<span>잠시만 기다려 주세요.</span></p>`);
-    apGo(apKind, 'view').then(() => { if (AP_LINK.no) $('apBody').querySelector('[data-ap="no"]')?.focus({ preventScroll: true }); });   // 메일의 「계속하지 않기」로 왔으면 그 단추에(누르기 전엔 아무것도 안 바뀐다)
+    (apKind === 'card' ? cardGo('view') : apGo(apKind, 'view')).then(() => { if (AP_LINK.no) $('apBody').querySelector('[data-ap="no"]')?.focus({ preventScroll: true }); });   // 메일의 「계속하지 않기」로 왔으면 그 단추에(누르기 전엔 아무것도 안 바뀐다)
   }
 }
 
@@ -581,6 +741,23 @@ if (AP_LINK) {
   // 주소의 값부터 지운다 — 어떤 값이든, 가르기 전에(빌링키가 방문 기록·북마크·공유 링크에 남지 않게, security 11-18)
   if (location.search) history.replaceState(null, '', location.pathname);
   if (!pid && (q.has('billingKey') || q.get('transactionType') === 'ISSUE_BILLING_KEY')) {   // 자동 결제 카드 등록 복귀 — 값은 있는지만 본다
+    // 카드 변경 창에서 돌아옴(폰) — 창을 열 때 적어 둔 링크 열쇠로 이어 간다(한 번만 읽고 지운다). 카드 변경이 아니면 아래 시험판 길
+    let pend = null;
+    try { pend = JSON.parse(sessionStorage.getItem('cardPend')); sessionStorage.removeItem('cardPend'); } catch { /* 없음 */ }
+    if (LIVE && pend && LINK_T.test(pend.t ?? '') && Date.now() - (pend.at ?? 0) < 3600e3) {   // 창을 연 지 1시간 안의 표식만(결제사 화면에서 뒤로 가 남은 표식을 다른 복귀로 오인하지 않게 — QA ⚠️8)
+      apKind = 'card'; apT = pend.t;
+      try { sessionStorage.setItem('apLink', JSON.stringify({ kind: 'card', t: apT })); } catch { /* 새로고침 때만 쓴다 */ }
+      const bk = q.get('billingKey');
+      if (q.get('code') || !bk) cardGo('view').then(() => { if (apJ?.state === 'ok') apNoteTop('카드 등록 창을 닫으셔서 카드는 바뀌지 않았습니다. 다시 하시려면 ‘카드 등록 창 열기’를 눌러 주세요.'); });
+      else cardRegister(bk);
+      return;
+    }
+    // ⚠️ 판매 페이지에 자동 결제 「신청」 길(LIVE)을 열 때 그 복귀도 여기로 온다 — 그때 신청 쪽 표식으로 먼저 갈라야 한다(재리뷰 11-21 — 지금은 LIVE 신청 길이 없다)
+    if (LIVE && q.get('transactionType') === 'ISSUE_BILLING_KEY') {   // 카드 창에서 돌아왔는데 이 탭엔 이어 갈 값이 없음 — 판매 화면만 덩그러니 띄우지 않는다(ux-flow 11-21)
+      apKind = 'card';
+      apShow('카드 변경을 마치지 못했습니다', apBand('warn', '', ['카드는 바뀌지 않았습니다. 받으신 메일의 ‘카드 변경하기’를 다시 눌러 주세요.', '30분이 지났다면 아래 칸에서 새 링크를 받아 주세요.']) + NEW_LINK);
+      return;
+    }
     if (LIVE || !TEST.billKey) return;
     show('shop');
     if (q.get('code') || !q.get('billingKey')) modal('billFail'); else billDone();

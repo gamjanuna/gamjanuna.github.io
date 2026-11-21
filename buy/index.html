@@ -203,8 +203,9 @@
   .fd label { display: block; font-size: 13.5px; font-weight: 700; margin-bottom: 4px; }
   .fd input { display: block; width: 100%; height: 44px; font: inherit; font-size: 16px; padding: 0 12px; color: var(--ink); background: var(--surface); border: 1px solid var(--ink-3); border-radius: 9px; }
   .fd input.mc { font-variant-numeric: tabular-nums; letter-spacing: .06em; text-transform: uppercase; }
-  .fd input:focus-visible { outline: none; border-color: var(--brand-600); box-shadow: 0 0 0 3px rgba(43,127,255,.20); }
+  .fd input:focus-visible { outline: 2px solid var(--brand-600); outline-offset: 1px; border-color: var(--brand-600); }   /* 둘레가 옅어(1.27:1) 노트북에서 안 보였다 — 2px 선(a11y 11-21) */
   .fd input[aria-invalid] { border-color: var(--bad-mid); box-shadow: 0 0 0 .5px var(--bad-mid); }
+  .fd input[aria-invalid]:focus-visible { outline-color: var(--bad-strong); border-color: var(--bad-strong); }   /* 오류 칸에 커서가 오면 그 칸만 진하게 — 빨간 칸 셋 중 어디인지 보이게(a11y 11-21) */
   /* 도움말과 오류는 같은 자리 — 칸이 밀리지 않는다 */
   .slot { min-height: 20px; margin-top: 4px; font-size: 12.5px; color: var(--ink-2); overflow-wrap: anywhere; }
   .slot a { color: var(--brand-700); }
@@ -593,6 +594,15 @@ body:has(#pay:not([hidden])) .nav-in, body:has(#pay:not([hidden])) .nav a, body:
   .ap-box { background: var(--surface); padding: 18px 20px; margin-bottom: 12px; }
   @media (max-width: 640px) { .ap-box { padding: 16px; } }
   .ap-box:not(.card-on) [data-card] { display: none; }
+  /* 카드 변경 화면(?card=) — 이름·휴대폰·결제 이메일·동의(11-21). 겹 상자 ✕ — 위 구분선 한 줄 · 이름표는 결제 화면(#pay)과 같은 14px·500(ui-visual 11-21) */
+  #ap .card-form { margin: 18px 0 16px; padding-top: 18px; border-top: 1px solid var(--line); display: grid; gap: 12px; }
+  #ap .card-form .fd label { display: block; font-size: 14px; font-weight: 500; line-height: 20px; margin-bottom: 6px; color: var(--ink); }
+  #ap .card-form .fd label small { margin-left: 6px; font-size: 13px; font-weight: 400; color: var(--ink-2); white-space: nowrap; }
+  #ap .card-form .slot { min-height: 0; margin: 4px 0 0; }
+  #ap .card-form .slot:not(.bad) { display: none; }
+  #ap .card-form .ag { padding-top: 2px; }
+  #ap .nw { white-space: nowrap; }
+  #ap .card-form .fd label small { display: block; margin: 2px 0 0; white-space: normal; }   /* 도움말은 늘 아래 줄에서 접힌다(긴 주소에도 잘리지 않게 — 3차 리뷰 11-21) */   /* 폰 — 「결제 이메일」이 두 줄로 꺾이지 않게 도움말을 아래 줄로 */
   .ap-t { font-size: 15px; font-weight: 700; color: var(--ink); line-height: 22px; }
   .ap-d { margin-top: 4px; font-size: 14px; line-height: 21px; color: var(--ink); }
   .ap-c { margin-top: 2px; font-size: 13px; line-height: 19px; color: var(--ink-2); }
@@ -605,6 +615,9 @@ body:has(#pay:not([hidden])) .nav-in, body:has(#pay:not([hidden])) .nav a, body:
   .ap-acts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
   .ap-btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 44px; padding: 0 18px; border-radius: 999px; font: inherit; font-size: 15px; font-weight: 700; color: var(--brand-700); background: var(--white); border: 1.5px solid var(--brand-300); cursor: pointer; white-space: nowrap; }
   .ap-btn:hover { background: var(--brand-soft); }
+  #apBtn:not(:disabled) { color: var(--bad-strong); border-color: var(--bad-line); }   /* 해지 = 누르면 바로 — 카드 변경과 쌍둥이로 보이지 않게 빨간 글씨(대표 11-21, 강사 역할 리뷰 3명) */
+  #apBtn:not(:disabled):hover { background: var(--bad-soft); }
+  .ap-box .fd label small { display: block; margin: 2px 0 0; white-space: normal; }   /* 도움말은 늘 이름 아래 줄에서 접힌다 — 이름이 「컴퓨터 / 번호」로 꺾이지도, 넓은 화면에서 옆 칸·상자 밖으로 넘치지도 않게(3차 리뷰 11-21) */
   .ap-btn:disabled { cursor: default; color: var(--ink-3); background: var(--white); border-color: var(--line-strong); }
   @media (max-width: 640px) { .ap-acts > .ap-btn { flex: 1 1 0; } }
   .ap-res:not(:empty) { margin-top: 12px; }
@@ -757,16 +770,16 @@ footer.sf .sf-tm{margin-top:4px}
     <!-- 메일 없이 해지(대표 11-19 ㉠ 원클릭 · design·ux-writing 11-20) — 결제 서버 /pay/autopay/web-cancel. 확인창 없음(누르면 바로 해지 — 해지 취소가 따로 있다).
          data-auto = 자동 결제 카드와 같은 스위치(LIVE에서 카드가 「준비 중」이면 같이 숨는다 — buy.js). 입력 확인은 결제 화면과 같은 함수(machineErr·emailErr) -->
     <!-- 3안-나(대표 11-20, 시안 v306 new-3b — web-design·ux-flow·ux-writing·a11y → ui-visual 「깔끔」): 번호+결제 이메일 한 칸 · 단추는 입력 칸 아래 왼쪽 · 해지가 먼저.
-         카드 변경([data-card])은 서버 기능이 생길 때 .ap-box에 card-on을 붙여 켠다(⏳ 그 전엔 숨김 — 누르면 안 되는 단추를 보이지 않게) -->
-    <div class="ap-box" data-auto>
+         카드 변경([data-card]) = 결제 서버 /pay/autopay/card-ask(11-21) — card-on을 빼면 숨는다. 틀리면 바로 「찾지 못했습니다」(buy.js · 대표 11-21) -->
+    <div class="ap-box card-on" data-auto>
       <p class="ap-t">자동 결제 해지<span data-card> · 카드 변경</span></p>
-      <p class="ap-d">해지는 누르면 바로 됩니다.<span data-card> 카드 변경은 결제 이메일로 링크를 보내 드립니다.</span></p>
+      <p class="ap-d"><span data-card>카드 변경은 결제 이메일로 링크를 보내 드립니다. </span>해지는 누르면 바로 됩니다.</p>
       <p class="ap-c">해지 취소는 다음 결제일 전날 밤 11시 59분까지 · 위약금 없음</p>
       <div class="pair">
-        <div class="fd"><label for="cm">컴퓨터 번호<small>큐쏙 앱 › 설정 › 이용 상태에 있음</small></label><input class="mc" id="cm" autocomplete="off" spellcheck="false" autocapitalize="characters" aria-describedby="cmSlot"><div class="slot stack" id="cmSlot"><span class="s-err"></span></div></div>
-        <div class="fd"><label for="ce">결제 이메일<small>큐쏙 결제 메일을 받은 주소</small></label><input id="ce" type="email" autocomplete="email" spellcheck="false" placeholder="name@example.com" aria-describedby="ceSlot"><div class="slot stack" id="ceSlot"><span class="s-err"></span></div></div>
+        <div class="fd"><label for="cm">컴퓨터 번호 <small>큐쏙 앱 › 설정 › 이용 상태 · 결제 안내 메일 맨 아래에 있음</small></label><input class="mc" id="cm" autocomplete="off" spellcheck="false" autocapitalize="characters" aria-describedby="cmSlot"><div class="slot stack" id="cmSlot"><span class="s-err"></span></div></div>
+        <div class="fd"><label for="ce">결제 이메일 <small>가장 최근 큐쏙 결제 안내를 받은 주소<span data-card>(카드 변경 때 바꾸셨다면 새 주소)</span></small></label><input id="ce" type="email" autocomplete="email" spellcheck="false" placeholder="name@example.com" aria-describedby="ceSlot"><div class="slot stack" id="ceSlot"><span class="s-err"></span></div></div>
       </div>
-      <div class="ap-acts"><button class="ap-btn" type="button" id="apBtn">자동 결제 해지</button><button class="ap-btn" type="button" id="cardBtn" data-card disabled>카드 변경</button></div>
+      <div class="ap-acts"><button class="ap-btn" type="button" id="apBtn">자동 결제 해지</button><button class="ap-btn" type="button" id="cardBtn" data-card>카드 변경</button></div>
       <div class="ap-res" id="apRes" role="status" aria-live="polite"></div>
       <p class="ap-alt">큐쏙 앱·결제 메일에서도 해지 가능</p>
     </div>
@@ -790,7 +803,7 @@ footer.sf .sf-tm{margin-top:4px}
 <div class="sf-cols" role="navigation" aria-label="큐쏙 사이트 안내">
 <div class="sf-col sf-c1"><p class="sf-h">큐쏙</p><ul><li><a href="https://qssok.com/#features">기능 소개</a></li><li><a href="https://qssok.com/#pricing">요금 안내</a></li><li><a href="https://qssok.com/#download">다운로드</a></li></ul></div>
 <div class="sf-col sf-c2"><p class="sf-h">도움말</p><ul><li class="o-faq"><a href="https://qssok.com/#faq">자주 묻는 질문</a></li><li class="o-key"><a href="https://qssok.com/guide/ai-key/">구글 AI 키 등록 안내</a></li><li class="o-kakao"><a href="https://open.kakao.com/o/swrvSxUi" target="_blank" rel="noopener">카톡 문의</a></li></ul></div>
-<div class="sf-col sf-c3"><p class="sf-h">약관·정책</p><ul><li class="o-terms"><a href="https://danbilab.com/terms/">이용약관</a></li><li class="o-refund"><a href="https://danbilab.com/terms/v1.5/#art9">환불 규정</a></li><li class="o-pp"><a href="https://danbilab.com/privacy/"><strong>개인정보처리방침</strong></a></li><li class="o-lic"><a href="https://danbilab.com/licenses/">오픈소스 라이선스</a></li></ul></div>
+<div class="sf-col sf-c3"><p class="sf-h">약관·정책</p><ul><li class="o-terms"><a href="https://danbilab.com/terms/">이용약관</a></li><li class="o-refund"><a href="https://danbilab.com/terms/v1.6/#art9">환불 규정</a></li><li class="o-pp"><a href="https://danbilab.com/privacy/"><strong>개인정보처리방침</strong></a></li><li class="o-lic"><a href="https://danbilab.com/licenses/">오픈소스 라이선스</a></li></ul></div>
 </div>
 </div>
 <div class="sf-biz"><dl><div class="sf-pc"><dt>상호</dt><dd>단비</dd></div><div class="sf-pc"><dt>대표자</dt><dd>이단비</dd></div><div class="sf-mo"><dt>상호·대표자</dt><dd>단비 · 이단비</dd></div><div><dt>사업자등록번호</dt><dd>622-42-01304</dd></div><div><dt>통신판매업 신고</dt><dd>준비 중</dd></div></dl><dl><div class="sf-wr"><dt>주소</dt><dd>경상북도 구미시 산호대로25길 41, 204동 7층 5호(옥계동, 부영아파트2차)</dd></div><div><dt>전화</dt><dd><a class="sf-u" href="tel:070-8064-3798">070-8064-3798</a></dd></div><div><dt>이메일</dt><dd><a class="sf-u" href="mailto:contact@danbilab.com">contact@danbilab.com</a></dd></div><div class="sf-wr"><dt>호스팅 제공자</dt><dd><span class="sf-h1">GitHub, Inc.<wbr>(qssok.com)</span><span class="sf-hs"> · </span><span class="sf-h1">Cloudflare, Inc.<wbr>(danbilab.com)</span></dd></div></dl></div>
@@ -859,7 +872,7 @@ footer.sf .sf-tm{margin-top:4px}
         </div>
         <label class="all"><input type="checkbox" id="agAll"><span>전체 동의 <small id="allHint">아래 <span id="agN">3</span>가지를 모두 확인했습니다.</small><span class="slot" id="aSlot"></span></span></label>
         <div class="ags" id="ags">
-          <label class="ag"><input type="checkbox"><span><b>[필수] 이용약관과 환불정책(제9조)에 동의합니다. <a href="https://danbilab.com/terms/v1.5/" target="_blank" rel="noopener">이용약관 보기</a></b></span></label>
+          <label class="ag"><input type="checkbox"><span><b>[필수] 이용약관과 환불정책(제9조)에 동의합니다. <a href="https://danbilab.com/terms/v1.6/" target="_blank" rel="noopener">이용약관 보기</a></b></span></label>
           <label class="ag"><input type="checkbox"><span><b>[필수] <span class="must">이용 기간이 끝나면 아래 기능이 잠기는 것</span>에 동의합니다.</b><small class="lock-list">새 파일 불러오기 · 추출 · 편집 · 글자 복사 · 시험지 만들기와 한글 내보내기 · 백업 불러오기</small><small>문제 보기와 백업 저장은 계속 쓰실 수 있고, 저장된 문제와 시험지는 지워지지 않습니다.</small></span></label>
           <label class="ag"><input type="checkbox"><span><b>[필수] 구글 AI 키를 직접 받아 넣어야 추출할 수 있다는 것에 동의합니다.</b><small>구글 AI 사용료는 추출한 만큼 본인이 구글에 냅니다. <span class="must">큐쏙 이용료와 별도입니다.</span> 구글에 낸 돈은 큐쏙이 돌려 드리거나 대신 내 드리지 않습니다. 추출할 때 페이지 이미지가 구글로 전송됩니다.</small></span></label>
           <!-- 자동 결제 경로만(legal 11-18 — 미리 체크 ⛔, 전환 금액·해지 방법을 숨기지 않는다). 문장은 buy.js가 상품에 맞춰 넣는다 -->
