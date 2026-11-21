@@ -584,10 +584,10 @@ body:has(#pay:not([hidden])) .nav-in, body:has(#pay:not([hidden])) .nav a, body:
   .card .save { font-size: 11.5px !important; font-weight: 600; padding: 0 6px !important; background: var(--surface-2) !important; color: var(--ink-2) !important; }
   .ai-lead { display: inline-block; align-self: flex-start; margin: 0 !important; padding: 2px 10px !important; border: 0 !important; border-radius: 999px; background: var(--brand-700); color: #fff !important; font-size: 12.5px; }
   .ai-table .sol > * { background: none !important; }
-  .sum { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 4px 10px; margin: 14px 0 6px; font-size: 14px; color: var(--ink-2); }
-  .sum .eq { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 50%; background: var(--brand-700); color: #fff; font-weight: 700; }
-  .sum b { font-size: 22px; color: var(--brand-700); }
-  .sum small { flex-basis: 100%; text-align: center; font-size: 12.5px; color: var(--ink-3); }
+  .start-sum { padding: 16px; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 4px 10px; margin: 14px 0 6px; font-size: 14px; color: var(--ink-2); }
+  .start-sum .eq { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 50%; background: var(--brand-700); color: #fff; font-weight: 700; }
+  .start-sum b { font-size: 22px; color: var(--brand-700); }
+  .start-sum small { flex-basis: 100%; text-align: center; font-size: 12.5px; color: var(--ink-3); }
 
   /* ── 자동 결제 해지 칸(메일 없이 해지 — design·ux-writing 11-20): 「해지 · 환불」 맨 위, 접지 않는다. 자동 결제 카드와 같은 스위치(data-auto) ── */
   #cancel { scroll-margin-top: 16px; }
@@ -752,7 +752,7 @@ footer.sf .sf-tm{margin-top:4px}
       <p class="ai-foot"><a href="https://qssok.com/guide/ai-key/#charge">구글 충전 안내</a> · 2026년 11월 13일 기준 · 구글 정책에 따라 2027년 1월 1일부터 구글 AI 사용료 2배 인상 예정</p>
     </div>
   </div>
-  <p class="sum"><span class="eq" aria-hidden="true">=</span>시작 비용 <b>37,700원</b><small>큐쏙 29,700원(오픈 기념) + 구글 최소 충전 8,000원</small></p>
+  <p class="start-sum"><span class="eq" aria-hidden="true">=</span>시작 비용 <b>37,700원</b><small>큐쏙 29,700원(오픈 기념) + 구글 최소 충전 8,000원</small></p>
 
   <p class="more-lock">결제한 1개월이 끝나면 새 파일 불러오기 · 추출 · 편집 · 글자 복사 · 시험지 만들기와 한글 내보내기 · 백업 불러오기가 잠깁니다. 문제 보기와 백업 저장은 계속 쓰실 수 있고, 저장된 문제와 시험지는 지워지지 않습니다. 시험지는 AI가 일할 때만(문제 추출, 그림 낙서 지우기) 구글 Gemini로 전송됩니다</p>
   <details class="more"><summary><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l8 7-8 7z"/></svg>알아 두실 것 <span>적용·이용 기간, 오픈 기념 금액, 자동 결제 조건</span></summary><ul class="know">
