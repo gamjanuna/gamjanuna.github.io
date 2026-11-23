@@ -622,6 +622,7 @@ function cardView(j, note = '') {
     // 결제 이메일 — 그대로 쓰려면 지금 주소, 바꾸려면 새 주소(대표 11-21 ㉡). 잘못 치면 안내가 엉뚱한 곳으로 가니 두 번 넣는다
     + `<div class="fd"><label for="cx">결제 이메일 <small>그대로 쓰시려면 지금 주소${j.pay_to_hint ? '(' + esc(j.pay_to_hint) + ')' : ''}를, 바꾸시려면 새 주소를 넣어 주세요</small></label><input id="cx" type="email" autocomplete="email" spellcheck="false" placeholder="name@example.com" aria-describedby="cxSlot"><div class="slot stack" id="cxSlot"><span class="s-err"></span></div></div>`
     + `<div class="fd"><label for="cx2">결제 이메일 다시 입력</label><input id="cx2" type="email" autocomplete="off" spellcheck="false" aria-describedby="cx2Slot"><div class="slot stack" id="cx2Slot"><span class="s-err"></span></div></div>`
+    + '<p class="privacy-note">이름과 휴대폰 번호는 결제 처리와 결제·환불 확인에 쓰며, 큐쏙 결제 서버에는 저장하지 않고 결제 대행사(코리아포트원)에 보관됩니다. <a href="https://danbilab.com/privacy/" target="_blank" rel="noopener">개인정보처리방침</a></p>'   // 판매 페이지 구매자 정보 칸과 같은 글자 — 이름·휴대폰을 받는 칸 옆엔 처리방침 링크(결제 메모 ③ 11-23)
     + `<label class="ag"><input type="checkbox" id="cAgree" aria-describedby="cAgreeSlot"><span><b>[필수] ${esc(kDayW(N))} 결제부터 새 카드로 결제되는 것에 동의합니다.</b><small>결제일·금액 등 자동 결제 조건은 지금과 같습니다. <strong>오늘은 결제되지 않습니다.</strong></small></span></label><div class="slot stack" id="cAgreeSlot"><span class="s-err"></span></div>`
     + '</div>'
     + apAfter('다음 화면은 결제 회사(KG이니시스)의 카드 입력 창입니다. 그 창의 이메일 칸에도 방금 넣으신 결제 이메일을 그대로 넣어 주세요. 그 주소로 앞으로 결제 안내를 보내 드립니다.')   // 단추 위로(강사 역할 리뷰 — 누른 뒤에야 읽혔다)
