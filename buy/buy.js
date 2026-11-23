@@ -14,7 +14,7 @@ const MODE = 'test';
 const LOCAL = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
 const LIVE = MODE === 'live' || LOCAL;
 const API = LOCAL ? '' : 'https://pay.danbilab.com';
-const TERMS_VER = '1.6';   // = worker/pay/wrangler.toml TERMS_VER — 다르면 서버가 「약관 바뀜」으로 막는다(가드 §14p)
+const TERMS_VER = '1.7';   // = worker/pay/wrangler.toml TERMS_VER — 다르면 서버가 「약관 바뀜」으로 막는다(가드 §14p)
 const SDK = 'https://cdn.portone.io/v2/browser-sdk.js';
 const TEST = {   // 포트원 콘솔 › 결제 연동 › 연동 관리 › 테스트 채널 「큐쏙 시험」 — 비밀값 아님(결제창에 넘기는 공개 값)
   storeId: 'store-a36ecae1-4cef-4ba3-877a-c9d970fd0ec7',
@@ -35,10 +35,14 @@ const SVG = {
 const P = {
   open3: { title: '<span class="open">오픈 기념</span>첫 3개월', name: '큐쏙 정식판 1개월 이용권 (오픈 기념)', amount: 29700, base: '27,000원', vat: '2,700원', pay: '29,700원', price: '월 27,000원 (VAT 별도, 최종 결제 금액 29,700원)', cond: '이번 결제: 1개월분 · 결제가 열린 날부터 2027년 1월 31일까지 첫 결제 · 첫 결제 포함 3개월' },
   // 자동 결제 둘(bill = 결제창 대신 카드 등록 창, 대표 11-18 ㉡: 오픈 기념 대상은 첫 3번 27,000원 → 4번째부터 32,000원) — 문구 ux-writing·legal 11-18
-  open3auto: { bill: 1, title: '<span class="open">오픈 기념</span>첫 3개월 · 자동 결제', name: '큐쏙 정식판 1개월 이용권 (오픈 기념 · 자동 결제)', amount: 29700, base: '27,000원', vat: '2,700원', pay: '29,700원', price: '월 27,000원 (VAT 별도, 최종 결제 금액 29,700원)', cond: '이번 단계: 카드 등록 · 첫 3개월 매달 29,700원, 4개월째부터 매달 35,200원 · 해지할 때까지 자동 결제',
-    agree: '[필수] 첫 3개월은 매달 29,700원, 4개월째부터 매달 35,200원(월 32,000원, VAT 별도)이 해지할 때까지 등록한 카드로 자동 결제되는 것에 동의합니다.', term: '해지할 때까지 매달 1개월씩 (첫 3개월 29,700원 → 4개월째부터 35,200원)' },
+  open3auto: { bill: 1, title: '<span class="open">오픈 기념</span>첫 3개월 · 자동 결제', name: '큐쏙 정식판 1개월 이용권 (오픈 기념 · 자동 결제)', amount: 29700, base: '27,000원', vat: '2,700원', pay: '29,700원', price: '월 27,000원 (VAT 별도, 최종 결제 금액 29,700원)', cond: '이번 단계: 카드 등록 · 첫 3개월 매달 29,700원 자동 결제 · 4개월째(35,200원)는 그때 다시 동의하신 경우에만',
+    // 4개월째 금액은 그때 따로 동의(약관 제8조의2 제4항 — 처음 계약 때 미리 받지 않는다, legal 11-23 [빨강] B · 문구 ux-writing 11-23)
+    agree: '[필수] 첫 3개월간 월 29,700원(월 27,000원, VAT 별도) 자동 결제에 동의합니다.', term: '첫 3개월 매달 1개월씩 29,700원 · 4개월째부터 35,200원은 다시 동의하신 경우에만',
+    note: '4개월째부터 월 35,200원으로 전환되며, 전환 전 별도 동의를 받습니다(동의하지 않거나 답이 없으면 자동 결제 종료). 해지할 때까지 매달 같은 날 결제되며, 다음 결제 예정일 7일 전 안내 메일을 드립니다. 언제든 큐쏙 앱 설정이나 이 페이지에서 해지할 수 있습니다.' },
   auto: { bill: 1, title: '자동 결제', name: '큐쏙 정식판 1개월 이용권 (자동 결제)', amount: 35200, base: '32,000원', vat: '3,200원', pay: '35,200원', price: '월 32,000원 (VAT 별도, 최종 결제 금액 35,200원)', cond: '이번 단계: 카드 등록 · 해지할 때까지 매달 35,200원 자동 결제',
-    agree: '[필수] 매달 35,200원(월 32,000원, VAT 별도)이 해지할 때까지 등록한 카드로 자동 결제되는 것에 동의합니다.', term: '해지할 때까지 매달 1개월씩' },
+    // 동의 칸 짧은 판(대표 11-23) — 결제일·해지 장소·다음 결제 7일 전 안내는 남긴다(약관 제8조의2 제2·5항 = 구매 화면에서 확인, legal 11-23)
+    agree: '[필수] 월 35,200원(월 32,000원, VAT 별도) 자동 결제에 동의합니다.', term: '해지할 때까지 매달 1개월씩',
+    note: '해지할 때까지 매달 같은 날 결제되며, 다음 결제 예정일 7일 전 안내 메일을 드립니다. 요금 변경 시 사전 동의를 받습니다. 언제든 큐쏙 앱 설정이나 이 페이지에서 해지할 수 있습니다.' },
   monthly: { title: '매달 결제', name: '큐쏙 정식판 1개월 이용권', amount: 39600, base: '36,000원', vat: '3,600원', pay: '39,600원', price: '월 36,000원 (VAT 별도, 최종 결제 금액 39,600원)', cond: '이번 결제: 1개월분 · 한 달씩 직접 결제' },
 };
 const MAIL = 'contact@danbilab.com', NOPAID = '결제되지 않았습니다.';
@@ -124,7 +128,7 @@ function setProduct(id) {
   // 자동 결제면 결제 화면의 말이 달라진다 — 「자동으로 결제되지 않습니다」를 숨기고 넷째 필수 동의(미리 체크 ⛔)를 연다(legal 11-18)
   $('methodNote').textContent = p.bill ? '자동 결제는 카드만 등록할 수 있습니다. 카드 정보는 ‘카드 등록 창 열기’를 누른 뒤 열리는 창에서 넣습니다.' : '카드와 간편결제(카카오페이·네이버페이·토스페이·페이코)는 결제창 열기를 누른 뒤 열리는 결제창에서 고릅니다.';
   $('autoDd').textContent = p.bill ? '해지할 때까지 등록한 카드로 매달 결제됩니다. 지금은 심사용 시험판이라 카드를 등록해도 자동 결제가 시작되지 않습니다.' : '자동으로 결제되지 않습니다. 다음 달은 직접 결제해 주세요.';
-  $('agAuto').hidden = !p.bill; $('agAuto').querySelector('input').checked = false; $('agAutoT').textContent = p.agree || ''; $('agN').textContent = String(items().length); $('agAll').checked = false;
+  $('agAuto').hidden = !p.bill; $('agAuto').querySelector('input').checked = false; $('agAutoT').textContent = p.agree || ''; $('agAutoN').textContent = p.note || ''; $('agN').textContent = String(items().length); $('agAll').checked = false;
   $('bTerm').textContent = p.term || '1개월 (시작일·종료일은 메일로 안내)'; $('bPay').textContent = p.bill ? '카드 (카드 등록 창에서 입력)' : '결제창에서 선택';
   $('sTotalL').textContent = p.bill ? '매달 결제 금액' : '최종 결제 금액';
   unlock();
@@ -411,6 +415,9 @@ const AP_ALT = '큐쏙 앱의 설정 › 이용 상태나 결제 안내 메일�
 // 해지된 뒤의 말 — 해지 칸과 메일 링크 화면이 같은 문장(ux-writing 11-20). 되돌릴 수 없는 까닭은 서버 undo_block으로(PC 시계로 짐작 ✕)
 function apCancelledLines(j) {
   if (j.can_undo) return { strong: `${kDayW(j.until)}까지 지금처럼 사용하실 수 있습니다.`, rest: `${kDayW(j.next_charge_on)} 결제는 하지 않습니다. 만드신 문제는 지워지지 않습니다.` };
+  // locked = 결제 이메일 변경 신고로 큐쏙이 해지(약관 1.7 · 0016) — 먼저 가른다(아니면 「결제일이 되어」 거짓 이유). 누가 바꿨는지·신고는 말하지 않는다(보는 사람이 바꾼 쪽일 수 있다 — ux-writing 11-23)
+  if (j.undo_block === 'locked') return { strong: `${kDayW(j.until)}까지 사용하실 수 있습니다.`, rest: '결제 이메일이 바뀐 일로 연락을 받아 큐쏙이 해지한 자동 결제라, 해지를 취소할 수 없습니다.'
+    + (j.charge_pending ? ' 이번 회차가 결제되었다면 자동으로 전액 취소합니다.' : '') + ` 궁금하신 점은 ${MAIL}으로 보내 주세요. 만드신 문제는 지워지지 않습니다.` };
   return { strong: `${kDayW(j.until)}까지 사용하실 수 있습니다.`, rest: (j.undo_block === 'charging'
     ? '이번 자동 결제가 이미 시작되어 해지를 취소할 수는 없습니다. 결제가 되었다면 자동으로 전액 취소합니다.'
     : '결제일이 되어 해지를 취소할 수는 없습니다. 이번 회차가 결제되었다면 자동으로 전액 취소합니다.') + ' 만드신 문제는 지워지지 않습니다.' };
