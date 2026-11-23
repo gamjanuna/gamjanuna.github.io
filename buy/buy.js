@@ -38,11 +38,11 @@ const P = {
   open3auto: { bill: 1, title: '<span class="open">오픈 기념</span>첫 3개월 · 자동 결제', name: '큐쏙 정식판 1개월 이용권 (오픈 기념 · 자동 결제)', amount: 29700, base: '27,000원', vat: '2,700원', pay: '29,700원', price: '월 27,000원 (VAT 별도, 최종 결제 금액 29,700원)', cond: '이번 단계: 카드 등록 · 첫 3개월 매달 29,700원 자동 결제 · 4개월째(35,200원)는 그때 다시 동의하신 경우에만',
     // 4개월째 금액은 그때 따로 동의(약관 제8조의2 제4항 — 처음 계약 때 미리 받지 않는다, legal 11-23 [빨강] B · 문구 ux-writing 11-23)
     agree: '[필수] 첫 3개월간 월 29,700원(월 27,000원, VAT 별도) 자동 결제에 동의합니다.', term: '첫 3개월 매달 1개월씩 29,700원 · 4개월째부터 35,200원은 다시 동의하신 경우에만',
-    note: '4개월째부터 월 35,200원으로 전환되며, 전환 전 별도 동의를 받습니다(동의하지 않거나 답이 없으면 자동 결제 종료). 해지할 때까지 매달 같은 날 결제되며, 다음 결제 예정일 7일 전 안내 메일을 드립니다. 언제든 큐쏙 앱 설정이나 이 페이지에서 해지할 수 있습니다.' },
+    note: '4개월째부터 월 35,200원으로 전환되며, 전환 전 별도 동의를 받습니다(동의하지 않거나 답이 없으면 자동 결제 종료). 해지할 때까지 매달 같은 날 결제되며, 다음 결제 예정일 7일 전 안내 메일을 드립니다. 언제든 큐쏙 앱 설정이나 이 페이지에서 해지할 수 있으며, 해지하면 다음 결제부터 이루어지지 않고 이미 결제한 이용 기간은 끝날 때까지 쓸 수 있습니다(위약금 없음).' },
   auto: { bill: 1, title: '자동 결제', name: '큐쏙 정식판 1개월 이용권 (자동 결제)', amount: 35200, base: '32,000원', vat: '3,200원', pay: '35,200원', price: '월 32,000원 (VAT 별도, 최종 결제 금액 35,200원)', cond: '이번 단계: 카드 등록 · 해지할 때까지 매달 35,200원 자동 결제',
     // 동의 칸 짧은 판(대표 11-23) — 결제일·해지 장소·다음 결제 7일 전 안내는 남긴다(약관 제8조의2 제2·5항 = 구매 화면에서 확인, legal 11-23)
     agree: '[필수] 월 35,200원(월 32,000원, VAT 별도) 자동 결제에 동의합니다.', term: '해지할 때까지 매달 1개월씩',
-    note: '해지할 때까지 매달 같은 날 결제되며, 다음 결제 예정일 7일 전 안내 메일을 드립니다. 요금 변경 시 사전 동의를 받습니다. 언제든 큐쏙 앱 설정이나 이 페이지에서 해지할 수 있습니다.' },
+    note: '해지할 때까지 매달 같은 날 결제되며, 다음 결제 예정일 7일 전 안내 메일을 드립니다. 요금 변경 시 사전 동의를 받습니다. 언제든 큐쏙 앱 설정이나 이 페이지에서 해지할 수 있으며, 해지하면 다음 결제부터 이루어지지 않고 이미 결제한 이용 기간은 끝날 때까지 쓸 수 있습니다(위약금 없음).' },
   monthly: { title: '매달 결제', name: '큐쏙 정식판 1개월 이용권', amount: 39600, base: '36,000원', vat: '3,600원', pay: '39,600원', price: '월 36,000원 (VAT 별도, 최종 결제 금액 39,600원)', cond: '이번 결제: 1개월분 · 한 달씩 직접 결제' },
 };
 const MAIL = 'contact@danbilab.com', NOPAID = '결제되지 않았습니다.';
@@ -264,13 +264,17 @@ async function post(path, body) {   // 네트워크가 끊기면 던진다
     return { ok: res.ok, code: res.status, j };
   } finally { clearTimeout(t); }
 }
-const ORDER_ERR = { closed: 'S10b', not_configured: 'S10b', not_eligible: 'S14e', product_ended: 'S14c', rate_limited: 'S14a', terms_changed: 'S14b' };
-async function payLive() {
+const ORDER_ERR = { closed: 'S10b', not_configured: 'S10b', not_eligible: 'S14e', product_ended: 'S14c', rate_limited: 'S14a', terms_changed: 'S14b', pay_pending: 'S14h' };
+// 서버 날짜(confirm_early·too_far의 end·from) — 모양이 맞을 때만 「12월 30일」로. 아니면 날짜 없는 판(S14g·S14j)
+const kDay = (d) => /^\d{4}-\d{2}-\d{2}$/.test(d ?? '') ? `${+d.slice(5, 7)}월 ${+d.slice(8, 10)}일` : '';
+// earlyOk = 확인창(S14f·S14g)에서 「계속 결제」를 누른 뒤 — 끝나는 날까지 일주일 넘게 남아도 막지 않고 묻기만 한다(대표 11-16)
+async function payLive(earlyOk = false) {
   paying('주문을 접수하는 중');
   let o;
-  try { o = await post('/pay/order', { product, machine_id: norm($('m1').value), agreed: { terms: true, period: true, ai_key: true }, terms_ver: TERMS_VER }); }
+  try { o = await post('/pay/order', { product, machine_id: norm($('m1').value), agreed: { terms: true, period: true, ai_key: true }, terms_ver: TERMS_VER, ...(earlyOk ? { early_ok: true } : {}) }); }
   catch { unlock(); modal('S14d'); return; }
-  if (!o.ok) { unlock(); if (o.j.error === 'machine_unknown') numberNotFound(); else modal(ORDER_ERR[o.j.error] || 'S14d'); return; }
+  if (!o.ok) { unlock(); if (o.j.error === 'machine_unknown') numberNotFound(); else if (o.j.error === 'confirm_early') modal(kDay(o.j.end) ? 'S14f' : 'S14g', { 날짜: kDay(o.j.end) });
+    else if (o.j.error === 'too_far') modal(kDay(o.j.end) && kDay(o.j.from) ? 'S14i' : 'S14j', { '끝나는 날': kDay(o.j.end), '가능한 날': kDay(o.j.from) }); else modal(ORDER_ERR[o.j.error] || 'S14d'); return; }
   const d = o.j;
   if (!ORDER.test(d.order_id ?? '') || d.amount !== P[product].amount) { unlock(); modal('S14d'); return; }   // 화면 금액과 다른 주문으로는 결제창을 열지 않는다
   try { await loadSdk(); } catch { unlock(); modal('noSdk'); return; }
@@ -384,15 +388,27 @@ const M = {
   S14a: ['alert', 'ic-bad', '오늘 결제 시도가 너무 많습니다', [NOPAID + ' 내일 다시 결제해 주세요.', '급하면 ' + MAIL + '으로 문의해 주세요.'], [['닫기', 1]]],
   S14b: ['info', 'ic-info', '페이지를 새로고침해 주세요', ['이 페이지를 연 사이 이용약관이 바뀌어 결제되지 않았습니다.', '새로고침한 뒤 입력과 동의를 다시 해 주세요.'], [['새로고침', 1]]],
   S14d: ['alert', 'ic-bad', '주문을 접수하지 못했습니다', [NOPAID + ' 잠시 뒤 다시 시도해 주세요.', '계속 안 되면 인터넷 연결을 확인해 주세요.'], [['닫기'], ['다시 시도', 1]]],
+  // 끝나는 날까지 일주일 넘게 남았을 때(결제·무료·체험 가리지 않음) — 막지 않고 묻는다(대표 11-16 · 문구 ux-writing · 주황 「!」 = 결정 필요, design 11-16). {…}는 modal 둘째 인자
+  // ⛔ NOPAID로 시작하지 말 것(결제 실패로 읽힌다) · 제목을 「결제되어 있습니다」로 쓰지 말 것(방금 결제가 끝났다로 읽힌다) · 「결제한 기간」 ⛔(무료 손님에겐 틀린 말)
+  S14f: ['alert', 'ic-warn', '이용 기간이 {날짜}까지 남아 있습니다', ['지금 결제하시면 {날짜}이 지난 다음 날부터 1개월이 이어집니다.', '다른 컴퓨터 번호를 넣으셨다면 ‘번호 고치기’를 눌러 주세요.'], [['번호 고치기'], ['그만두기'], ['계속 결제', 1]]],
+  S14g: ['alert', 'ic-warn', '이용 기간이 일주일 넘게 남아 있습니다', ['지금 결제하시면 지금 기간이 끝난 다음 날부터 1개월이 이어집니다. 끝나는 날은 큐쏙 앱의 설정 › 이용 상태에서 볼 수 있습니다.', '다른 컴퓨터 번호를 넣으셨다면 ‘번호 고치기’를 눌러 주세요.'], [['번호 고치기'], ['그만두기'], ['계속 결제', 1]]],
+  // 이번 결제까지 붙이면 끝나는 날이 오늘부터 3개월을 넘을 때(KG 「총 이용 3개월 이내」 — 6→3 11-23) — 막는다(서버 too_far, 대표 11-16 · 문구 ux-writing). 「도용」·「안전장치」 같은 이유는 쓰지 않는다
+  S14i: ['alert', 'ic-bad', '미리 결제는 오늘부터 3개월 안까지만 할 수 있습니다', [NOPAID + ' 지금 이용 기간이 {끝나는 날}까지라, 1개월을 더하면 오늘부터 3개월을 넘습니다.', '{가능한 날}부터 다시 결제할 수 있습니다.', '그 전에 결제가 꼭 필요하시면 ' + MAIL + '으로 문의해 주세요.'], [['닫기', 1]]],
+  S14j: ['alert', 'ic-bad', '미리 결제는 오늘부터 3개월 안까지만 할 수 있습니다', [NOPAID + ' 지금 결제하면 1개월을 더한 이용 기간이 오늘부터 3개월을 넘습니다.', '지금 이용 기간이 끝나는 날은 큐쏙 앱의 설정 › 이용 상태에서 볼 수 있습니다. 끝나는 날이 가까워지면 다시 결제해 주세요.', '그 전에 결제가 꼭 필요하시면 ' + MAIL + '으로 문의해 주세요.'], [['닫기', 1]]],
+  // ⛔ NOPAID로 시작하지 말 것 — 방금 결제한 분이 「앞 결제가 안 됐다」로 읽는다 · 「다시 결제」 안내 금지(두 번 결제된다)
+  // 「몇 분 안에 적용」 같은 약속 금지 — 비상 정지·오픈 기념 횟수 넘침도 이 창에 온다(독립 리뷰 11-16)
+  S14h: ['info', 'ic-info', '이 번호로 방금 한 결제를 확인하고 있습니다', ['앞 결제를 확인하는 중이라 이번 결제는 진행하지 않았습니다. 다시 결제하지 않으셔도 됩니다.', '확인이 끝나면 결제 이메일로 알려 드립니다.', '메일이 오지 않으면 ' + MAIL + '으로 문의해 주세요.'], [['닫기', 1]]],
   S6c: ['info', 'ic-info', '결제되지 않았습니다', ['결제창이 닫혔거나 승인되지 않아 결제가 진행되지 않았습니다.', '요금제를 골라 다시 결제할 수 있습니다.'], [['닫기', 1]]],
   S10b: ['info', 'ic-info', '지금은 정식판 구매를 받지 않고 있습니다', ['이 페이지를 연 사이 구매가 닫혀 결제되지 않았습니다.', '7일 무료 체험은 지금도 이용할 수 있습니다.'], [['닫기', 1]]],
 };
 const dlg = $('ms');
 function closeModal() { if (dlg.open) dlg.close(); }
-function modal(key) {
+function modal(key, vars = {}) {   // vars = { 날짜: '12월 30일', … } — 문구의 {날짜} 자리에
   const [i, cls, title, body, acts] = M[key];
-  dlg.innerHTML = `<h2 class="ms-t" id="msT">${ic(i, cls)}<span>${esc(title)}</span></h2><div class="ms-b" id="msB">${body.map((p) => `<p>${esc(p)}</p>`).join('')}</div><div class="ms-acts">${acts.map(([t, pri]) => `<button type="button" class="ms-btn ${pri ? 'pri' : ''}" data-ms="${esc(t)}">${esc(t)}</button>`).join('')}</div>`;
-  closeModal(); dlg.showModal(); (dlg.querySelector('.pri') || dlg.querySelector('button')).focus();
+  const fill = (t) => t.replace(/\{([^}]+)\}/g, (all, k) => vars[k] ?? all);
+  dlg.innerHTML = `<h2 class="ms-t" id="msT">${ic(i, cls)}<span>${esc(fill(title))}</span></h2><div class="ms-b" id="msB">${body.map((p) => `<p>${esc(fill(p))}</p>`).join('')}</div><div class="ms-acts">${acts.map(([t, pri]) => `<button type="button" class="ms-btn ${pri ? 'pri' : ''}" data-ms="${esc(t)}">${esc(t)}</button>`).join('')}</div>`;
+  // 묻는 창(그만두기 있음)은 처음 선택을 「그만두기」에 — Enter 한 번에 결제창이 열리지 않게(design 11-16). 나머지는 주 단추
+  closeModal(); dlg.showModal(); (dlg.querySelector('[data-ms="그만두기"]') || dlg.querySelector('.pri') || dlg.querySelector('button')).focus();
 }
 dlg.addEventListener('close', () => { if (!$('pay').hidden) $('payBtn').focus({ preventScroll: true }); });
 dlg.addEventListener('click', (e) => {
@@ -400,8 +416,10 @@ dlg.addEventListener('click', (e) => {
   if ((t === '결제창 다시 열기' || t === '다시 시도') && !$('pay').hidden) $('payBtn').click();
   else if (t === '카드 등록 창 다시 열기' && !$('pay').hidden) $('payBtn').click();
   else if (t === '매달 결제로 바꾸기') { setProduct('monthly'); $('payBtn').scrollIntoView({ block: 'center', behavior: 'instant' }); }
-  else if (t === '번호 고치기') { $('m1').focus({ preventScroll: true }); $('m1').scrollIntoView({ block: 'center', behavior: 'instant' }); }
+  // 창이 닫힐 때(close 이벤트, 나중에 온다) 결제 단추로 돌아가는 포커스를 덮어쓰게 한 박자 뒤에 — 안 그러면 Enter가 결제 단추를 또 누른다(리뷰 11-16)
+  else if (t === '번호 고치기') { $('m1').scrollIntoView({ block: 'center', behavior: 'instant' }); setTimeout(() => $('m1').focus({ preventScroll: true }), 0); }
   else if (t === '새로고침') location.reload();
+  else if (t === '계속 결제' && !$('pay').hidden && LIVE && validate()) payLive(true);   // 결제 단추와 같은 입력 확인을 거친다
 });
 
 // ── 자동 결제 해지·계속 여부 — 판매 페이지 해지 칸 + 메일 링크 화면. 서버 판정 = worker/lib/autopay-cancel.js(앱·메일과 한 벌) ──
