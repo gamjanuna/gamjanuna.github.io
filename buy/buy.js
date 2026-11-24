@@ -13,8 +13,12 @@ const MODE = 'test';
 // ⛔ localhost 주소를 코드·CSP에 적지 않는다(운영 페이지가 내 컴퓨터를 부르게 된다 — security 11-09).
 const LOCAL = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
 const LIVE = MODE === 'live' || LOCAL;
+// 자동 결제 신청 스위치(실제 판매) — ⛔ true는 결제 서버 AUTOPAY_OPEN="1"·앱 PR_AUTOPAY_OPEN=true와 한 커밋에(가드 §14p). 꺼져 있으면 LIVE에서 자동 결제 카드는 「준비 중」
+// 시험판(MODE test)을 내 컴퓨터에서 열 때만 늘 열린다(공개 주소의 시험판은 LIVE가 아니라 닫힘) — 아래 신청 길을 시험 도구로 돌린다
+const AUTO_OPEN = false;
+const AUTO_LIVE = LIVE && (AUTO_OPEN || MODE !== 'live');
 const API = LOCAL ? '' : 'https://pay.danbilab.com';
-const TERMS_VER = '1.7';   // = worker/pay/wrangler.toml TERMS_VER — 다르면 서버가 「약관 바뀜」으로 막는다(가드 §14p)
+const TERMS_VER = '1.8';   // = worker/pay/wrangler.toml TERMS_VER — 다르면 서버가 「약관 바뀜」으로 막는다(가드 §14p)
 const SDK = 'https://cdn.portone.io/v2/browser-sdk.js';
 const TEST = {   // 포트원 콘솔 › 결제 연동 › 연동 관리 › 테스트 채널 「큐쏙 시험」 — 비밀값 아님(결제창에 넘기는 공개 값)
   storeId: 'store-a36ecae1-4cef-4ba3-877a-c9d970fd0ec7',
@@ -35,10 +39,11 @@ const SVG = {
 const P = {
   open3: { title: '<span class="open">오픈 기념</span>첫 3개월', name: '큐쏙 정식판 1개월 이용권 (오픈 기념)', amount: 29700, base: '27,000원', vat: '2,700원', pay: '29,700원', price: '월 27,000원 (VAT 별도, 최종 결제 금액 29,700원)', cond: '이번 결제: 1개월분 · 결제가 열린 날부터 2027년 1월 31일까지 첫 결제 · 첫 결제 포함 3개월' },
   // 자동 결제 둘(bill = 결제창 대신 카드 등록 창, 대표 11-18 ㉡: 오픈 기념 대상은 첫 3번 27,000원 → 4번째부터 32,000원) — 문구 ux-writing·legal 11-18
-  open3auto: { bill: 1, title: '<span class="open">오픈 기념</span>첫 3개월 · 자동 결제', name: '큐쏙 정식판 1개월 이용권 (오픈 기념 · 자동 결제)', amount: 29700, base: '27,000원', vat: '2,700원', pay: '29,700원', price: '월 27,000원 (VAT 별도, 최종 결제 금액 29,700원)', cond: '이번 단계: 카드 등록 · 첫 3개월 매달 29,700원 자동 결제 · 4개월째(35,200원)는 그때 다시 동의하신 경우에만',
+  open3auto: { bill: 1, title: '<span class="open">오픈 기념</span>첫 3개월 · 자동 결제', name: '큐쏙 정식판 1개월 이용권 (오픈 기념 · 자동 결제)', amount: 29700, base: '27,000원', vat: '2,700원', pay: '29,700원', price: '월 27,000원 (VAT 별도, 최종 결제 금액 29,700원)', cond: '이번 단계: 카드 등록 · 오픈 기념 금액 29,700원으로 최대 3번 자동 결제 · 그 뒤(35,200원)는 그때 다시 동의하신 경우에만',
     // 4개월째 금액은 그때 따로 동의(약관 제8조의2 제4항 — 처음 계약 때 미리 받지 않는다, legal 11-23 [빨강] B · 문구 ux-writing 11-23)
-    agree: '[필수] 첫 3개월간 월 29,700원(월 27,000원, VAT 별도) 자동 결제에 동의합니다.', term: '첫 3개월 매달 1개월씩 29,700원 · 4개월째부터 35,200원은 다시 동의하신 경우에만',
-    note: '4개월째부터 월 35,200원으로 전환되며, 전환 전 별도 동의를 받습니다(동의하지 않거나 답이 없으면 자동 결제 종료). 해지할 때까지 매달 같은 날 결제되며, 다음 결제 예정일 7일 전 안내 메일을 드립니다. 언제든 큐쏙 앱 설정이나 이 페이지에서 해지할 수 있으며, 해지하면 다음 결제부터 이루어지지 않고 이미 결제한 이용 기간은 끝날 때까지 쓸 수 있습니다(위약금 없음).' },
+    // 체크하는 문장 = 서버가 기록하는 동의(consent_count = 남은 번수) — 「첫 3개월간」은 이미 오픈 기념으로 결제한 분에게 어긋난다(legal 11-23 🟡 · 대표 ㉠ 「문구만 통용적으로」). 실제 횟수는 확인 칸(autoShow)에
+    agree: '[필수] 오픈 기념 금액 월 29,700원(월 27,000원, VAT 별도)으로 최대 3번(이미 오픈 기념 금액으로 결제하셨다면 남은 횟수만) 자동 결제에 동의합니다.', term: '매달 1개월씩 29,700원, 최대 3번(이미 오픈 기념 금액으로 결제하셨다면 남은 횟수만) · 그 뒤 35,200원은 다시 동의하신 경우에만',
+    note: '오픈 기념 횟수가 끝난 뒤부터 월 35,200원으로 전환되며, 전환 전 별도 동의를 받습니다(동의하지 않거나 답이 없으면 자동 결제 종료). 해지할 때까지 매달 같은 날 결제되며, 다음 결제 예정일 7일 전 안내 메일을 드립니다. 언제든 큐쏙 앱 설정이나 이 페이지에서 해지할 수 있으며, 해지하면 다음 결제부터 이루어지지 않고 이미 결제한 이용 기간은 끝날 때까지 쓸 수 있습니다(위약금 없음).' },
   auto: { bill: 1, title: '자동 결제', name: '큐쏙 정식판 1개월 이용권 (자동 결제)', amount: 35200, base: '32,000원', vat: '3,200원', pay: '35,200원', price: '월 32,000원 (VAT 별도, 최종 결제 금액 35,200원)', cond: '이번 단계: 카드 등록 · 해지할 때까지 매달 35,200원 자동 결제',
     // 동의 칸 짧은 판(대표 11-23) — 결제일·해지 장소·다음 결제 7일 전 안내는 남긴다(약관 제8조의2 제2·5항 = 구매 화면에서 확인, legal 11-23)
     agree: '[필수] 월 35,200원(월 32,000원, VAT 별도) 자동 결제에 동의합니다.', term: '해지할 때까지 매달 1개월씩',
@@ -92,6 +97,7 @@ document.querySelectorAll('.tail').forEach((t) => {
   t.append(disp.cloneNode(true), f);
 });
 if (LIVE) document.querySelector('.test-band').hidden = true;   // 「결제하지 마세요」 띠는 시험판에만
+if (LIVE) document.querySelectorAll('.test-only').forEach((e) => e.remove());   // 「알아 두실 것」의 시험판 문장(카드를 등록해도 시작되지 않음)도 — 실제 판매에선 거짓(ux-writing 11-23)
 ['400', '700'].forEach((w) => document.fonts?.load(`${w} 13.5px "IBM Plex Sans KR"`, document.body.innerText));
 
 function show(id) {
@@ -101,8 +107,8 @@ function show(id) {
 }
 // 오픈 기념 카드는 결제 방식 고르기(기본 = 직접 결제 — 자동은 손님이 눌러야, legal 11-18)를 따른다
 document.querySelectorAll('[data-buy]').forEach((b) => (b.onclick = () => toPay(b.dataset.buy === 'open3' ? (document.querySelector('input[name="o3"]:checked')?.value || 'open3') : b.dataset.buy, true)));
-// 실제 판매(LIVE)엔 자동 결제 길(결제 서버 빌링·약관 자동 결제 장·온라인 해지)이 아직 없다 → 「준비 중」으로 되돌린다(legal 11-18 🔴 · 랜딩·앱과 같게)
-if (LIVE) {
+// 실제 판매(LIVE)에서 자동 결제 신청 스위치(AUTO_OPEN)가 꺼져 있으면 「준비 중」으로 되돌린다(legal 11-18 🔴 · 랜딩·앱과 같게 — 서버 AUTOPAY_OPEN·앱 스위치와 같은 날 걷는다)
+if (LIVE && !AUTO_LIVE) {
   document.querySelectorAll('[data-auto]').forEach((e) => (e.hidden = true));
   const a = document.querySelector('[data-card="auto"]'); a.classList.add('is-soon'); a.querySelector('.go').outerHTML = '<p class="soon">준비 중</p>';
 }
@@ -127,7 +133,9 @@ function setProduct(id) {
   $('sBase').textContent = p.base; $('sVat').textContent = p.vat; $('sTotal').textContent = p.pay; $('bName').textContent = (LIVE ? '' : '[시험] ') + p.name;   // 결제창 주문명과 같게
   // 자동 결제면 결제 화면의 말이 달라진다 — 「자동으로 결제되지 않습니다」를 숨기고 넷째 필수 동의(미리 체크 ⛔)를 연다(legal 11-18)
   $('methodNote').textContent = p.bill ? '자동 결제는 카드만 등록할 수 있습니다. 카드 정보는 ‘카드 등록 창 열기’를 누른 뒤 열리는 창에서 넣습니다.' : '카드와 간편결제(카카오페이·네이버페이·토스페이·페이코)는 결제창 열기를 누른 뒤 열리는 결제창에서 고릅니다.';
-  $('autoDd').textContent = p.bill ? '해지할 때까지 등록한 카드로 매달 결제됩니다. 지금은 심사용 시험판이라 카드를 등록해도 자동 결제가 시작되지 않습니다.' : '자동으로 결제되지 않습니다. 다음 달은 직접 결제해 주세요.';
+  $('autoDd').textContent = p.bill ? (!AUTO_LIVE ? '해지할 때까지 등록한 카드로 매달 결제됩니다. 지금은 심사용 시험판이라 카드를 등록해도 자동 결제가 시작되지 않습니다.'   // 실제 판매 문구(ux-writing 11-23) — 첫 결제일·금액은 서버가 정해 확인 칸에서 보인다
+    : id === 'open3auto' ? '오픈 기념 금액이 남은 동안 매달 29,700원, 그 뒤에는 다시 동의하신 경우에만 35,200원이 결제됩니다. 첫 결제일과 금액은 카드를 넣기 전에 먼저 보여 드립니다.'
+    : '해지할 때까지 등록한 카드로 매달 결제됩니다. 첫 결제일과 금액은 카드를 넣기 전에 먼저 보여 드립니다.') : '자동으로 결제되지 않습니다. 다음 달은 직접 결제해 주세요.';
   $('agAuto').hidden = !p.bill; $('agAuto').querySelector('input').checked = false; $('agAutoT').textContent = p.agree || ''; $('agAutoN').textContent = p.note || ''; $('agN').textContent = String(items().length); $('agAll').checked = false;
   $('bTerm').textContent = p.term || '1개월 (시작일·종료일은 메일로 안내)'; $('bPay').textContent = p.bill ? '카드 (카드 등록 창에서 입력)' : '결제창에서 선택';
   $('sTotalL').textContent = p.bill ? '매달 결제 금액' : '최종 결제 금액';
@@ -207,6 +215,7 @@ const PID = /^test-[0-9a-f]{20}$/;
 
 $('payBtn').onclick = async () => {
   if (!validate()) return;
+  if (P[product].bill && AUTO_LIVE) { autoAsk(); return; }   // 실제 자동 결제 신청 — 아래 「자동 결제 신청(LIVE)」
   if (P[product].bill) { if (!LIVE) payBill(); return; }   // LIVE엔 자동 결제 카드가 「준비 중」이라 오지 않는다(위)
   if (LIVE) { payLive(); return; }
   paying('결제창을 여는 중');
@@ -248,6 +257,139 @@ async function payBill() {
   if (!r) return;                                   // 폰 — 돌아오는 주소에서 이어서 처리
   if (r.code != null || !r.billingKey) { modal('billFail'); return; }
   billDone(issueId);
+}
+
+// ── 자동 결제 신청(LIVE) — 신청 확인 → 확인 칸 → 신청 → 카드 등록 창 → 등록 확인 (결제 서버 worker/pay startAutopay·registerAutopay) ──
+// 첫 결제일·금액·남은 횟수는 서버가 정한다. 첫 신청은 일부러 seen 값 없이 보내 서버 값(409 amount_changed — 줄을 만들지 않는다)을 받고, 확인 칸에 보인 그 값을 그대로 돌려보낸다
+//   (동의한 것 = 기록한 것 · security 11-23 🟢: 드러나는 것 = 첫 결제일·남은 오픈 기념 횟수·자동 결제 여부 — 한 달 결제 confirm_early와 같은 급)
+// ⛔ 고른 상품과 서버 판정이 다르면 그 금액으로 신청하지 않는다 — 상품을 바꾸고 동의를 다시 받는다(체크한 동의 문장 = 기록되는 동의, ux-writing 11-23 🔴2)
+// ⛔ 창에 넘기는 store_id·channel_key·발급 번호는 서버 답(d)에서만 · 고객 번호는 customer.customerId(카드 변경 길과 같게 — customer.id ⛔, security 11-23 🔴)
+// ⛔ 카드 등록 값(billingKey)은 결제 서버로만 — 화면·console·저장소에 쓰지 않는다(메모리에만, 답이 끊기면 같은 값으로 한 번 더 확인 — security 11-23 🟡2)
+// ⛔ 이름·휴대폰·이메일은 카드 등록 창으로만 — 결제 서버엔 보내지 않는다
+const OPEN3_N = 3, AUTO_AMT = 35200;
+const CARD_KEPT = '카드 번호는 카드 등록 창(결제대행사 화면)에만 넣으며 큐쏙에 오지 않습니다. 큐쏙은 결제대행사가 발급한 카드 등록 값(카드 번호가 아닙니다)만 암호화해 보관합니다.';   // 처리방침과 같은 말(ux-writing 11-23 🔴1)
+const kstToday = () => new Date(Date.now() + 9 * 3600e3).toISOString().slice(0, 10);
+let autoQ = null;   // 확인 칸에 보인 서버 값 { amount, count, first }
+const autoBody = (seen) => ({ machine_id: norm($('m1').value), terms_ver: TERMS_VER,
+  agreed: { terms: true, period: true, ai_key: true, autopay: true, ...(seen ? { seen_amount: seen.amount, seen_count: seen.count, seen_first: seen.first } : {}) } });
+// 서버 값 모양 확인 — 이상하면 창을 열지 않는다(글자로만 쓴다)
+const autoVals = (j) => (j.amount === AUTO_AMT ? j.count === null : j.amount === P.open3auto.amount && Number.isInteger(j.count) && j.count >= 1 && j.count <= OPEN3_N)
+  && /^\d{4}-\d{2}-\d{2}$/.test(j.first_charge_on ?? '') ? { amount: j.amount, count: j.count, first: j.first_charge_on } : null;
+// 카드를 넣기 전 단계의 오류 → 가운데 창(「자동 결제는 신청되지 않았습니다」 — 「결제」 낱말 ⛔, ux-writing 11-23 🔴3)
+const AUTO_ERR = { autopay_exists: 'A_exists', pay_pending: 'A_pending', terms_changed: 'A_terms', closed: 'A_closed', not_configured: 'A_closed', rate_limited: 'A_rate' };
+function autoErr(r) {
+  unlock();
+  if (!r) return modal('A_net');
+  if (r.j.error === 'machine_unknown') return numberNotFound();
+  modal(AUTO_ERR[r.j.error] || 'A_net');
+}
+async function autoAsk(note = '') {
+  paying('신청 내용을 확인하는 중');
+  let r = null; try { r = await post('/pay/autopay/start', autoBody(null)); } catch { /* 닿지 않음 */ }
+  const v = r?.code === 409 && r.j.error === 'amount_changed' ? autoVals(r.j) : null;
+  if (!v) return autoErr(r?.code === 409 && r.j.error === 'amount_changed' ? null : r);
+  unlock(); autoShow(v, note);
+}
+// 고른 상품과 서버 판정이 같으면 확인 칸, 다르면 상품 바꾸기 창
+function autoShow(v, note = '') {
+  autoQ = v;
+  const open = v.amount !== AUTO_AMT;
+  if (open !== (product === 'open3auto')) return modal(open ? 'A_isOpen' : 'A_notOpen', { 횟수: String(v.count ?? '') });
+  const today = v.first === kstToday(), N = v.count;
+  // 사실 줄(라벨 굵게)은 상자로 · 안내 문단은 한 단계 아래(ui-visual 11-23)
+  const facts = [
+    ['컴퓨터 번호', norm($('m1').value)],
+    ['첫 결제일', today ? `오늘(${kDayW(v.first)}) · 카드 등록이 끝나면 바로 결제` : `${kDayW(v.first)} · 지금 이용 기간이 끝난 다음 날`],
+    ['결제 금액', open ? `매달 29,700원 (오픈 기념) · ${N}번` : '매달 35,200원 · 해지할 때까지 매달 같은 날'],
+    open ? ['그 뒤', '매달 35,200원 · 바뀌기 전에 결제 이메일로 확인을 요청드리고, ‘계속하기’를 누르신 경우에만 결제'] : null,
+  ].filter(Boolean);
+  const subs = [
+    open && N < OPEN3_N ? `이 컴퓨터 번호로 오픈 기념 금액을 이미 ${OPEN3_N - N}번 결제하셔서 ${N}번 남았습니다.` : '',
+    '두 번째 결제부터는 결제일 7일 전에 날짜와 금액을 결제 이메일로 미리 알려 드립니다.',
+    today ? '' : `${kDayW(addDay(v.first, -1))}까지 해지하시면 첫 결제도 되지 않습니다.`,
+    '해지는 큐쏙 앱의 설정 › 이용 상태나 이 페이지에서 언제든 할 수 있고, 해지하면 다음 결제부터 멈춥니다.',
+    CARD_KEPT,
+  ].filter(Boolean);
+  const title = today ? `카드를 등록하면 바로 ${won(v.amount)}이 결제됩니다` : '자동 결제 내용을 확인해 주세요';
+  dlg.innerHTML = `<h2 class="ms-t" id="msT">${ic('alert', 'ic-warn')}<span>${esc(title)}</span></h2><div class="ms-b" id="msB">${note ? `<p>${esc(note)}</p>` : ''}`
+    + `<div class="ms-facts">${facts.map(([k, t]) => `<p><b>${esc(k)}</b>: ${esc(t)}</p>`).join('')}</div><div class="ms-sub">${subs.map((p) => `<p>${esc(p)}</p>`).join('')}</div></div>`
+    + `<div class="ms-acts"><button type="button" class="ms-btn" data-ms="돌아가기">돌아가기</button><button type="button" class="ms-btn pri" data-ms="이대로 카드 등록">이대로 카드 등록</button></div>`;
+  closeModal(); dlg.showModal(); dlg.querySelector('[data-ms="돌아가기"]').focus();   // 묻는 창 — 처음 선택은 물러서는 쪽(design 11-16)
+}
+async function autoGo() {
+  if (!autoQ || !validate()) return;
+  paying('자동 결제를 신청하는 중');
+  let r = null; try { r = await post('/pay/autopay/start', autoBody(autoQ)); } catch { /* 닿지 않음 */ }
+  if (r?.code === 409 && r.j.error === 'amount_changed') {   // 그 사이 자정·다른 결제로 바뀜 — 바뀐 값으로 다시 묻는다
+    const v = autoVals(r.j); if (!v) return autoErr(null);
+    unlock(); return autoShow(v, '그 사이 첫 결제일이나 금액이 바뀌었습니다. 바뀐 내용을 확인해 주세요.');
+  }
+  const d = r?.j || {};
+  if (!r?.ok || !ORDER.test(d.sub_id ?? '') || !d.store_id || !d.channel_key || d.amount !== autoQ.amount) return autoErr(r?.ok ? null : r);
+  try { await loadSdk(); } catch { unlock(); modal('billNoSdk'); return; }
+  // 폰 복귀용 표식 — 신청 쪽만 남긴다(카드 변경 표식과 한 탭에 같이 두지 않는다, security 11-23 🟡3) · 키는 적지 않는다
+  try { sessionStorage.removeItem('cardPend'); sessionStorage.setItem('subPend', JSON.stringify({ s: d.sub_id, at: Date.now(), m: norm($('m1').value), a: autoQ.amount, p: product })); } catch { /* 폰 복귀만 못 이어 간다 */ }
+  paying('카드 등록 창에서 진행 중');
+  let w;
+  try {
+    w = await window.PortOne.requestIssueBillingKey({
+      storeId: d.store_id, channelKey: d.channel_key, billingKeyMethod: 'CARD', issueId: d.sub_id,
+      issueName: P[product].name,
+      customer: { customerId: d.sub_id, fullName: $('nm').value.trim(), phoneNumber: $('ph').value.replace(/[\s-]/g, ''), email: $('em').value.trim() },
+      redirectUrl: location.origin + location.pathname,   // 폰은 결제사 화면에 갔다가 이 주소로 돌아온다(아래 복귀 처리)
+    });
+  } catch { unlock(); modal('billNoWindow'); return; }
+  if (!w) return;                                         // 폰 — 돌아오는 주소에서 이어서 처리
+  try { sessionStorage.removeItem('subPend'); } catch { /* 없어도 된다 */ }
+  unlock();
+  if (w.code != null || !w.billingKey) { modal('billFail'); return; }   // 카드를 넣기 전에 닫음 — 신청 줄은 결제 서버가 하루 뒤 정리한다
+  autoRegister(d.sub_id, w.billingKey, { m: norm($('m1').value), a: autoQ.amount, p: product });
+}
+// 등록 확인 — 답이 끊기면 같은 키로 한 번 더(서버는 같은 키를 다시 받으면 아무것도 다시 하지 않고 지금 상태만 돌려준다)
+async function autoRegister(sub, key, x) {
+  frame('spin', '', '자동 결제를 시작하고 있습니다', `<p class="checking" role="status">${SVG.spin}<span>확인하는 중…</span></p>`);
+  let r = null, again = false;
+  for (let i = 0; i < 2 && !r; i++) { if (i) again = true; try { r = await post('/pay/autopay/register', { sub_id: sub, billing_key: key }); } catch { /* 닿지 않음 */ } }
+  autoResult(r, x, again);
+}
+function autoResult(r, x, again) {
+  const p = P[x.p] || P.auto, j = r?.j || {}, ask = row('문의', `<a href="mailto:${MAIL}" style="color:var(--brand-700)">${MAIL}</a>`);
+  const mrow = /^[2-9A-HJ-NP-Z]{10}$/.test(x.m ?? '') ? row('컴퓨터 번호', `<span class="mono">${esc(x.m)}</span>`) : '';
+  const back = `<div class="d-act"><button class="d-btn" type="button" data-act="요금제로 돌아가기">요금제로 돌아가기</button></div>`;
+  const CANCEL_TXT = '큐쏙 앱의 설정 › 이용 상태나 이 페이지의 ‘자동 결제 해지’ 칸에서 언제든 할 수 있습니다. 해지하면 다음 결제부터 멈추고, 이미 결제한 이용 기간은 끝날 때까지 사용하실 수 있습니다.';
+  const bad = (title, lines) => frame('alert', 'ic-bad', title, lines.map((t) => `<p class="d-p">${esc(t)}</p>`).join('') + `<div class="d-rows">${mrow}${ask}</div>` + back);
+  const DROP = '이번에 등록하신 카드 등록 값은 지웁니다.';
+  if (!r) return frame('alert', 'ic-warn', '자동 결제가 시작되었는지 확인하지 못했습니다', `<p class="d-p">시작되어 첫 결제까지 되었을 수 있으니 카드 등록 창을 다시 열거나 다시 결제하지 마세요.</p>`
+    + `<p class="d-p">시작되었다면 결제 이메일로 안내가 갑니다. 메일이 오지 않으면 다시 신청하기 전에 컴퓨터 번호와 함께 ${MAIL}으로 문의해 주세요.</p><div class="d-rows">${mrow}${ask}</div>` + back);   // 그 자리에서 거절된 건은 메일이 없다(서버 E 조건) — 「메일로 알려 드립니다」 약속 ⛔(독립 리뷰 11-23)
+  if (r.ok && j.ok === true && apKDay(j.next_charge_on)) {
+    if (j.charge === 'paid') return frame('ok', 'ic-ok', '첫 결제가 완료되었습니다', `<p class="d-lead">자동 결제를 시작했고, 아래 컴퓨터 번호에 정식판 1개월을 적용했습니다</p><p class="d-sub">인터넷에 연결해 큐쏙을 다시 켜면 반영됩니다.</p>`
+      + `<div class="d-sec"><h2 class="d-sec-t">신청 내역</h2><div class="d-rows">${row('상품', esc(p.name))}${mrow}${typeof x.a === 'number' ? row('결제 금액', esc(won(x.a)), 'total') : ''}${row('다음 결제일', esc(kDayW(j.next_charge_on)))}</div></div>`
+      + `<dl class="notice d-notice"><dt>이용 기간</dt><dd>1개월. <span class="must">시작일과 종료일은 결제 이메일로 보내 드립니다.</span></dd><dt>다음 결제</dt><dd>다음 결제일 7일 전에 날짜와 금액을 결제 이메일로 알려 드립니다.</dd>`
+      + `<dt>해지</dt><dd>${esc(CANCEL_TXT)}</dd><dt>환불</dt><dd>결제한 날이나 시작 전에는 전액, 그 뒤에는 지난 일수를 뺀 금액</dd><dt>카드</dt><dd>${esc(CARD_KEPT)}</dd></dl>`);
+    if (j.charge === 'processing') return frame('alert', 'ic-warn', '첫 결제 결과를 아직 확인하지 못했습니다', `<p class="d-p">카드 등록은 끝났습니다. 첫 결제가 되었는지는 결제 서버가 이어서 확인합니다.</p>`
+      + `<p class="d-p">결제되었을 수 있으니 다시 신청하거나 결제하지 마세요. 결과는 결제 이메일로 알려 드립니다.</p><p class="d-p">메일이 오지 않으면 컴퓨터 번호와 함께 ${MAIL}으로 문의해 주세요.</p><div class="d-rows">${mrow}${ask}</div>` + back);
+    // 첫 결제가 나중 — 첫 확인 답일 때만 「오늘은 결제되지 않았습니다」(다시 보낸 답은 이미 결제한 뒤일 수 있어 다음 결제일만)
+    if (again || j.charge) return frame('ok', 'ic-ok', '자동 결제가 시작되었습니다', `<p class="d-lead">다음 결제일은 ${esc(kDayW(j.next_charge_on))}입니다</p><p class="d-sub">결제 내역은 결제 이메일로 알려 드립니다.</p>`
+      + `<div class="d-sec"><h2 class="d-sec-t">신청 내역</h2><div class="d-rows">${mrow}${row('다음 결제일', esc(kDayW(j.next_charge_on)))}${ask}</div></div><dl class="notice d-notice"><dt>해지</dt><dd>${esc(CANCEL_TXT)}</dd><dt>카드</dt><dd>${esc(CARD_KEPT)}</dd></dl>`);
+    return frame('ok', 'ic-ok', '자동 결제 신청이 완료되었습니다', `<p class="d-lead">카드를 등록했습니다. 오늘은 결제되지 않았습니다</p>`
+      + `<p class="d-sub">${esc(kDayW(j.next_charge_on))}에 첫 결제${typeof x.a === 'number' ? ' ' + esc(won(x.a)) + '을' : '를'} 합니다. 그때까지는 지금 이용 기간 그대로 사용하실 수 있습니다.</p>`
+      + `<div class="d-sec"><h2 class="d-sec-t">신청 내역</h2><div class="d-rows">${row('상품', esc(p.name))}${mrow}${row('첫 결제일', esc(kDayW(j.next_charge_on)))}${typeof x.a === 'number' ? row('매달 결제 금액', esc(won(x.a))) : ''}</div></div>`
+      + `<dl class="notice d-notice"><dt>첫 결제 전</dt><dd>${esc(kDayW(addDay(j.next_charge_on, -1)))}까지 해지하시면 첫 결제도 되지 않습니다.</dd><dt>안내 메일</dt><dd>신청 안내 메일을 결제 이메일로 보내 드립니다.</dd>`
+      + `<dt>해지</dt><dd>${esc(CANCEL_TXT)}</dd><dt>카드</dt><dd>${esc(CARD_KEPT)}</dd></dl>`);
+  }
+  if (r.ok && j.charge === 'failed') return frame('alert', 'ic-bad', '카드 결제가 승인되지 않아 자동 결제를 시작하지 않았습니다', `<p class="d-p">등록하신 카드로 오늘 첫 결제를 하지 못했습니다. 이 금액은 청구하지 않으며, 같은 카드로 다시 결제를 시도하지 않습니다.</p>`
+    + `<p class="d-p">이번에 등록하신 카드 등록 값은 지체 없이 지우고 결제대행사에도 삭제를 요청합니다.</p><p class="d-p">다른 카드로 다시 신청하시거나, 한 달씩 직접 결제하실 수 있습니다.</p><div class="d-rows">${mrow}${ask}</div>` + back);
+  const e = j.error;
+  if (e === 'autopay_exists') return bad('이 컴퓨터 번호는 이미 자동 결제 중입니다', ['다른 창에서 이미 자동 결제가 시작되어, 이번에 등록하신 카드로는 시작하지 않았습니다. ' + DROP, '카드를 바꾸시려면 이 페이지 아래 ‘자동 결제 해지 · 카드 변경’ 칸에서 ‘카드 변경’을 눌러 주세요.']);
+  if (e === 'expired') return bad('카드 등록 시간이 지났습니다', ['신청한 지 1시간이 넘어 자동 결제를 시작하지 않았습니다. ' + DROP, '처음부터 다시 신청해 주세요.']);
+  if (e === 'amount_changed') return bad('그 사이 첫 결제일이나 금액이 바뀌었습니다', ['앞서 등록하신 카드로는 자동 결제를 시작하지 않았습니다. ' + DROP, '처음부터 다시 신청하시면 바뀐 내용을 보여 드립니다.']);
+  if (e === 'no_mail') return bad('결제 이메일을 확인하지 못했습니다', ['카드 등록 창에서 결제 이메일을 받지 못해 자동 결제를 시작하지 않았습니다. ' + DROP, `다시 신청해 주시고, 그래도 안 되면 컴퓨터 번호와 함께 ${MAIL}으로 알려 주세요.`]);
+  if (e === 'pay_pending') return bad('이 번호로 방금 한 결제를 확인하고 있습니다', ['앞 결제의 이용 기간이 정해져야 첫 자동 결제일을 정할 수 있어, 자동 결제를 시작하지 않았습니다. 앞 결제는 그대로 진행됩니다. ' + DROP, '정식판 적용 안내 메일을 받으신 뒤 다시 신청해 주세요.']);
+  if (e === 'terms_changed') return bad('이용약관이 바뀌었습니다', ['이 페이지를 연 사이 이용약관이 바뀌어 자동 결제를 시작하지 않았습니다. ' + DROP, '새로고침한 뒤 입력과 동의를 다시 해 주세요.']);
+  if (e === 'ended') return bad('이 신청은 이미 처리가 끝났습니다', ['같은 신청이 앞서 처리되었습니다. 자동 결제가 시작되었다면 결제 이메일로 안내가 갑니다.', `메일이 없으면 다시 신청하기 전에 ${MAIL}으로 먼저 문의해 주세요.`]);
+  if (e === 'closed' || e === 'not_configured') return bad('지금은 자동 결제 신청을 받지 않고 있습니다', ['이 페이지를 연 사이 신청이 닫혀 자동 결제를 시작하지 않았습니다. ' + DROP]);
+  // billing_mismatch · not_found · machine_unknown · 모르는 답 — 지운다고 말하지 않는다(남의 값일 수 있어 서버가 적지도 지우지도 않는다)
+  bad('자동 결제를 시작하지 않았습니다', ['이번 신청에서 연 카드 등록인지 확인하지 못했습니다.', `처음부터 다시 신청해 주세요. 계속되면 ${MAIL}으로 문의해 주세요.`]);
 }
 
 // ── 실제 결제 길(LIVE) — 주문 접수 → 결제창 → 결제 서버에 결과 확인 ──
@@ -382,6 +524,16 @@ const M = {
   billFail: ['alert', 'ic-bad', '카드가 등록되지 않았습니다', ['카드 등록 창이 닫혔거나 등록이 승인되지 않았습니다. 자동 결제는 신청되지 않았습니다.'], [['닫기'], ['카드 등록 창 다시 열기', 1]]],
   billNoSdk: ['alert', 'ic-bad', '카드 등록 창을 불러오지 못했습니다', ['자동 결제는 신청되지 않았습니다. 인터넷 연결을 확인한 뒤 ‘카드 등록 창 다시 열기’를 눌러 주세요.'], [['닫기'], ['카드 등록 창 다시 열기', 1]]],
   billNoWindow: ['alert', 'ic-bad', '카드 등록 창을 열지 못했습니다', ['자동 결제는 신청되지 않았습니다. 브라우저에서 이 사이트의 팝업(새 창)을 허용한 뒤 ‘카드 등록 창 다시 열기’를 눌러 주세요.'], [['닫기'], ['카드 등록 창 다시 열기', 1]]],
+  // 자동 결제 신청(LIVE) — 카드를 넣기 전 단계(ux-writing 11-23) · 「결제되지 않았습니다」·NOPAID ⛔(신청의 일) · 한 달 결제 창(S14*)을 그대로 쓰지 않는다
+  A_exists: ['alert', 'ic-warn', '이 컴퓨터 번호는 이미 자동 결제 중입니다', ['새로 신청되지 않았습니다. 카드를 바꾸시려면 이 페이지 아래 ‘자동 결제 해지 · 카드 변경’ 칸에서 ‘카드 변경’을 눌러 주세요. 큐쏙 앱의 설정 › 이용 상태에서도 할 수 있습니다.', '다른 컴퓨터 번호를 넣으셨다면 ‘번호 고치기’를 눌러 주세요.'], [['번호 고치기'], ['카드 변경 칸으로', 1]]],
+  A_pending: ['info', 'ic-info', '이 번호로 방금 한 결제를 확인하고 있습니다', ['앞 결제의 이용 기간이 정해져야 첫 자동 결제일을 정할 수 있어, 지금은 자동 결제를 신청하지 않았습니다. 앞 결제는 그대로 진행됩니다.', '정식판 적용 안내 메일을 받으신 뒤 다시 신청해 주세요.'], [['닫기', 1]]],
+  A_terms: ['info', 'ic-info', '페이지를 새로고침해 주세요', ['이 페이지를 연 사이 이용약관이 바뀌어 자동 결제는 신청되지 않았습니다.', '새로고침한 뒤 입력과 동의를 다시 해 주세요.'], [['새로고침', 1]]],
+  A_closed: ['info', 'ic-info', '지금은 자동 결제 신청을 받지 않고 있습니다', ['이 페이지를 연 사이 신청이 닫혀 자동 결제는 신청되지 않았습니다.', '7일 무료 체험은 지금도 이용할 수 있습니다.'], [['닫기', 1]]],
+  A_rate: ['alert', 'ic-bad', '오늘은 더 신청을 받을 수 없습니다', ['자동 결제는 신청되지 않았습니다. 내일 다시 신청해 주세요.', '급하면 ' + MAIL + '으로 문의해 주세요.'], [['닫기', 1]]],
+  A_net: ['alert', 'ic-bad', '신청을 접수하지 못했습니다', ['자동 결제는 신청되지 않았습니다. 잠시 뒤 다시 시도해 주세요.', '계속 안 되면 인터넷 연결을 확인해 주세요.'], [['닫기'], ['다시 시도', 1]]],
+  // 고른 상품 ≠ 서버 판정 — 다른 금액으로 몰래 신청하지 않고 상품을 바꿔 동의를 다시 받는다(동의 문장 = 기록되는 동의)
+  A_notOpen: ['alert', 'ic-bad', '이 컴퓨터 번호는 오픈 기념 금액 대상이 아닙니다', ['자동 결제는 신청되지 않았습니다. 일반 자동 결제(매달 35,200원)는 신청할 수 있습니다.', '컴퓨터를 옮겼다면 ' + MAIL + '으로 문의해 주세요.'], [['번호 고치기'], ['자동 결제로 바꾸기', 1]]],
+  A_isOpen: ['info', 'ic-info', '이 컴퓨터 번호는 오픈 기념 금액 대상입니다', ['자동 결제는 신청되지 않았습니다. 오픈 기념 자동 결제로 신청하시면 처음 {횟수}번은 매달 29,700원입니다.', '‘오픈 기념으로 바꾸기’를 누른 뒤 동의를 다시 해 주세요.'], [['닫기'], ['오픈 기념으로 바꾸기', 1]]],
   // 주문 접수 오류(실제 결제 길) — 문구 정본 = 시안 v272(design·ux-writing 11-07)
   S14e: ['alert', 'ic-bad', '이 컴퓨터 번호는 오픈 기념 금액 대상이 아닙니다', [NOPAID + ' 매달 결제는 이용할 수 있습니다.', '컴퓨터를 옮겼다면 ' + MAIL + '으로 문의해 주세요.'], [['번호 고치기'], ['매달 결제로 바꾸기', 1]]],
   S14c: ['alert', 'ic-bad', '오픈 기념 금액 판매가 종료되었습니다', [NOPAID + ' 매달 결제는 이용할 수 있습니다.'], [['닫기'], ['매달 결제로 바꾸기', 1]]],
@@ -420,6 +572,9 @@ dlg.addEventListener('click', (e) => {
   else if (t === '번호 고치기') { $('m1').scrollIntoView({ block: 'center', behavior: 'instant' }); setTimeout(() => $('m1').focus({ preventScroll: true }), 0); }
   else if (t === '새로고침') location.reload();
   else if (t === '계속 결제' && !$('pay').hidden && LIVE && validate()) payLive(true);   // 결제 단추와 같은 입력 확인을 거친다
+  else if (t === '이대로 카드 등록' && !$('pay').hidden && AUTO_LIVE) autoGo();   // autoGo도 입력 확인을 다시 거친다
+  else if (t === '자동 결제로 바꾸기' || t === '오픈 기념으로 바꾸기') { setProduct(t === '자동 결제로 바꾸기' ? 'auto' : 'open3auto'); $('agAll').scrollIntoView({ block: 'center', behavior: 'instant' }); setTimeout(() => $('agAll').focus({ preventScroll: true }), 0); }   // 동의 체크가 풀린다 — 다시 받는다
+  else if (t === '카드 변경 칸으로') { show('shop'); if (location.hash === '#pay') history.replaceState(null, '', location.pathname); $('cancel').scrollIntoView({ block: 'start', behavior: 'instant' }); setTimeout(() => $('cardBtn').focus({ preventScroll: true }), 0); }   // 해지·카드 변경 칸은 요금제 화면(#shop)에 있다 — 결제 화면에선 숨어 있다(독립 리뷰 11-23)
 });
 
 // ── 자동 결제 해지·계속 여부 — 판매 페이지 해지 칸 + 메일 링크 화면. 서버 판정 = worker/lib/autopay-cancel.js(앱·메일과 한 벌) ──
@@ -687,7 +842,7 @@ async function cardOpen() {
     return;
   }
   try { await loadSdk(); } catch { return apNoteTop('카드 등록 창을 열지 못했습니다. 인터넷 연결을 확인한 뒤 다시 눌러 주세요.'); }   // 넣은 칸은 그대로(다시 그리지 않는다)
-  try { sessionStorage.setItem('cardPend', JSON.stringify({ t: apT, at: Date.now() })); } catch { /* 폰 복귀만 못 이어 간다 — 그때는 링크를 다시 열면 된다 */ }
+  try { sessionStorage.removeItem('subPend'); sessionStorage.setItem('cardPend', JSON.stringify({ t: apT, at: Date.now() })); } catch { /* 폰 복귀만 못 이어 간다 — 그때는 링크를 다시 열면 된다 */ }   // 신청 표식과 한 탭에 같이 두지 않는다(security 11-23 🟡3)
   let w;
   try {
     w = await window.PortOne.requestIssueBillingKey({
@@ -767,6 +922,16 @@ if (AP_LINK) {
   // 주소의 값부터 지운다 — 어떤 값이든, 가르기 전에(빌링키가 방문 기록·북마크·공유 링크에 남지 않게, security 11-18)
   if (location.search) history.replaceState(null, '', location.pathname);
   if (!pid && (q.has('billingKey') || q.get('transactionType') === 'ISSUE_BILLING_KEY')) {   // 자동 결제 카드 등록 복귀 — 값은 있는지만 본다
+    // 자동 결제 신청 창에서 돌아옴(폰) — 신청 표식으로 먼저 가른다(한 번만 읽고 지운다 · 1시간 = 서버 REGISTER_WINDOW). 카드 변경 표식은 창을 열 때 지워 둘이 같이 남지 않는다
+    let sp = null;
+    try { sp = JSON.parse(sessionStorage.getItem('subPend')); sessionStorage.removeItem('subPend'); } catch { /* 없음 */ }
+    if (AUTO_LIVE && sp && ORDER.test(sp.s ?? '') && Date.now() - (sp.at ?? 0) < 3600e3) {
+      try { sessionStorage.removeItem('cardPend'); } catch { /* 없음 */ }
+      const bk = q.get('billingKey'), x = { m: sp.m, a: typeof sp.a === 'number' ? sp.a : undefined, p: P[sp.p]?.bill ? sp.p : 'auto' };
+      if (q.get('code') || !bk) { show('shop'); modal('billFail'); }   // 카드를 넣기 전에 닫음 — 신청 줄은 결제 서버가 하루 뒤 정리한다
+      else autoRegister(sp.s, bk, x);
+      return;
+    }
     // 카드 변경 창에서 돌아옴(폰) — 창을 열 때 적어 둔 링크 열쇠로 이어 간다(한 번만 읽고 지운다). 카드 변경이 아니면 아래 시험판 길
     let pend = null;
     try { pend = JSON.parse(sessionStorage.getItem('cardPend')); sessionStorage.removeItem('cardPend'); } catch { /* 없음 */ }
@@ -778,7 +943,12 @@ if (AP_LINK) {
       else cardRegister(bk);
       return;
     }
-    // ⚠️ 판매 페이지에 자동 결제 「신청」 길(LIVE)을 열 때 그 복귀도 여기로 온다 — 그때 신청 쪽 표식으로 먼저 갈라야 한다(재리뷰 11-21 — 지금은 LIVE 신청 길이 없다)
+    // 자동 결제 신청 복귀는 위 subPend가 먼저 가른다(11-23). 표식이 둘 다 없으면 신청이었는지 카드 변경이었는지 모른다 — 신청 길이 열려 있으면 둘 다 말한다(ux-writing 11-23 🔴5)
+    if (AUTO_LIVE && q.get('transactionType') === 'ISSUE_BILLING_KEY') {
+      frame('alert', 'ic-warn', '카드 등록을 마치지 못했습니다', '<p class="d-p">카드 등록 확인을 받지 못해 아무것도 바뀌지 않았습니다.</p><p class="d-p">자동 결제 신청이었다면 처음부터 다시 신청해 주시고, 카드 변경이었다면 받으신 메일의 ‘카드 변경하기’를 다시 눌러 주세요.</p>'
+        + '<div class="d-act"><button class="d-btn" type="button" data-act="요금제로 돌아가기">요금제로 돌아가기</button></div>');
+      return;
+    }
     if (LIVE && q.get('transactionType') === 'ISSUE_BILLING_KEY') {   // 카드 창에서 돌아왔는데 이 탭엔 이어 갈 값이 없음 — 판매 화면만 덩그러니 띄우지 않는다(ux-flow 11-21)
       apKind = 'card';
       apShow('카드 변경을 마치지 못했습니다', apBand('warn', '', ['카드는 바뀌지 않았습니다. 받으신 메일의 ‘카드 변경하기’를 다시 눌러 주세요.', '30분이 지났다면 아래 칸에서 새 링크를 받아 주세요.']) + NEW_LINK);

@@ -488,6 +488,10 @@ html:has(dialog.ms[open]) { overflow: hidden; }
 .ms-t .st-ic svg { display: block; width: 28px; height: 28px; fill: currentColor; }
 .ms-b { margin-top: 8px; font-size: 14px; line-height: 22px; overflow-wrap: anywhere; }
 .ms-b p + p { margin-top: 6px; }
+/* 자동 결제 확인 칸(buy.js autoShow) — 사실 줄은 상자로 묶고 안내 문단은 한 단계 내린다(ui-visual 11-23 · 결과 화면 회색 상자와 같은 결) */
+.ms-facts { margin-top: 4px; padding: 12px 14px; background: var(--surface-2); border-radius: 10px; }
+.ms-facts p + p { margin-top: 4px; }
+.ms-sub { margin-top: 12px; font-size: 13px; line-height: 20px; color: var(--ink-2); }
 .ms-acts { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0,1fr); gap: 8px; margin-top: 20px; }
 .ms-btn { min-height: 44px; padding: 4px 10px; border-radius: 8px; font: inherit; font-size: 14px; font-weight: 600; line-height: 20px; cursor: pointer; background: var(--surface); color: var(--ink); border: 1px solid var(--line-strong); }
 .ms-btn:hover { background: var(--surface-2); }
@@ -745,26 +749,27 @@ footer.sf .sf-tm{margin-top:4px}
   <div class="ai">
     <div class="ai-nums">
       <p class="ai-lead">매달 결제가 아닙니다</p>
-      <div><b>최소 8,000원</b><small>수학 약 1,000문제 분량</small></div>
+      <div><b>최소 8,000원</b><small>수학 약 800~1,000문제 분량</small></div>
       <div><span>수학 모의고사 한 부 기준</span><b>약 400원</b><small>46문제 · 해설 제외</small></div>
     </div>
     <div class="ai-info">
       <p class="ai-cap">한 문제당 · 한 번 추출 기준 (수학)</p>
-      <table class="ai-table"><tbody><tr><th scope="row">문제만</th><td><small>약</small> 8원</td></tr><tr class="sol"><th scope="row">해설까지</th><td><small>약</small> 20원</td></tr></tbody></table>
-      <ul class="ai-notes"><li>추출한 만큼 차감되고, 남은 금액은 다음 달에도 이어서 씁니다(큐쏙 이용 중일 때)</li><li>충전 후 <b>1년 안에</b> 쓰지 않은 금액은 사라지고 <span class="nw">환불 불가(구글 정책)</span></li></ul>
-      <p class="ai-foot"><a href="https://qssok.com/guide/ai-key/#charge">구글 충전 안내</a> · 2026년 11월 13일 기준 · 구글 정책에 따라 2027년 1월 1일부터 구글 AI 사용료 2배 인상 예정</p>
+      <table class="ai-table"><tbody><tr><th scope="row">문제만</th><td><small>약</small> 7~9원</td></tr><tr class="sol"><th scope="row">해설까지</th><td><small>약</small> 20원</td></tr></tbody></table>
+      <ul class="ai-notes"><li>추출한 만큼 차감되고, 남은 금액은 다음 달에도 이어서 사용합니다(큐쏙 이용 중일 때)</li><li>충전 후 <b>1년 안에</b> 사용하지 않은 금액은 사라지고 <span class="nw">환불 불가(구글 정책)</span></li></ul>
+      <p class="ai-foot"><a href="https://qssok.com/guide/ai-key/#charge">구글 충전 안내</a> · 2026년 11월 24일 기준 · 구글 정책에 따라 2027년 1월 1일부터 구글 AI 사용료 2배 인상 예정</p>
     </div>
   </div>
   <p class="start-sum"><span class="eq" aria-hidden="true">=</span>시작 비용 <b>37,700원</b><small>큐쏙 29,700원(오픈 기념) + 구글 최소 충전 8,000원</small></p>
 
   <p class="more-lock">결제한 1개월이 끝나면 새 파일 불러오기 · 추출 · 편집 · 글자 복사 · 시험지 만들기와 한글 내보내기 · 백업 불러오기가 잠깁니다. 문제 보기와 백업 저장은 계속 쓰실 수 있고, 저장된 문제와 시험지는 지워지지 않습니다. 시험지는 AI가 일할 때만(문제 추출, 그림 낙서 지우기) 구글 Gemini로 전송됩니다</p>
-  <details class="more"><summary><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l8 7-8 7z"/></svg>알아 두실 것 <span>적용·이용 기간, 오픈 기념 금액, 자동 결제 조건</span></summary><ul class="know">
+  <details class="more"><summary><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l8 7-8 7z"/></svg>알아 두실 것 <span>적용·이용 기간, 오픈 기념 금액, 자동 결제 조건, 필수 업데이트</span></summary><ul class="know">
     <li>결제가 확인되면 1개월을 바로 적용합니다. 큐쏙을 켜지 않아도 기간은 시작됩니다. 적용한 날부터 시작하며, 체험이나 앞서 결제한 달이 남아 있으면 그 기간이 끝난 다음 날부터 시작합니다</li>
     <li>오픈 기념(직접 결제)과 매달 결제는 한 달씩 직접 결제합니다. 기간이 끝나기 전에 결제하셔도 남은 기간 뒤에 이어집니다. 이용 기간이 일주일 넘게 남아 있으면 결제창을 열기 전에 끝나는 날을 한 번 더 보여 드립니다. 미리 결제는 이번에 결제하시는 1개월까지 더한 끝나는 날이 오늘부터 3개월 안일 때까지만 할 수 있습니다. 끝나는 날은 큐쏙 앱의 설정 › 이용 상태에서 볼 수 있습니다</li>
     <li>오픈 기념 금액은 컴퓨터 번호마다 따로 적용됩니다. 그 번호로 2027년 1월 31일까지 첫 결제하면 첫 결제 포함 3개월까지입니다(첫 결제일부터 3개월 안에 3번). 전액 환불된 결제는 세지 않고, 중간에 환불한 결제는 1번으로 셉니다. 중간에 쉬어도 기간은 늘어나지 않습니다. 2027년 2월 1일부터 처음 결제하시면 매달 결제 금액입니다</li>
-    <li>자동 결제는 선택한 분만 해당됩니다. 해지할 때까지 등록한 카드로 매달 같은 날 35,200원(월 32,000원, VAT 별도)이 결제됩니다. 오픈 기념을 ‘자동 결제로 시작’하면 첫 3개월은 29,700원입니다. 4개월째부터는 35,200원이며, 4번째 결제일 14일 전에 결제 이메일로 다시 동의를 받고 동의하신 경우에만 결제합니다. 해지는 큐쏙 앱의 설정 › 이용 상태나 <a href="#cancel">이 페이지에서</a> 언제든 할 수 있고, 해지하면 다음 결제부터 멈춥니다. 지금 이 페이지는 심사용 시험판이라 카드를 등록해도 자동 결제가 시작되지 않습니다</li>
+    <li>자동 결제는 선택한 분만 해당됩니다. 해지할 때까지 등록한 카드로 매달 같은 날 35,200원(월 32,000원, VAT 별도)이 결제됩니다. 오픈 기념을 ‘자동 결제로 시작’하면 첫 3개월은 29,700원입니다. 4개월째부터는 35,200원이며, 4번째 결제일 14일 전에 결제 이메일로 다시 동의를 받고 동의하신 경우에만 결제합니다. 해지는 큐쏙 앱의 설정 › 이용 상태나 <a href="#cancel">이 페이지에서</a> 언제든 할 수 있고, 해지하면 다음 결제부터 멈춥니다.<span class="test-only"> 지금 이 페이지는 심사용 시험판이라 카드를 등록해도 자동 결제가 시작되지 않습니다</span></li>
     <li>오픈 기념 금액 대상인데 39,600원으로 결제하셨다면 문의해 주세요. 차액 9,900원을 돌려드립니다. 컴퓨터를 옮기거나 번호를 고쳐 번호가 달라져도 대상 여부는 처음 번호의 첫 결제일과 횟수로 봅니다</li>
     <li>월 이용료가 바뀌면 한 달 전에 미리 알리고, 이미 결제한 기간에는 적용하지 않습니다</li>
+    <li>필수 업데이트가 나오면 큐쏙 안에서 기한과 함께 알려 드립니다. 기한은 그 컴퓨터에 처음 알린 날부터 30일 이상입니다(구글 AI가 바뀌어 지금 버전의 추출이 이미 되지 않을 때는 알린 날부터). 기한이 지나도 업데이트하지 않으면 그 버전은 추출 기능만 잠기고, 문제 보기·편집, 시험지 만들기, 한글 내보내기, 백업 저장과 저장된 데이터는 그대로입니다. 업데이트는 직접 설치하실 때만 되며, 설치하면 바로 추출할 수 있습니다. 정식판 이용 중에 지원이 끝난 Windows 등으로 설치할 수 없으면 요청하실 때 남은 기간을 환불해 드립니다 (<a href="https://danbilab.com/terms/v1.8/#art22-2">약관 제22조의2</a>)</li>
     <li>필요한 것: Windows 10 이상(64비트) · 인터넷 연결 (지금은 Windows용만 있습니다. Mac용은 준비 중입니다)</li>
   </ul></details>
 
@@ -790,7 +795,7 @@ footer.sf .sf-tm{margin-top:4px}
       <dt>전액 환불</dt><dd>정식판 이용 기간이 시작되기 전이거나 결제한 날 요청하면 <b>전액 환불</b>합니다.</dd>
       <dt>이용 중</dt><dd>사용 여부와 관계없이, 시작일부터 환불 요청일까지 지난 일수를 뺀 금액으로 환불이 가능합니다. 큐쏙은 선생님이 앱을 언제, 어떻게 사용하시는지 알 수 없기 때문에 지난 일수로만 계산합니다.</dd>
       <dt>계산</dt><dd>환불액 = 결제액 − 결제액 ÷ 이용 일수 × 지난 일수 <span class="sub">결제액 = 실제 결제한 금액(부가세 포함) · 요청일 포함 · 빼는 금액의 1원 미만은 버림 · 예) 29,700원, 30일 중 10일 지남 → 19,800원 환불</span></dd>
-      <dt>청약철회</dt><dd>이용 기간이 시작된 뒤 지난 일수만큼은 청약철회가 제한됩니다(전자상거래법 제17조 제2항 제5호). 결제 전에 7일 무료 체험으로 백업 불러오기를 제외한 모든 기능을 써 보실 수 있습니다.</dd>
+      <dt>청약철회</dt><dd>이용 기간이 시작된 뒤 지난 일수만큼은 청약철회가 제한됩니다(전자상거래법 제17조 제2항 제5호). 결제 전에 7일 무료 체험으로 백업 불러오기를 제외한 모든 기능을 사용해 보실 수 있습니다.</dd>
       <dt data-auto>자동 결제 해지</dt><dd data-auto>이 페이지의 ‘자동 결제 해지’ 칸이나 큐쏙 앱의 설정 › 이용 상태에서 바로 할 수 있습니다. 해지는 다음 결제를 멈추는 것이고, 이미 결제한 금액의 환불은 아래 요청 방법을 따릅니다.</dd>
       <dt>환불 요청</dt><dd>이용 기간 중 언제든 요청하실 수 있습니다. 결제 이메일과 컴퓨터 번호를 contact@danbilab.com으로 보내 주세요. 요청 메일을 받은 날부터 3영업일 안에 결제를 취소합니다. 이용 중이면 요청한 날까지 쓰시고 다음 날부터 잠깁니다. <span class="sub">카드사 환급일은 다를 수 있습니다</span></dd>
       <dt>그 밖</dt><dd>위약금 없음 · 결제 오류와 중복 결제는 전액 환불 · 환불이 늦어지면 늦어진 날수만큼 전자상거래법 시행령이 정한 지연배상금(연 15%)을 더해 드립니다</dd>
@@ -806,7 +811,7 @@ footer.sf .sf-tm{margin-top:4px}
 <div class="sf-cols" role="navigation" aria-label="큐쏙 사이트 안내">
 <div class="sf-col sf-c1"><p class="sf-h">큐쏙</p><ul><li><a href="https://qssok.com/#features">기능 소개</a></li><li><a href="https://qssok.com/#pricing">요금 안내</a></li><li><a href="https://qssok.com/#download">다운로드</a></li></ul></div>
 <div class="sf-col sf-c2"><p class="sf-h">도움말</p><ul><li class="o-faq"><a href="https://qssok.com/#faq">자주 묻는 질문</a></li><li class="o-key"><a href="https://qssok.com/guide/ai-key/">구글 AI 키 등록 안내</a></li><li class="o-kakao"><a href="https://open.kakao.com/o/swrvSxUi" target="_blank" rel="noopener">카톡 문의</a></li></ul></div>
-<div class="sf-col sf-c3"><p class="sf-h">약관·정책</p><ul><li class="o-terms"><a href="https://danbilab.com/terms/">이용약관</a></li><li class="o-refund"><a href="https://danbilab.com/terms/v1.7/#art9">환불 규정</a></li><li class="o-pp"><a href="https://danbilab.com/privacy/"><strong>개인정보처리방침</strong></a></li><li class="o-lic"><a href="https://danbilab.com/licenses/">오픈소스 라이선스</a></li></ul></div>
+<div class="sf-col sf-c3"><p class="sf-h">약관·정책</p><ul><li class="o-terms"><a href="https://danbilab.com/terms/">이용약관</a></li><li class="o-refund"><a href="https://danbilab.com/terms/v1.8/#art9">환불 규정</a></li><li class="o-pp"><a href="https://danbilab.com/privacy/"><strong>개인정보처리방침</strong></a></li><li class="o-lic"><a href="https://danbilab.com/licenses/">오픈소스 라이선스</a></li></ul></div>
 </div>
 </div>
 <div class="sf-biz"><dl><div class="sf-pc"><dt>상호</dt><dd>단비</dd></div><div class="sf-pc"><dt>대표자</dt><dd>이단비</dd></div><div class="sf-mo"><dt>상호·대표자</dt><dd>단비 · 이단비</dd></div><div><dt>사업자등록번호</dt><dd>622-42-01304</dd></div><div><dt>통신판매업 신고번호</dt><dd>제2026-경북구미-0997호</dd></div></dl><dl><div class="sf-wr"><dt>주소</dt><dd>경상북도 구미시 산호대로25길 41, 204동 7층 5호(옥계동, 부영아파트2차)</dd></div><div><dt>전화</dt><dd><a class="sf-u" href="tel:070-8064-3798">070-8064-3798</a></dd></div><div><dt>이메일</dt><dd><a class="sf-u" href="mailto:contact@danbilab.com">contact@danbilab.com</a></dd></div><div class="sf-wr"><dt>호스팅 제공자</dt><dd><span class="sf-h1">GitHub, Inc.<wbr>(qssok.com)</span><span class="sf-hs"> · </span><span class="sf-h1">Cloudflare, Inc.<wbr>(danbilab.com)</span></dd></div></dl></div>
@@ -875,12 +880,12 @@ footer.sf .sf-tm{margin-top:4px}
         </div>
         <label class="all"><input type="checkbox" id="agAll"><span>전체 동의 <small id="allHint">아래 <span id="agN">3</span>가지를 모두 확인했습니다.</small><span class="slot" id="aSlot"></span></span></label>
         <div class="ags" id="ags">
-          <label class="ag"><input type="checkbox"><span><b>[필수] 이용약관과 환불정책(제9조)에 동의합니다. <a href="https://danbilab.com/terms/v1.7/" target="_blank" rel="noopener">이용약관 보기</a></b></span></label>
+          <label class="ag"><input type="checkbox"><span><b>[필수] 이용약관과 환불정책(제9조)에 동의합니다. <a href="https://danbilab.com/terms/v1.8/" target="_blank" rel="noopener">이용약관 보기</a></b></span></label>
           <label class="ag"><input type="checkbox"><span><b>[필수] <span class="must">이용 기간이 끝나면 아래 기능이 잠기는 것</span>에 동의합니다.</b><small class="lock-list">새 파일 불러오기 · 추출 · 편집 · 글자 복사 · 시험지 만들기와 한글 내보내기 · 백업 불러오기</small><small>문제 보기와 백업 저장은 계속 쓰실 수 있고, 저장된 문제와 시험지는 지워지지 않습니다.</small></span></label>
           <label class="ag"><input type="checkbox"><span><b>[필수] 구글 AI 키를 직접 받아 넣어야 추출할 수 있다는 것에 동의합니다.</b><small>구글 AI 사용료는 추출한 만큼 본인이 구글에 냅니다. <span class="must">큐쏙 이용료와 별도입니다.</span> 구글에 낸 돈은 큐쏙이 돌려 드리거나 대신 내 드리지 않습니다. 추출할 때 페이지 이미지가 구글로 전송됩니다.</small></span></label>
           <!-- 자동 결제 경로만(legal 11-18 — 미리 체크 ⛔, 전환 금액·해지 방법을 숨기지 않는다). 문장은 buy.js가 상품에 맞춰 넣는다 -->
           <!-- 결제일·금액 미리 알림 + 약관 링크(포트원 정기결제 심사 보완 권고 · legal·ux-writing 11-23 — 약관 제8조의2 제5·6항과 같은 말. 「두 번째 결제부터」 = 첫 결제는 5항 예외) -->
-          <label class="ag" id="agAuto" hidden><input type="checkbox"><span><b id="agAutoT"></b><small><span id="agAutoN"></span> <a href="https://danbilab.com/terms/v1.7/#art8-2" target="_blank" rel="noopener">자동 결제 약관 보기</a></small></span></label>
+          <label class="ag" id="agAuto" hidden><input type="checkbox"><span><b id="agAutoT"></b><small><span id="agAutoN"></span> <a href="https://danbilab.com/terms/v1.8/#art8-2" target="_blank" rel="noopener">자동 결제 약관 보기</a></small></span></label>
         </div>
       </section>
     </fieldset>
