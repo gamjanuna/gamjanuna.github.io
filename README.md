@@ -6,4 +6,4 @@
 - 주소: https://gamjanuna.github.io
 - 현재 검색엔진 노출은 `noindex`로 차단돼 있습니다(제품명 미확정·설치 파일 미게시).
 
-폰트: 나눔명조 (SIL OFL 1.1) — `fonts/OFL-nanummyeongjo.txt` 참조.
+폰트: IBM Plex Sans KR · Noto Serif KR · Paperlogy (모두 SIL OFL 1.1) — `fonts/OFL-*.txt` 참조.
