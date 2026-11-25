@@ -18,7 +18,7 @@ const LIVE = MODE === 'live' || LOCAL;
 const AUTO_OPEN = false;
 const AUTO_LIVE = LIVE && (AUTO_OPEN || MODE !== 'live');
 const API = LOCAL ? '' : 'https://pay.danbilab.com';
-const TERMS_VER = '1.8';   // = worker/pay/wrangler.toml TERMS_VER — 다르면 서버가 「약관 바뀜」으로 막는다(가드 §14p)
+const TERMS_VER = '1.9';   // = worker/pay/wrangler.toml TERMS_VER — 다르면 서버가 「약관 바뀜」으로 막는다(가드 §14p)
 const SDK = 'https://cdn.portone.io/v2/browser-sdk.js';
 const TEST = {   // 포트원 콘솔 › 결제 연동 › 연동 관리 › 테스트 채널 「큐쏙 시험」 — 비밀값 아님(결제창에 넘기는 공개 값)
   storeId: 'store-a36ecae1-4cef-4ba3-877a-c9d970fd0ec7',
@@ -37,13 +37,13 @@ const SVG = {
   spin: '<svg class="spin" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-opacity=".25" stroke-width="3"/><path d="M12 3a9 9 0 0 1 9 9" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>',
 };
 const P = {
-  open3: { title: '<span class="open">오픈 기념</span>첫 3개월', name: '큐쏙 정식판 1개월 이용권 (오픈 기념)', amount: 29700, base: '27,000원', vat: '2,700원', pay: '29,700원', price: '월 27,000원 (VAT 별도, 최종 결제 금액 29,700원)', cond: '이번 결제: 1개월분 · 첫 결제 포함 3개월' },
-  // 자동 결제 둘(bill = 결제창 대신 카드 등록 창, 대표 11-18 ㉡: 오픈 기념 대상은 첫 3번 27,000원 → 4번째부터 32,000원) — 문구 ux-writing·legal 11-18
-  open3auto: { bill: 1, title: '<span class="open">오픈 기념</span>첫 3개월 · 자동 결제', name: '큐쏙 정식판 1개월 이용권 (오픈 기념 · 자동 결제)', amount: 29700, base: '27,000원', vat: '2,700원', pay: '29,700원', price: '월 27,000원 (VAT 별도, 최종 결제 금액 29,700원)', cond: '이번 단계: 카드 등록 · 오픈 기념 금액 29,700원으로 최대 3번 자동 결제 · 그 뒤(35,200원)는 그때 다시 동의하신 경우에만',
+  open3: { title: '<span class="open">첫 결제 혜택</span>첫 3개월', name: '큐쏙 정식판 1개월 이용권 (오픈 기념)', amount: 29700, base: '27,000원', vat: '2,700원', pay: '29,700원', price: '월 27,000원 (VAT 별도, 최종 결제 금액 29,700원)', cond: '이번 결제: 1개월분 · 첫 결제 포함 3개월' },
+  // 자동 결제 둘(bill = 결제창 대신 카드 등록 창, 대표 11-18 ㉡: 첫 결제 혜택 대상은 첫 3번 27,000원 → 4번째부터 32,000원) — 문구 ux-writing·legal 11-18
+  open3auto: { bill: 1, title: '<span class="open">첫 결제 혜택</span>첫 3개월 · 자동 결제', name: '큐쏙 정식판 1개월 이용권 (오픈 기념 · 자동 결제)', amount: 29700, base: '27,000원', vat: '2,700원', pay: '29,700원', price: '월 27,000원 (VAT 별도, 최종 결제 금액 29,700원)', cond: '이번 단계: 카드 등록 · 첫 결제 혜택 금액 29,700원으로 최대 3번 자동 결제 · 그 뒤(35,200원)는 그때 다시 동의하신 경우에만',
     // 4개월째 금액은 그때 따로 동의(약관 제8조의2 제4항 — 처음 계약 때 미리 받지 않는다, legal 11-23 [빨강] B · 문구 ux-writing 11-23)
-    // 체크하는 문장 = 서버가 기록하는 동의(consent_count = 남은 번수) — 「첫 3개월간」은 이미 오픈 기념으로 결제한 분에게 어긋난다(legal 11-23 🟡 · 대표 ㉠ 「문구만 통용적으로」). 실제 횟수는 확인 칸(autoShow)에
-    agree: '[필수] 오픈 기념 금액 월 29,700원(월 27,000원, VAT 별도)으로 최대 3번(이미 오픈 기념 금액으로 결제하셨다면 남은 횟수만) 자동 결제에 동의합니다.', term: '매달 1개월씩 29,700원, 최대 3번(이미 오픈 기념 금액으로 결제하셨다면 남은 횟수만) · 그 뒤 35,200원은 다시 동의하신 경우에만',
-    note: '오픈 기념 횟수가 끝난 뒤부터 월 35,200원으로 전환되며, 전환 전 별도 동의를 받습니다(동의하지 않거나 답이 없으면 자동 결제 종료). 해지할 때까지 매달 같은 날 결제되며, 다음 결제 예정일 7일 전 안내 메일을 드립니다. 언제든 큐쏙 앱 설정이나 이 페이지에서 해지할 수 있으며, 해지하면 다음 결제부터 이루어지지 않고 이미 결제한 이용 기간은 끝날 때까지 쓸 수 있습니다(위약금 없음).' },
+    // 체크하는 문장 = 서버가 기록하는 동의(consent_count = 남은 번수) — 「첫 3개월간」은 이미 첫 결제 혜택으로 결제한 분에게 어긋난다(legal 11-23 🟡 · 대표 ㉠ 「문구만 통용적으로」). 실제 횟수는 확인 칸(autoShow)에
+    agree: '[필수] 첫 결제 혜택 금액 월 29,700원(월 27,000원, VAT 별도)으로 최대 3번(이미 첫 결제 혜택 금액으로 결제하셨다면 남은 횟수만) 자동 결제에 동의합니다.', term: '매달 1개월씩 29,700원, 최대 3번(이미 첫 결제 혜택 금액으로 결제하셨다면 남은 횟수만) · 그 뒤 35,200원은 다시 동의하신 경우에만',
+    note: '첫 결제 혜택 횟수가 끝난 뒤부터 월 35,200원으로 전환되며, 전환 전 별도 동의를 받습니다(동의하지 않거나 답이 없으면 자동 결제 종료). 해지할 때까지 매달 같은 날 결제되며, 다음 결제 예정일 7일 전 안내 메일을 드립니다. 언제든 큐쏙 앱 설정이나 이 페이지에서 해지할 수 있으며, 해지하면 다음 결제부터 이루어지지 않고 이미 결제한 이용 기간은 끝날 때까지 쓸 수 있습니다(위약금 없음).' },
   auto: { bill: 1, title: '자동 결제', name: '큐쏙 정식판 1개월 이용권 (자동 결제)', amount: 35200, base: '32,000원', vat: '3,200원', pay: '35,200원', price: '월 32,000원 (VAT 별도, 최종 결제 금액 35,200원)', cond: '이번 단계: 카드 등록 · 해지할 때까지 매달 35,200원 자동 결제',
     // 동의 칸 짧은 판(대표 11-23) — 결제일·해지 장소·다음 결제 7일 전 안내는 남긴다(약관 제8조의2 제2·5항 = 구매 화면에서 확인, legal 11-23)
     agree: '[필수] 월 35,200원(월 32,000원, VAT 별도) 자동 결제에 동의합니다.', term: '해지할 때까지 매달 1개월씩',
@@ -105,8 +105,27 @@ function show(id) {
   document.body.classList.toggle('narrow', id !== 'shop');
   window.scrollTo({ top: 0, behavior: 'instant' });
 }
-// 오픈 기념 카드는 결제 방식 고르기(기본 = 직접 결제 — 자동은 손님이 눌러야, legal 11-18)를 따른다
+// 첫 결제 혜택 카드는 결제 방식 고르기(기본 = 직접 결제 — 자동은 손님이 눌러야, legal 11-18)를 따른다
 document.querySelectorAll('[data-buy]').forEach((b) => (b.onclick = () => toPay(b.dataset.buy === 'open3' ? (document.querySelector('input[name="o3"]:checked')?.value || 'open3') : b.dataset.buy, true)));
+// ── 첫 결제 혜택 카드(대표 11-25 「관리 화면 딸깍 하나로」 · 시안 v322 ②) ──
+// 처음은 숨김(HTML hidden) → 결제 서버 /pay/open-price 답({open})으로 한 번에 그린다(최대 1.5초 · 모르면 닫힘 꼴 — 닫혔는데 보이는 쪽 ✕, 표시광고).
+// ⛔ 묻는 것은 실제 판매(LIVE)이면서 처리방침 제7조의2 시행(2026-12-02 0시 한국 시각) 뒤에만 — 시험판(§14p 공개 주소에선 결제 서버를 안 부른다)·그 전엔 묻지 않고 보인다(대표 11-25 「코드 안에 날짜 문」)
+// 열어 둔 채 닫힌 뒤 혜택으로 결제를 누르면 서버가 product_ended → S14c(「지금은 진행하지 않습니다」 + 매달 결제로 바꾸기)
+const OPEN_ASK_FROM = Date.parse('2026-12-02T00:00:00+09:00');
+function showOpen(open) {
+  $('stage').classList.toggle('no-open', !open);
+  document.querySelector('[data-card="open3"]').hidden = !open;
+  $('startSum').hidden = !open;
+  $('openAutoPh').hidden = !open;
+  $('stage').removeAttribute('aria-busy');
+}
+if (!LIVE || Date.now() < OPEN_ASK_FROM) showOpen(true);
+else {
+  let asked = false;
+  const end = (open) => { if (!asked || open) { asked = true; showOpen(open); } };   // 1.5초 뒤 늦게 온 「진행 중」도 받아 다시 그린다(독립 리뷰 11-25) · 늦은 닫힘은 이미 숨김
+  setTimeout(() => end(false), 1500);
+  fetch(API + '/pay/open-price', { credentials: 'omit' }).then((r) => r.json()).then((j) => end(j?.open === true), () => end(false));
+}
 // 실제 판매(LIVE)에서 자동 결제 신청 스위치(AUTO_OPEN)가 꺼져 있으면 「준비 중」으로 되돌린다(legal 11-18 🔴 · 랜딩·앱과 같게 — 서버 AUTOPAY_OPEN·앱 스위치와 같은 날 걷는다)
 if (LIVE && !AUTO_LIVE) {
   document.querySelectorAll('[data-auto]').forEach((e) => (e.hidden = true));
@@ -134,7 +153,7 @@ function setProduct(id) {
   // 자동 결제면 결제 화면의 말이 달라진다 — 「자동으로 결제되지 않습니다」를 숨기고 넷째 필수 동의(미리 체크 ⛔)를 연다(legal 11-18)
   $('methodNote').textContent = p.bill ? '자동 결제는 카드만 등록할 수 있습니다. 카드 정보는 ‘카드 등록 창 열기’를 누른 뒤 열리는 창에서 넣습니다.' : '카드와 간편결제(카카오페이·네이버페이·토스페이·페이코)는 결제창 열기를 누른 뒤 열리는 결제창에서 고릅니다.';
   $('autoDd').textContent = p.bill ? (!AUTO_LIVE ? '해지할 때까지 등록한 카드로 매달 결제됩니다. 지금은 심사용 시험판이라 카드를 등록해도 자동 결제가 시작되지 않습니다.'   // 실제 판매 문구(ux-writing 11-23) — 첫 결제일·금액은 서버가 정해 확인 칸에서 보인다
-    : id === 'open3auto' ? '오픈 기념 금액이 남은 동안 매달 29,700원, 그 뒤에는 다시 동의하신 경우에만 35,200원이 결제됩니다. 첫 결제일과 금액은 카드를 넣기 전에 먼저 보여 드립니다.'
+    : id === 'open3auto' ? '첫 결제 혜택 금액이 남은 동안 매달 29,700원, 그 뒤에는 다시 동의하신 경우에만 35,200원이 결제됩니다. 첫 결제일과 금액은 카드를 넣기 전에 먼저 보여 드립니다.'
     : '해지할 때까지 등록한 카드로 매달 결제됩니다. 첫 결제일과 금액은 카드를 넣기 전에 먼저 보여 드립니다.') : '자동으로 결제되지 않습니다. 다음 달은 직접 결제해 주세요.';
   $('agAuto').hidden = !p.bill; $('agAuto').querySelector('input').checked = false; $('agAutoT').textContent = p.agree || ''; $('agAutoN').textContent = p.note || ''; $('agN').textContent = String(items().length); $('agAll').checked = false;
   $('bTerm').textContent = p.term || '1개월 (시작일·종료일은 메일로 안내)'; $('bPay').textContent = p.bill ? '카드 (카드 등록 창에서 입력)' : '결제창에서 선택';
@@ -261,7 +280,7 @@ async function payBill() {
 
 // ── 자동 결제 신청(LIVE) — 신청 확인 → 확인 칸 → 신청 → 카드 등록 창 → 등록 확인 (결제 서버 worker/pay startAutopay·registerAutopay) ──
 // 첫 결제일·금액·남은 횟수는 서버가 정한다. 첫 신청은 일부러 seen 값 없이 보내 서버 값(409 amount_changed — 줄을 만들지 않는다)을 받고, 확인 칸에 보인 그 값을 그대로 돌려보낸다
-//   (동의한 것 = 기록한 것 · security 11-23 🟢: 드러나는 것 = 첫 결제일·남은 오픈 기념 횟수·자동 결제 여부 — 한 달 결제 confirm_early와 같은 급)
+//   (동의한 것 = 기록한 것 · security 11-23 🟢: 드러나는 것 = 첫 결제일·남은 첫 결제 혜택 횟수·자동 결제 여부 — 한 달 결제 confirm_early와 같은 급)
 // ⛔ 고른 상품과 서버 판정이 다르면 그 금액으로 신청하지 않는다 — 상품을 바꾸고 동의를 다시 받는다(체크한 동의 문장 = 기록되는 동의, ux-writing 11-23 🔴2)
 // ⛔ 창에 넘기는 store_id·channel_key·발급 번호는 서버 답(d)에서만 · 고객 번호는 customer.customerId(카드 변경 길과 같게 — customer.id ⛔, security 11-23 🔴)
 // ⛔ 카드 등록 값(billingKey)은 결제 서버로만 — 화면·console·저장소에 쓰지 않는다(메모리에만, 답이 끊기면 같은 값으로 한 번 더 확인 — security 11-23 🟡2)
@@ -300,11 +319,11 @@ function autoShow(v, note = '') {
   const facts = [
     ['컴퓨터 번호', norm($('m1').value)],
     ['첫 결제일', today ? `오늘(${kDayW(v.first)}) · 카드 등록이 끝나면 바로 결제` : `${kDayW(v.first)} · 지금 이용 기간이 끝난 다음 날`],
-    ['결제 금액', open ? `매달 29,700원 (오픈 기념) · ${N}번` : '매달 35,200원 · 해지할 때까지 매달 같은 날'],
+    ['결제 금액', open ? `매달 29,700원 (첫 결제 혜택) · ${N}번` : '매달 35,200원 · 해지할 때까지 매달 같은 날'],
     open ? ['그 뒤', '매달 35,200원 · 바뀌기 전에 결제 이메일로 확인을 요청드리고, ‘계속하기’를 누르신 경우에만 결제'] : null,
   ].filter(Boolean);
   const subs = [
-    open && N < OPEN3_N ? `이 컴퓨터 번호로 오픈 기념 금액을 이미 ${OPEN3_N - N}번 결제하셔서 ${N}번 남았습니다.` : '',
+    open && N < OPEN3_N ? `이 컴퓨터 번호로 첫 결제 혜택 금액을 이미 ${OPEN3_N - N}번 결제하셔서 ${N}번 남았습니다.` : '',
     '두 번째 결제부터는 결제일 7일 전에 날짜와 금액을 결제 이메일로 미리 알려 드립니다.',
     today ? '' : `${kDayW(addDay(v.first, -1))}까지 해지하시면 첫 결제도 되지 않습니다.`,
     '해지는 큐쏙 앱의 설정 › 이용 상태나 이 페이지에서 언제든 할 수 있고, 해지하면 다음 결제부터 멈춥니다.',
@@ -416,6 +435,7 @@ async function payLive(earlyOk = false) {
   try { o = await post('/pay/order', { product, machine_id: norm($('m1').value), agreed: { terms: true, period: true, ai_key: true }, terms_ver: TERMS_VER, ...(earlyOk ? { early_ok: true } : {}) }); }
   catch { unlock(); modal('S14d'); return; }
   if (!o.ok) { unlock(); if (o.j.error === 'machine_unknown') numberNotFound(); else if (o.j.error === 'confirm_early') modal(kDay(o.j.end) ? 'S14f' : 'S14g', { 날짜: kDay(o.j.end) });
+    else if (o.j.error === 'open_left') modal('M_isOpen', { 횟수: String(o.j.left ?? '') });   // 이미 혜택을 시작한 번호가 매달 결제를 누름(닫혀 카드가 숨었어도 — 시안 ⑤㉠)
     else if (o.j.error === 'too_far') modal(kDay(o.j.end) && kDay(o.j.from) ? 'S14i' : 'S14j', { '끝나는 날': kDay(o.j.end), '가능한 날': kDay(o.j.from) }); else modal(ORDER_ERR[o.j.error] || 'S14d'); return; }
   const d = o.j;
   if (!ORDER.test(d.order_id ?? '') || d.amount !== P[product].amount) { unlock(); modal('S14d'); return; }   // 화면 금액과 다른 주문으로는 결제창을 열지 않는다
@@ -532,11 +552,12 @@ const M = {
   A_rate: ['alert', 'ic-bad', '오늘은 더 신청을 받을 수 없습니다', ['자동 결제는 신청되지 않았습니다. 내일 다시 신청해 주세요.', '급하면 ' + MAIL + '으로 문의해 주세요.'], [['닫기', 1]]],
   A_net: ['alert', 'ic-bad', '신청을 접수하지 못했습니다', ['자동 결제는 신청되지 않았습니다. 잠시 뒤 다시 시도해 주세요.', '계속 안 되면 인터넷 연결을 확인해 주세요.'], [['닫기'], ['다시 시도', 1]]],
   // 고른 상품 ≠ 서버 판정 — 다른 금액으로 몰래 신청하지 않고 상품을 바꿔 동의를 다시 받는다(동의 문장 = 기록되는 동의)
-  A_notOpen: ['alert', 'ic-bad', '이 컴퓨터 번호는 오픈 기념 금액 대상이 아닙니다', ['자동 결제는 신청되지 않았습니다. 일반 자동 결제(매달 35,200원)는 신청할 수 있습니다.', '컴퓨터를 옮겼다면 ' + MAIL + '으로 문의해 주세요.'], [['번호 고치기'], ['자동 결제로 바꾸기', 1]]],
-  A_isOpen: ['info', 'ic-info', '이 컴퓨터 번호는 오픈 기념 금액 대상입니다', ['자동 결제는 신청되지 않았습니다. 오픈 기념 자동 결제로 신청하시면 처음 {횟수}번은 매달 29,700원입니다.', '‘오픈 기념으로 바꾸기’를 누른 뒤 동의를 다시 해 주세요.'], [['닫기'], ['오픈 기념으로 바꾸기', 1]]],
+  A_notOpen: ['alert', 'ic-bad', '이 컴퓨터 번호는 첫 결제 혜택 금액 대상이 아닙니다', ['자동 결제는 신청되지 않았습니다. 일반 자동 결제(매달 35,200원)는 신청할 수 있습니다.', '컴퓨터를 옮겼다면 ' + MAIL + '으로 문의해 주세요.'], [['번호 고치기'], ['자동 결제로 바꾸기', 1]]],
+  M_isOpen: ['info', 'ic-info', '이 컴퓨터 번호는 첫 결제 혜택이 {횟수}번 남았습니다', [NOPAID + ' 매달 결제 대신 첫 결제 혜택 금액(1개월 29,700원)으로 결제하실 수 있습니다.', '‘첫 결제 혜택으로 바꾸기’를 누른 뒤 동의를 다시 해 주세요.'], [['닫기'], ['첫 결제 혜택으로 바꾸기', 1]]],
+  A_isOpen: ['info', 'ic-info', '이 컴퓨터 번호는 첫 결제 혜택 금액 대상입니다', ['자동 결제는 신청되지 않았습니다. 첫 결제 혜택 자동 결제로 신청하시면 처음 {횟수}번은 매달 29,700원입니다.', '‘첫 결제 혜택으로 바꾸기’를 누른 뒤 동의를 다시 해 주세요.'], [['닫기'], ['첫 결제 혜택으로 바꾸기', 1]]],
   // 주문 접수 오류(실제 결제 길) — 문구 정본 = 시안 v272(design·ux-writing 11-07)
-  S14e: ['alert', 'ic-bad', '이 컴퓨터 번호는 오픈 기념 금액 대상이 아닙니다', [NOPAID + ' 매달 결제는 이용할 수 있습니다.', '컴퓨터를 옮겼다면 ' + MAIL + '으로 문의해 주세요.'], [['번호 고치기'], ['매달 결제로 바꾸기', 1]]],
-  S14c: ['alert', 'ic-bad', '오픈 기념 금액 판매가 종료되었습니다', [NOPAID + ' 매달 결제는 이용할 수 있습니다.'], [['닫기'], ['매달 결제로 바꾸기', 1]]],
+  S14e: ['alert', 'ic-bad', '이 컴퓨터 번호는 첫 결제 혜택 금액 대상이 아닙니다', [NOPAID + ' 매달 결제는 이용할 수 있습니다.', '컴퓨터를 옮겼다면 ' + MAIL + '으로 문의해 주세요.'], [['번호 고치기'], ['매달 결제로 바꾸기', 1]]],
+  S14c: ['alert', 'ic-bad', '지금은 첫 결제 혜택을 진행하지 않습니다', [NOPAID + ' 매달 결제는 이용할 수 있습니다.'], [['닫기'], ['매달 결제로 바꾸기', 1]]],
   S14a: ['alert', 'ic-bad', '오늘 결제 시도가 너무 많습니다', [NOPAID + ' 내일 다시 결제해 주세요.', '급하면 ' + MAIL + '으로 문의해 주세요.'], [['닫기', 1]]],
   S14b: ['info', 'ic-info', '페이지를 새로고침해 주세요', ['이 페이지를 연 사이 이용약관이 바뀌어 결제되지 않았습니다.', '새로고침한 뒤 입력과 동의를 다시 해 주세요.'], [['새로고침', 1]]],
   S14d: ['alert', 'ic-bad', '주문을 접수하지 못했습니다', [NOPAID + ' 잠시 뒤 다시 시도해 주세요.', '계속 안 되면 인터넷 연결을 확인해 주세요.'], [['닫기'], ['다시 시도', 1]]],
@@ -548,7 +569,7 @@ const M = {
   S14i: ['alert', 'ic-bad', '미리 결제는 오늘부터 3개월 안까지만 할 수 있습니다', [NOPAID + ' 지금 이용 기간이 {끝나는 날}까지라, 1개월을 더하면 오늘부터 3개월을 넘습니다.', '{가능한 날}부터 다시 결제할 수 있습니다.', '그 전에 결제가 꼭 필요하시면 ' + MAIL + '으로 문의해 주세요.'], [['닫기', 1]]],
   S14j: ['alert', 'ic-bad', '미리 결제는 오늘부터 3개월 안까지만 할 수 있습니다', [NOPAID + ' 지금 결제하면 1개월을 더한 이용 기간이 오늘부터 3개월을 넘습니다.', '지금 이용 기간이 끝나는 날은 큐쏙 앱의 설정 › 이용 상태에서 볼 수 있습니다. 끝나는 날이 가까워지면 다시 결제해 주세요.', '그 전에 결제가 꼭 필요하시면 ' + MAIL + '으로 문의해 주세요.'], [['닫기', 1]]],
   // ⛔ NOPAID로 시작하지 말 것 — 방금 결제한 분이 「앞 결제가 안 됐다」로 읽는다 · 「다시 결제」 안내 금지(두 번 결제된다)
-  // 「몇 분 안에 적용」 같은 약속 금지 — 비상 정지·오픈 기념 횟수 넘침도 이 창에 온다(독립 리뷰 11-16)
+  // 「몇 분 안에 적용」 같은 약속 금지 — 비상 정지·첫 결제 혜택 횟수 넘침도 이 창에 온다(독립 리뷰 11-16)
   S14h: ['info', 'ic-info', '이 번호로 방금 한 결제를 확인하고 있습니다', ['앞 결제를 확인하는 중이라 이번 결제는 진행하지 않았습니다. 다시 결제하지 않으셔도 됩니다.', '확인이 끝나면 결제 이메일로 알려 드립니다.', '메일이 오지 않으면 ' + MAIL + '으로 문의해 주세요.'], [['닫기', 1]]],
   S6c: ['info', 'ic-info', '결제되지 않았습니다', ['결제창이 닫혔거나 승인되지 않아 결제가 진행되지 않았습니다.', '요금제를 골라 다시 결제할 수 있습니다.'], [['닫기', 1]]],
   S10b: ['info', 'ic-info', '지금은 정식판 구매를 받지 않고 있습니다', ['이 페이지를 연 사이 구매가 닫혀 결제되지 않았습니다.', '7일 무료 체험은 지금도 이용할 수 있습니다.'], [['닫기', 1]]],
@@ -573,7 +594,7 @@ dlg.addEventListener('click', (e) => {
   else if (t === '새로고침') location.reload();
   else if (t === '계속 결제' && !$('pay').hidden && LIVE && validate()) payLive(true);   // 결제 단추와 같은 입력 확인을 거친다
   else if (t === '이대로 카드 등록' && !$('pay').hidden && AUTO_LIVE) autoGo();   // autoGo도 입력 확인을 다시 거친다
-  else if (t === '자동 결제로 바꾸기' || t === '오픈 기념으로 바꾸기') { setProduct(t === '자동 결제로 바꾸기' ? 'auto' : 'open3auto'); $('agAll').scrollIntoView({ block: 'center', behavior: 'instant' }); setTimeout(() => $('agAll').focus({ preventScroll: true }), 0); }   // 동의 체크가 풀린다 — 다시 받는다
+  else if (t === '자동 결제로 바꾸기' || t === '첫 결제 혜택으로 바꾸기') { setProduct(t === '자동 결제로 바꾸기' ? 'auto' : product === 'monthly' ? 'open3' : 'open3auto'); $('agAll').scrollIntoView({ block: 'center', behavior: 'instant' }); setTimeout(() => $('agAll').focus({ preventScroll: true }), 0); }   // 동의 체크가 풀린다 — 다시 받는다
   else if (t === '카드 변경 칸으로') { show('shop'); if (location.hash === '#pay') history.replaceState(null, '', location.pathname); $('cancel').scrollIntoView({ block: 'start', behavior: 'instant' }); setTimeout(() => $('cardBtn').focus({ preventScroll: true }), 0); }   // 해지·카드 변경 칸은 요금제 화면(#shop)에 있다 — 결제 화면에선 숨어 있다(독립 리뷰 11-23)
 });
 
@@ -663,7 +684,7 @@ const AGAIN = '이후로는 결제되지 않습니다. 만드신 문제는 지�
 function apRenew(j, note = '') {
   const nx = j.next_charge_on, dl = j.deadline, a = won(j.amount_next);
   if (j.state === 'ask') return apShow('자동 결제를 계속할까요?', apNote(note)
-    + `<div class="picked rn-amt"><span class="k">지금</span><span class="was">매달 ${esc(won(j.amount_now))}<small>오픈 기념 ${esc(j.used ?? '')}회 결제 완료 · ${esc(apKDay(dl))}까지</small></span>`
+    + `<div class="picked rn-amt"><span class="k">지금</span><span class="was">매달 ${esc(won(j.amount_now))}<small>첫 결제 혜택 ${esc(j.used ?? '')}회 결제 완료 · ${esc(apKDay(dl))}까지</small></span>`
     + `<span class="k">${esc(apKDay(nx))}부터</span><span class="now">매달 ${esc(a)}<small>월 ${esc(won(Math.round(j.amount_next * 10 / 11)))} + 부가세</small></span></div>`
     + apTerms([['컴퓨터 번호', apMid(j)], ['선택 기한', `<b>${esc(kDayW(dl))} 밤 11시 59분까지</b>`]])
     + `<div class="rn-btns">${apBig('yes', a + '으로 계속하기')}${apBig('no', '계속하지 않기', 'ghost')}</div>`
@@ -680,7 +701,7 @@ function apRenew(j, note = '') {
   if (j.state === 'closed') return apShow('계속하기 기한이 지났습니다', apNote(note)
     + apBand('mute', `${apKDay(dl)}까지 ‘계속하기’를 누르지 않으셔서 자동 결제와 이용권이 종료되었습니다.`, [AGAIN]) + apSmall('shop', '다시 결제하기'));
   if (j.state === 'ended') return apShow('자동 결제가 이미 종료되었습니다', apNote(note) + apBand('mute', '', [AGAIN]) + apSmall('shop', '다시 결제하기'));
-  // none(아직 오픈 기념 회차가 남음 · 이미 바뀐 금액으로 이어지는 중 · 결제일이 30일보다 멂) 과 모르는 값
+  // none(아직 첫 결제 혜택 회차가 남음 · 이미 바뀐 금액으로 이어지는 중 · 결제일이 30일보다 멂) 과 모르는 값
   apShow('지금은 고르실 것이 없습니다', apNote(note)
     + apBand('mute', '', ['자동 결제는 지금처럼 이어집니다. 계속할지 여쭤야 할 때가 되면 메일로 다시 알려 드립니다.']));
 }
